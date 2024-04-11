@@ -5,9 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -28,30 +33,71 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val dice =
-                Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6")))
+            val dices =
+                listOf(
+                    Dice(
+                        listOf(
+                            Layer("1"),
+                            Layer("2"),
+                            Layer("3"),
+                            Layer("4"),
+                            Layer("5"),
+                            Layer("6")
+                        )
+                    ),
+                    Dice(
+                        listOf(
+                            Layer("1"),
+                            Layer("2"),
+                            Layer("3"),
+                            Layer("4"),
+                            Layer("5"),
+                            Layer("6")
+                        )
+                    ),
+                    Dice(
+                        listOf(
+                            Layer("1"),
+                            Layer("2"),
+                            Layer("3"),
+                            Layer("4"),
+                            Layer("5"),
+                            Layer("6")
+                        )
+                    ),
+                    Dice(
+                        listOf(
+                            Layer("1"),
+                            Layer("2"),
+                            Layer("3"),
+                            Layer("4"),
+                            Layer("5"),
+                            Layer("6")
+                        )
+                    ),
+                    Dice(
+                        listOf(
+                            Layer("1"),
+                            Layer("2"),
+                            Layer("3"),
+                            Layer("4"),
+                            Layer("5"),
+                            Layer("6")
+                        )
+                    ),
+                )
             DynamicDicePrototypeTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    DiceView(dice)
+                    DicesView(dices)
                 }
             }
         }
     }
 }
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-
 
 @Composable
 fun DiceView(dice: Dice, modifier: Modifier = Modifier) {
@@ -60,7 +106,6 @@ fun DiceView(dice: Dice, modifier: Modifier = Modifier) {
 
     Box(
         modifier = modifier
-            .background(color = Color.LightGray, shape = RoundedCornerShape(8.dp))
     ) {
         Button(
             onClick = {
@@ -76,14 +121,32 @@ fun DiceView(dice: Dice, modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun DicesView(dices: List<Dice>, modifier: Modifier = Modifier) {
+    // Create a state variable to hold the current value of the dice
+    Column {
+        Text(text = "Bundle Name")
+        LazyVerticalGrid(columns = GridCells.Adaptive(100.dp)) {
+            items(dices) {
+                DiceView(dice = it)
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    val dice =
-        Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6")))
+    val dices =
+        listOf(
+            Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+            Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+            Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+            Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+            Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+        )
 
     DynamicDicePrototypeTheme {
-        DiceView(dice)
-
+        DicesView(dices)
     }
 }
