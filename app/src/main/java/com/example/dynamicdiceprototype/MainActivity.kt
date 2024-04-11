@@ -3,7 +3,12 @@ package com.example.dynamicdiceprototype
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -14,7 +19,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 class MainActivity : ComponentActivity() {
@@ -44,25 +51,39 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
+
+
 @Composable
 fun DiceView(dice: Dice, modifier: Modifier = Modifier) {
     // Create a state variable to hold the current value of the dice
     var diceValue by remember { mutableStateOf(dice.roll()) }
 
-    Button(
-        onClick = {
-            // Roll the dice and update the state variable
-            diceValue = dice.roll()
-        }
+    Box(
+        modifier = modifier
+            .background(color = Color.LightGray, shape = RoundedCornerShape(8.dp))
     ) {
-        // Use the state variable to display the current value of the dice
-        Text(text = "$diceValue")
+        Button(
+            onClick = {
+                // Roll the dice and update the state variable
+                diceValue = dice.roll()
+            },
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            // Use the state variable to display the current value of the dice
+            Text(text = "$diceValue", modifier = Modifier.padding(8.dp))
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
+    val dice =
+        Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6")))
+
     DynamicDicePrototypeTheme {
+        DiceView(dice)
+
     }
 }
