@@ -3,7 +3,7 @@ package com.example.dynamicdiceprototype
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -22,7 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,29 +50,38 @@ fun MyApp() {
   LandingPage(
       dices = dices,
       name = name,
-      onRollClicked = {
-        dices =
-            dices.map { dice ->
-              //            dice.copy(current = dice.roll())
-              dice.roll()
-              dice.copy()
-            }
-      })
+      onRollClicked = { dices = dices.map { dice -> dice.copy(current = dice.roll()) } })
 }
 
 @Composable
-fun DiceView(dice: Dice, modifier: Modifier = Modifier) {
+fun DiceView(dice: Dice, onDiceClick: () -> Unit, modifier: Modifier = Modifier) {
 
-  Box(modifier = Modifier.padding(16.dp).clip(RoundedCornerShape(8.dp))) {
+  Column(horizontalAlignment = Alignment.CenterHorizontally) {
     // Use the state variable to display the current value of the dice
-    Text(text = "${dice.current}", modifier = Modifier.padding(8.dp))
+    Button(
+        onClick = onDiceClick,
+        shape = RoundedCornerShape(4.dp), // Explicitly set the shape here
+        modifier = Modifier.padding(8.dp)) { // Smaller value for less rounded corners
+          Text(
+              text = "${dice.current} ${dice.state}",
+              fontSize = 24.sp,
+              fontWeight = FontWeight.Bold,
+              modifier = Modifier.padding(8.dp))
+        }
   }
 }
 
 @Composable
 fun DicesView(dices: List<Dice>, modifier: Modifier = Modifier) {
-  // Create a state variable to hold the current value of the dice
-  LazyVerticalGrid(columns = GridCells.Adaptive(100.dp)) { items(dices) { DiceView(dice = it) } }
+  LazyVerticalGrid(columns = GridCells.Adaptive(100.dp)) {
+    items(dices) { dice ->
+      // Remember the state of each dice
+      var diceState by remember { mutableStateOf(dice) }
+
+      DiceView(
+          dice = diceState, onDiceClick = { diceState = diceState.copy(state = DiceState.LOCKED) })
+    }
+  }
 }
 
 @Composable
@@ -98,21 +108,11 @@ fun LandingPage(
 
 fun getDices(): List<Dice> {
   return listOf(
-      Dice(
-          Layer("1"),
-          listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-      Dice(
-          Layer("1"),
-          listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-      Dice(
-          Layer("1"),
-          listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-      Dice(
-          Layer("1"),
-          listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-      Dice(
-          Layer("1"),
-          listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+      Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+      Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+      Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+      Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+      Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
   )
 }
 
