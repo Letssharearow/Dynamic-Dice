@@ -6,6 +6,17 @@ data class Dice(
     var state: DiceState = DiceState.UNLOCKED
 ) {
 
+  val id: Int = nextId()
+
+  companion object {
+    private var lastId = 0
+
+    fun nextId(): Int {
+      lastId += 1
+      return lastId
+    }
+  }
+
   init {
     if (current === null) current = roll()
   }
@@ -18,12 +29,4 @@ data class Dice(
 enum class DiceState {
   LOCKED,
   UNLOCKED
-}
-
-data class Contact(var name: Layer, val alias: List<Layer>) {
-  fun randomName(): Layer {
-    val random = alias.random()
-    name = random
-    return random
-  }
 }

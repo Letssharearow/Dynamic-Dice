@@ -1,6 +1,7 @@
 package com.example.dynamicdiceprototype
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -18,8 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,18 +44,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp() {
-  var dices by remember { mutableStateOf(getDices()) }
-  val name = "Julis Cooli Bundle"
-  LandingPage(
-      dices = dices,
-      name = name,
-      onRollClicked = { dices = dices.map { dice -> dice.copy(current = dice.roll()) } })
-}
-
-@Composable
 fun DiceView(dice: Dice, onDiceClick: () -> Unit, modifier: Modifier = Modifier) {
 
+  Log.i("MyApp", "Recompose DiceView dices $dice")
   Column(horizontalAlignment = Alignment.CenterHorizontally) {
     // Use the state variable to display the current value of the dice
     Button(
@@ -72,24 +63,26 @@ fun DiceView(dice: Dice, onDiceClick: () -> Unit, modifier: Modifier = Modifier)
 }
 
 @Composable
-fun DicesView(dices: List<Dice>, modifier: Modifier = Modifier) {
+fun DicesView(dices: List<Dice>, onDiceUpdated: (Dice) -> Unit, modifier: Modifier = Modifier) {
   LazyVerticalGrid(columns = GridCells.Adaptive(100.dp)) {
     items(dices) { dice ->
-      // Remember the state of each dice
-      var diceState by remember { mutableStateOf(dice) }
-
-      DiceView(
-          dice = diceState, onDiceClick = { diceState = diceState.copy(state = DiceState.LOCKED) })
+      DiceView(dice = dice, onDiceClick = { onDiceUpdated(dice.copy(state = DiceState.LOCKED)) })
     }
   }
 }
 
 @Composable
-fun Bundle(dices: List<Dice>, name: String, modifier: Modifier = Modifier) {
+fun Bundle(
+    dices: List<Dice>,
+    onDiceUpdated: (Dice) -> Unit,
+    name: String,
+    modifier: Modifier = Modifier
+) {
   // Create a state variable to hold the current value of the dice
+  Log.i("MyApp", "Recompose Bundle dices $dices")
   Column(horizontalAlignment = Alignment.CenterHorizontally) {
     Text(text = name, fontSize = 36.sp)
-    DicesView(dices)
+    DicesView(dices, onDiceUpdated)
   }
 }
 
@@ -98,22 +91,26 @@ fun LandingPage(
     dices: List<Dice>,
     name: String,
     onRollClicked: () -> Unit,
+    onDiceUpdated: (Dice) -> Unit,
     modifier: Modifier = Modifier
 ) {
+  Log.i("MyApp", "Recompose Landing Page dices $dices")
   Column(horizontalAlignment = Alignment.CenterHorizontally) {
-    Bundle(dices, name)
+    Bundle(dices, onDiceUpdated, name)
     OutlinedButton(onClick = onRollClicked) { Text(text = "roll") }
   }
 }
 
-fun getDices(): List<Dice> {
-  return listOf(
-      Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-      Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-      Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-      Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-      Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-  )
+@Composable
+fun MyApp() {
+  val viewModel by viewModels
+  val dices by viewModel.dices.observeAsState(listOf())
+  val name = "Julis Cooli Bundle"
+  LandingPage(
+      dices = dices,
+      name = name,
+      onRollClicked = { viewModel.rollDices() },
+      onDiceUpdated = { dice -> viewModel.updateDice(dice) })
 }
 
 @Preview(showBackground = true)
