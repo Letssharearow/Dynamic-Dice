@@ -52,4 +52,7 @@ dependencies {
   debugImplementation(libs.androidx.ui.test.manifest)
 
   implementation("androidx.compose.runtime:runtime-livedata:${libs.androidx.compose.bom}")
+  implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
+  //  implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
+  //  implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
 }

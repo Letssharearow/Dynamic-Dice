@@ -3,10 +3,9 @@ package com.example.dynamicdiceprototype
 data class Dice(
     val layers: List<Layer>,
     var current: Layer? = null,
-    var state: DiceState = DiceState.UNLOCKED
+    var state: DiceState = DiceState.UNLOCKED,
+    val id: Int = nextId()
 ) {
-
-  val id: Int = nextId()
 
   companion object {
     private var lastId = 0
