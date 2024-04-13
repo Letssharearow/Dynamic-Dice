@@ -1,20 +1,24 @@
 package com.example.dynamicdiceprototype
 
+import DiceButtonM3
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,18 +53,30 @@ fun DiceView(dice: Dice, modifier: Modifier = Modifier) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
 
   Log.i("MyApp", "Recompose DiceView dices $dice")
-  Column(horizontalAlignment = Alignment.CenterHorizontally) {
-    // Use the state variable to display the current value of the dice
+  Box(contentAlignment = Alignment.Center) {
     Button(
         onClick = { viewModel.lockDice(dice) },
-        shape = RoundedCornerShape(4.dp), // Explicitly set the shape here
-        modifier = Modifier.padding(8.dp)) { // Smaller value for less rounded corners
+        shape = RoundedCornerShape(4.dp),
+        modifier =
+            Modifier.padding(8.dp).graphicsLayer {
+              rotationZ = dice.rotation
+              val scale = 1 / 1.4F
+              scaleX = scale.toFloat()
+              scaleY = scale.toFloat()
+            }) {
           Text(
-              text = "${dice.current} ${dice.state}",
+              text = "${dice.current}",
               fontSize = 24.sp,
               fontWeight = FontWeight.Bold,
               modifier = Modifier.padding(8.dp))
         }
+    // Overlay the lock icon if the dice is LOCKED
+    if (dice.state == DiceState.LOCKED) {
+      Icon(
+          imageVector = Icons.Filled.Lock,
+          contentDescription = "LOCKED",
+          modifier = Modifier.align(Alignment.TopEnd).size(24.dp).padding(4.dp))
+    }
   }
 }
 
@@ -81,16 +98,13 @@ fun Bundle(dices: List<Dice>, name: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LandingPage(
-    dices: List<Dice>,
-    name: String,
-    onRollClicked: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun LandingPage(dices: List<Dice>, name: String, modifier: Modifier = Modifier) {
+  val viewModel: DiceViewModel = viewModel<DiceViewModel>()
+
   Log.i("MyApp", "Recompose Landing Page dices $dices")
   Column(horizontalAlignment = Alignment.CenterHorizontally) {
     Bundle(dices, name)
-    OutlinedButton(onClick = onRollClicked) { Text(text = "roll") }
+    DiceButtonM3(onRollClicked = { viewModel.rollDices() })
   }
 }
 
@@ -101,7 +115,6 @@ fun MyApp() {
   LandingPage(
       dices = viewModel.dicesState,
       name = name,
-      onRollClicked = { viewModel.rollDices() },
   )
 }
 

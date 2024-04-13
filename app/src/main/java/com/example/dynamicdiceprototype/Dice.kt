@@ -1,10 +1,13 @@
 package com.example.dynamicdiceprototype
 
+import kotlin.random.Random
+
 data class Dice(
+    val id: Int = nextId(),
     val layers: List<Layer>,
     var current: Layer? = null,
     var state: DiceState = DiceState.UNLOCKED,
-    val id: Int = nextId()
+    var rotation: Float = 0F,
 ) {
 
   companion object {
@@ -21,6 +24,7 @@ data class Dice(
   }
 
   fun roll(): Layer {
+    rotation = (Random.nextFloat() * (15) * if (Random.nextBoolean()) -1 else 1) + 5
     return layers.random()
   }
 }

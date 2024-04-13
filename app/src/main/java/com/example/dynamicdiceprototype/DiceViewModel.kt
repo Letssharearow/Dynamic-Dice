@@ -1,6 +1,5 @@
 package com.example.dynamicdiceprototype
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,14 +11,14 @@ class DiceViewModel : ViewModel() {
 
   // Function to update a single dice
   fun lockDice(dice: Dice) {
-    Log.i("MyApp", "dicesState updateDice before $dicesState")
     dicesState =
+        // use Map function to trigger recomposition
         dicesState.map {
           if (it == dice) {
-            dice.copy(state = DiceState.LOCKED)
+            // use copy function to trigger recomposition
+            dice.copy(state = DiceState.LOCKED, rotation = 0F)
           } else it
         }
-    Log.i("MyApp", "dicesState updateDice after $dicesState")
   }
 
   // Function to roll the dices
@@ -36,12 +35,24 @@ class DiceViewModel : ViewModel() {
 
   fun getDices(): List<Dice> {
     return listOf(
-        Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-        Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-        Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-        Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-        Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-        Dice(listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+        Dice(
+            layers =
+                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+        Dice(
+            layers =
+                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+        Dice(
+            layers =
+                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+        Dice(
+            layers =
+                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+        Dice(
+            layers =
+                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+        Dice(
+            layers =
+                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
     )
   }
 }
