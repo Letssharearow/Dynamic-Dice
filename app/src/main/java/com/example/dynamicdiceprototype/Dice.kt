@@ -7,7 +7,7 @@ data class Dice(
     val layers: List<Layer>,
     var current: Layer? = null,
     var state: DiceState = DiceState.UNLOCKED,
-    var rotation: Float = 0F,
+    var rotation: Float = ((Random.nextFloat() * (15) + 5) * if (Random.nextBoolean()) -1 else 1),
 ) {
 
   companion object {
@@ -24,7 +24,8 @@ data class Dice(
   }
 
   fun roll(): Layer {
-    rotation = ((Random.nextFloat() * (15) + 5) * if (Random.nextBoolean()) -1 else 1)
+    // always flip to the other side to show that the layer is a new layer
+    rotation = ((Random.nextFloat() * (15) + 5) * if (rotation > 0) -1 else 1)
     return layers.random()
   }
 }

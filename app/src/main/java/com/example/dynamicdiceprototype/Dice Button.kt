@@ -14,9 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.R
 
 @Composable
-fun DiceButtonM3(
-    onRollClicked: () -> Unit,
-) {
+fun DiceButtonM3(onRollClicked: () -> Unit, modifier: Modifier = Modifier) {
   var spinCount by remember { mutableStateOf(0) }
   val infiniteTransition = rememberInfiniteTransition()
   val rotation by
@@ -32,7 +30,8 @@ fun DiceButtonM3(
       },
       shape = RoundedCornerShape(12.dp),
       // Customize colors for your button here
-      colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)) {
+      colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+      modifier = modifier) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.size(50.dp).background(MaterialTheme.colorScheme.secondary)) {

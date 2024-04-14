@@ -10,9 +10,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -31,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -57,25 +57,30 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun DiceView(dice: Dice, modifier: Modifier = Modifier) {
+fun DiceView(dice: Dice, size: Float, modifier: Modifier = Modifier) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
 
   Log.i("MyApp", "Recompose DiceView dices $dice")
-  Box(contentAlignment = Alignment.Center, modifier = modifier) {
+  Box(contentAlignment = Alignment.Center, modifier = modifier.size(size = size.dp)) {
     Button(
         onClick = { viewModel.lockDice(dice) },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
+        contentPadding = PaddingValues(0.dp),
         modifier =
-            Modifier.fillMaxWidth().fillMaxHeight().graphicsLayer {
-              rotationZ = dice.rotation
-              val scale = 1 / 1.4F
-              scaleX = scale
-              scaleY = scale
-            }) {
+            Modifier.aspectRatio(1F)
+                .graphicsLayer {
+                  rotationZ = dice.rotation
+                  val scale = 1 / 1.4F
+                  scaleX = scale
+                  scaleY = scale
+                }
+                .shadow(8.dp, RoundedCornerShape(20.dp))) {
           Image(
-              painter = painterResource(id = dice.current?.imageId ?: 0),
+              painter =
+                  painterResource(
+                      id = dice.current?.imageId ?: 0), // TODO make current not null or something
               contentDescription = dice.current?.data ?: "No Dice",
-              modifier = Modifier.padding(0.dp))
+              modifier = Modifier.fillMaxSize().padding(16.dp))
         }
     if (dice.state == DiceState.LOCKED) {
       Icon(
@@ -86,6 +91,7 @@ fun DiceView(dice: Dice, modifier: Modifier = Modifier) {
   }
 }
 
+// TODO create utils class, add tests
 fun getMaxWidth(count: Int, width: Int, height: Int): Float {
   var currentMaxWidth = 0F
   for (i in 1..count) {
@@ -109,11 +115,8 @@ fun DicesView(dices: List<Dice>, modifier: Modifier = Modifier) {
 
   val maxWidth = getMaxWidth(dices.size, width = screenWidth, height = screenHeight)
 
-  Log.i("MyApp", "screenWidth $screenWidth")
-  Log.i("MyApp", "screenHeight $screenHeight")
-
-  LazyVerticalGrid(columns = GridCells.Adaptive(maxWidth.dp)) {
-    items(dices) { dice -> DiceView(dice = dice, modifier = Modifier.size(maxWidth.dp)) }
+  LazyVerticalGrid(columns = GridCells.Adaptive(minSize = maxWidth.dp)) {
+    items(dices) { dice -> DiceView(dice = dice, size = maxWidth) }
   }
 }
 
@@ -132,9 +135,11 @@ fun LandingPage(dices: List<Dice>, name: String, modifier: Modifier = Modifier) 
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
 
   Log.i("MyApp", "Recompose Landing Page dices $dices")
-  Column(horizontalAlignment = Alignment.CenterHorizontally) {
+  Column() {
     Bundle(dices, name)
-    DiceButtonM3(onRollClicked = { viewModel.rollDices() })
+    DiceButtonM3(
+        onRollClicked = { viewModel.rollDices() },
+        modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 16.dp))
   }
 }
 
