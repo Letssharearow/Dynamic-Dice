@@ -37,22 +37,50 @@ class DiceViewModel : ViewModel() {
     return listOf(
         Dice(
             layers =
-                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+                listOf(
+                    Layer("1", imageId = R.drawable.one_transparent),
+                    Layer("2", imageId = R.drawable.two_transparent),
+                    Layer("3", imageId = R.drawable.three_transparent),
+                    Layer("4", imageId = R.drawable.four_transparent),
+                    Layer("5", imageId = R.drawable.five_transparent),
+                    Layer("6", imageId = R.drawable.six_transparent))),
+        Dice(
+            state = DiceState.LOCKED,
+            layers =
+                listOf(
+                    Layer("1", imageId = R.drawable.one_transparent),
+                    Layer("2", imageId = R.drawable.two_transparent),
+                    Layer("3", imageId = R.drawable.three_transparent),
+                    Layer("4", imageId = R.drawable.four_transparent),
+                    Layer("5", imageId = R.drawable.five_transparent),
+                    Layer("6", imageId = R.drawable.six_transparent))),
         Dice(
             layers =
-                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+                listOf(
+                    Layer("1", imageId = R.drawable.four_weird),
+                    Layer("2", imageId = R.drawable.four_weird),
+                    Layer("3", imageId = R.drawable.four_weird),
+                    Layer("4", imageId = R.drawable.four_weird),
+                    Layer("5", imageId = R.drawable.four_weird),
+                    Layer("6", imageId = R.drawable.four_weird))),
         Dice(
             layers =
-                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+                listOf(
+                    Layer("1", imageId = R.drawable.one_transparent),
+                    Layer("2", imageId = R.drawable.two_transparent),
+                    Layer("3", imageId = R.drawable.three_transparent),
+                    Layer("4", imageId = R.drawable.four_transparent),
+                    Layer("5", imageId = R.drawable.five_transparent),
+                    Layer("6", imageId = R.drawable.six_transparent))),
         Dice(
             layers =
-                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-        Dice(
-            layers =
-                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
-        Dice(
-            layers =
-                listOf(Layer("1"), Layer("2"), Layer("3"), Layer("4"), Layer("5"), Layer("6"))),
+                listOf(
+                    Layer("1", imageId = R.drawable.one_transparent),
+                    Layer("2", imageId = R.drawable.two_transparent),
+                    Layer("3", imageId = R.drawable.three_transparent),
+                    Layer("4", imageId = R.drawable.four_transparent),
+                    Layer("5", imageId = R.drawable.five_transparent),
+                    Layer("6", imageId = R.drawable.six_transparent))),
     )
   }
 }

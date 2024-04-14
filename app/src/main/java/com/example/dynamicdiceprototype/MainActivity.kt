@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,7 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,29 +61,27 @@ fun DiceView(dice: Dice, modifier: Modifier = Modifier) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
 
   Log.i("MyApp", "Recompose DiceView dices $dice")
-  Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth()) {
+  Box(contentAlignment = Alignment.Center, modifier = modifier) {
     Button(
         onClick = { viewModel.lockDice(dice) },
-        shape = RoundedCornerShape(4.dp),
+        shape = RoundedCornerShape(16.dp),
         modifier =
             Modifier.fillMaxWidth().fillMaxHeight().graphicsLayer {
               rotationZ = dice.rotation
               val scale = 1 / 1.4F
-              scaleX = scale.toFloat()
-              scaleY = scale.toFloat()
+              scaleX = scale
+              scaleY = scale
             }) {
-          Text(
-              text = "${dice.current}",
-              fontSize = 24.sp,
-              fontWeight = FontWeight.Bold,
-              modifier = Modifier.padding(8.dp))
+          Image(
+              painter = painterResource(id = dice.current?.imageId ?: 0),
+              contentDescription = dice.current?.data ?: "No Dice",
+              modifier = Modifier.padding(0.dp))
         }
-    // Overlay the lock icon if the dice is LOCKED
     if (dice.state == DiceState.LOCKED) {
       Icon(
           imageVector = Icons.Filled.Lock,
           contentDescription = "LOCKED",
-          modifier = Modifier.align(Alignment.TopEnd).size(24.dp).padding(4.dp))
+          modifier = Modifier.align(Alignment.TopEnd).size(36.dp))
     }
   }
 }

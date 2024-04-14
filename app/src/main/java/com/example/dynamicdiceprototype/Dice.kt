@@ -24,7 +24,7 @@ data class Dice(
   }
 
   fun roll(): Layer {
-    rotation = (Random.nextFloat() * (15) * if (Random.nextBoolean()) -1 else 1) + 5
+    rotation = ((Random.nextFloat() * (15) + 5) * if (Random.nextBoolean()) -1 else 1)
     return layers.random()
   }
 }
