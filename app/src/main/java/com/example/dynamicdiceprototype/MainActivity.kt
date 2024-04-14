@@ -7,7 +7,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -27,12 +29,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import kotlin.math.max
+import kotlin.math.min
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,12 +58,12 @@ fun DiceView(dice: Dice, modifier: Modifier = Modifier) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
 
   Log.i("MyApp", "Recompose DiceView dices $dice")
-  Box(contentAlignment = Alignment.Center) {
+  Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth()) {
     Button(
         onClick = { viewModel.lockDice(dice) },
         shape = RoundedCornerShape(4.dp),
         modifier =
-            Modifier.padding(8.dp).graphicsLayer {
+            Modifier.fillMaxWidth().fillMaxHeight().graphicsLayer {
               rotationZ = dice.rotation
               val scale = 1 / 1.4F
               scaleX = scale.toFloat()
@@ -80,10 +85,34 @@ fun DiceView(dice: Dice, modifier: Modifier = Modifier) {
   }
 }
 
+fun getMaxWidth(count: Int, width: Int, height: Int): Float {
+  var currentMaxWidth = 0F
+  for (i in 1..count) {
+    currentMaxWidth = max(currentMaxWidth, min((height.toFloat() * i) / count, width.toFloat() / i))
+  }
+  return currentMaxWidth
+}
+
+fun main() {
+  println(getMaxWidth(1, 411, 814))
+  println(getMaxWidth(2, 411, 814))
+  println(getMaxWidth(4, 411, 814))
+  println(getMaxWidth(9, 411, 814))
+  println(getMaxWidth(16, 411, 814))
+}
+
 @Composable
 fun DicesView(dices: List<Dice>, modifier: Modifier = Modifier) {
-  LazyVerticalGrid(columns = GridCells.Adaptive(100.dp)) {
-    items(dices) { dice -> DiceView(dice = dice) }
+  val screenWidth = LocalConfiguration.current.screenWidthDp
+  val screenHeight = LocalConfiguration.current.screenHeightDp
+
+  val maxWidth = getMaxWidth(dices.size, width = screenWidth, height = screenHeight)
+
+  Log.i("MyApp", "screenWidth $screenWidth")
+  Log.i("MyApp", "screenHeight $screenHeight")
+
+  LazyVerticalGrid(columns = GridCells.Adaptive(maxWidth.dp)) {
+    items(dices) { dice -> DiceView(dice = dice, modifier = Modifier.size(maxWidth.dp)) }
   }
 }
 
@@ -111,7 +140,7 @@ fun LandingPage(dices: List<Dice>, name: String, modifier: Modifier = Modifier) 
 @Composable
 fun MyApp() {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
-  val name = "Julis Cooli Bundle"
+  val name = "Julis Dice Bundle"
   LandingPage(
       dices = viewModel.dicesState,
       name = name,
