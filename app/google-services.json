@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "275975341955",
+    "project_id": "dynamic-dice",
+    "storage_bucket": "dynamic-dice.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:275975341955:android:8e9052bae67a8cbe3f18b6",
+        "android_client_info": {
+          "package_name": "com.example.dynamicdiceprototype"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtPrlZvxPL-4OIMTz_JYnS8EsuFE8_EHo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

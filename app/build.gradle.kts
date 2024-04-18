@@ -1,6 +1,7 @@
 plugins {
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.jetbrainsKotlinAndroid)
+  id("com.google.gms.google-services")
 }
 
 android {
@@ -55,4 +56,10 @@ dependencies {
   implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
   //  implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
   //  implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+  implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+  implementation("com.google.firebase:firebase-analytics")
+  // Declare the dependency for the Cloud Firestore library
+  // When using the BoM, you don't specify versions in Firebase library dependencies
+  implementation("com.google.firebase:firebase-firestore")
+  implementation("io.coil-kt:coil-compose:1.4.0")
 }

@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 
 // extend ViewModel to survive configuration change (landscape mode)
 class DiceViewModel : ViewModel() {
-  var dicesState by mutableStateOf(getDices(10)) //
+  var dicesState by mutableStateOf(getDices(7)) //
 
   // Function to update a single dice
   fun lockDice(dice: Dice) {
@@ -16,7 +16,11 @@ class DiceViewModel : ViewModel() {
         dicesState.map {
           if (it == dice) {
             // use copy function to trigger recomposition
-            dice.copy(state = DiceState.LOCKED, rotation = 0F)
+            if (dice.state === DiceState.UNLOCKED)
+                dice.copy(state = DiceState.LOCKED, rotation = 0F)
+            else {
+              dice.copy(state = DiceState.UNLOCKED, rotation = 0F)
+            }
           } else it
         }
   }
