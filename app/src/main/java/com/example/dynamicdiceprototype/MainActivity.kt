@@ -1,66 +1,62 @@
 package com.example.dynamicdiceprototype
 
 import LandingPage
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
-import kotlin.io.encoding.Base64
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val firebaseDataStore = FirebaseDataStore()
-    val res = resources
-    val id = R.drawable.two_transparent
-    val bitmap = BitmapFactory.decodeResource(res, id)
-    //    firebaseDataStore.uploadBitmap("two_transparent", bitmap)
-    firebaseDataStore.getBitMapFromDataStore()
+    //    val res = resources
+    //    val ids =
+    //        arrayOf(
+    //            R.drawable.two_transparent,
+    //            R.drawable.three_transparent,
+    //            R.drawable.four_transparent,
+    //            R.drawable.five_transparent,
+    //            R.drawable.six_transparent,
+    //        )
+    //    ids.forEach {
+    //      var bitmap = BitmapFactory.decodeResource(res, it)
+    //      firebaseDataStore.uploadBitmap("$it", bitmap)
+    //    }
+    firebaseDataStore.fetchAndStoreCollection()
 
     setContent {
-      val base64String = firebaseDataStore.image
-      Log.i("MyApp", "base64String $base64String")
+      val imageBitmap = firebaseDataStore.image
+      val images = firebaseDataStore.images
+      Log.i("MyApp", "setContent images ${images.values}")
       DynamicDicePrototypeTheme {
         // A surface container using the 'background' color from the theme
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          ImageFromBase64(base64String = base64String)
-          MyApp()
+          if (imageBitmap != null) {
+            ImageFromBase64(imageBitmap = imageBitmap)
+          }
+          Column { images.values.forEach { ImageFromBase64(imageBitmap = it) } }
+          //          MyApp()
         }
       }
     }
   }
 }
 
-@OptIn(kotlin.io.encoding.ExperimentalEncodingApi::class)
-fun base64ToBitmap(base64String: String): Bitmap {
-  val decodedBytes = Base64.decode(base64String)
-  return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
-}
-
 @Composable
-fun ImageFromBase64(base64String: String) {
-  if (base64String.isEmpty()) {
-    return Text(text = "empty string") // TODO better handling
-  }
-  Log.i("MyApp", "ImageFromBase64 base64String $base64String")
-  val bitmap = base64ToBitmap(base64String)
-  Log.i("MyApp", "bitmap $bitmap")
-  val imageBitmap = bitmap.asImageBitmap()
+fun ImageFromBase64(imageBitmap: ImageBitmap) {
   Log.i("MyApp", "imageBitmap $imageBitmap")
-
   Image(bitmap = imageBitmap, contentDescription = null)
 }
 
