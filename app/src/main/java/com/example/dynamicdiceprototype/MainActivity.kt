@@ -5,14 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
@@ -37,27 +34,24 @@ class MainActivity : ComponentActivity() {
     firebaseDataStore.fetchAndStoreCollection()
 
     setContent {
-      val imageBitmap = firebaseDataStore.image
       val images = firebaseDataStore.images
+      val config = firebaseDataStore.configuration
       Log.i("MyApp", "setContent images ${images.values}")
       DynamicDicePrototypeTheme {
         // A surface container using the 'background' color from the theme
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          if (imageBitmap != null) {
-            ImageFromBase64(imageBitmap = imageBitmap)
-          }
-          Column { images.values.forEach { ImageFromBase64(imageBitmap = it) } }
-          //          MyApp()
+          //          Column { images.values.forEach { ImageFromBase64(imageBitmap = it) } }
+          MyApp()
+          //          config.configuration[config.lastBundle]?.values?.let {
+          //            LandingPage(
+          //                dices = it.toList(),
+          //                name = config.lastBundle,
+          //            )
+          //          }
         }
       }
     }
   }
-}
-
-@Composable
-fun ImageFromBase64(imageBitmap: ImageBitmap) {
-  Log.i("MyApp", "imageBitmap $imageBitmap")
-  Image(bitmap = imageBitmap, contentDescription = null)
 }
 
 @Composable

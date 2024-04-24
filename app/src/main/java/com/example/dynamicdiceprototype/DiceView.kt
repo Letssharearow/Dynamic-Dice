@@ -15,20 +15,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.Dice
 import com.example.dynamicdiceprototype.DiceState
 import com.example.dynamicdiceprototype.DiceViewModel
+import com.example.dynamicdiceprototype.FirebaseDataStore
+
+@Composable
+fun ImageFromBase64(imageBitmap: ImageBitmap, modifier: Modifier = Modifier) {
+  Log.i("MyApp", "imageBitmap $imageBitmap")
+  Image(bitmap = imageBitmap, contentDescription = null, modifier)
+}
 
 @Composable
 fun DiceView(dice: Dice, size: Dp, modifier: Modifier = Modifier) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
 
   Log.i("MyApp", "Recompose DiceView dices $dice")
+  val firebase = FirebaseDataStore()
+  val images = firebase.images
+  val imageBitmap = dice.current?.let { images[it.imageId] }
+
   Box(contentAlignment = Alignment.Center, modifier = modifier.size(size = size)) {
     Button(
         onClick = { viewModel.lockDice(dice) },
@@ -44,12 +55,10 @@ fun DiceView(dice: Dice, size: Dp, modifier: Modifier = Modifier) {
                   scaleY = scale
                 }
                 .shadow(8.dp, RoundedCornerShape(20.dp))) {
-          Image(
-              painter =
-                  painterResource(
-                      id = dice.current?.imageId ?: 0), // TODO make current not null or something
-              contentDescription = dice.current?.data ?: "No Dice",
-              modifier = Modifier.fillMaxSize().padding(16.dp))
+          if (imageBitmap != null) {
+            ImageFromBase64(
+                imageBitmap = imageBitmap, modifier = Modifier.fillMaxSize().padding(16.dp))
+          }
         }
     if (dice.state == DiceState.LOCKED) {
       LockIcon(modifier = Modifier.align(Alignment.TopEnd).size(36.dp))
