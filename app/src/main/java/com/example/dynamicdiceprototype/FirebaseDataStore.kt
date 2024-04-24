@@ -13,6 +13,7 @@ import com.google.firebase.firestore.firestore
 import java.io.ByteArrayOutputStream
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlinx.coroutines.flow.flow
 
 val TAG = "MyApp"
 val COLLECTIONNAME = "images"
@@ -21,10 +22,32 @@ class FirebaseDataStore {
   val db = Firebase.firestore
   var image by mutableStateOf<ImageBitmap?>(null)
   var images by mutableStateOf(mutableMapOf<String, ImageBitmap>())
+  val imagesFlow =
+      flow<Map<String, ImageBitmap>> {
+        val map = mutableMapOf<String, ImageBitmap>()
+        val collectionRef = Firebase.firestore.collection(COLLECTIONNAME)
+        collectionRef
+            .get()
+            .addOnSuccessListener { documents ->
+              for (document in documents) {
+                val documentId = document.id
+                val documentData =
+                    document.data[documentId] as? String
+                        ?: continue // Replace with your actual field name
+                Log.d(TAG, "$documentId => $documentData")
+                map[documentId] = base64ToBitmap(documentData).asImageBitmap()
+              }
+              Log.i(TAG, "Images2 map from firebase ${map.keys}")
+            }
+            .addOnFailureListener { exception ->
+              // Handle any errors here
+            }
+        emit(map)
+      }
 
-  var configuration: Configuration = Configuration()
-
-  init {}
+  init {
+    fetchAndStoreCollection()
+  }
 
   // Function to update the map with a new image
   //  fun updateImage(documentId: String, imageUrl: String) {

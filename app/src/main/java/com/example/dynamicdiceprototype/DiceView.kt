@@ -17,13 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.Dice
 import com.example.dynamicdiceprototype.DiceState
 import com.example.dynamicdiceprototype.DiceViewModel
-import com.example.dynamicdiceprototype.FirebaseDataStore
+import com.example.dynamicdiceprototype.R
 
 @Composable
 fun ImageFromBase64(imageBitmap: ImageBitmap, modifier: Modifier = Modifier) {
@@ -36,9 +37,7 @@ fun DiceView(dice: Dice, size: Dp, modifier: Modifier = Modifier) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
 
   Log.i("MyApp", "Recompose DiceView dices $dice")
-  val firebase = FirebaseDataStore()
-  val images = firebase.images
-  val imageBitmap = dice.current?.let { images[it.imageId] }
+  val imageBitmap = dice.current?.data
 
   Box(contentAlignment = Alignment.Center, modifier = modifier.size(size = size)) {
     Button(
@@ -58,6 +57,11 @@ fun DiceView(dice: Dice, size: Dp, modifier: Modifier = Modifier) {
           if (imageBitmap != null) {
             ImageFromBase64(
                 imageBitmap = imageBitmap, modifier = Modifier.fillMaxSize().padding(16.dp))
+          } else {
+            Image(
+                painter = painterResource(id = R.drawable.ic_launcher_background),
+                contentDescription =
+                    dice.current?.imageId ?: "no Image found") // TODO String reference
           }
         }
     if (dice.state == DiceState.LOCKED) {

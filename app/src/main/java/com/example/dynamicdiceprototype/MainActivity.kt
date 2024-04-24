@@ -35,19 +35,12 @@ class MainActivity : ComponentActivity() {
 
     setContent {
       val images = firebaseDataStore.images
-      val config = firebaseDataStore.configuration
       Log.i("MyApp", "setContent images ${images.values}")
       DynamicDicePrototypeTheme {
         // A surface container using the 'background' color from the theme
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           //          Column { images.values.forEach { ImageFromBase64(imageBitmap = it) } }
           MyApp()
-          //          config.configuration[config.lastBundle]?.values?.let {
-          //            LandingPage(
-          //                dices = it.toList(),
-          //                name = config.lastBundle,
-          //            )
-          //          }
         }
       }
     }

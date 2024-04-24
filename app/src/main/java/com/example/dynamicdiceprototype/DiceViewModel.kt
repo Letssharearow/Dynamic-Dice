@@ -4,10 +4,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 // extend ViewModel to survive configuration change (landscape mode)
 class DiceViewModel : ViewModel() {
+  val firebase = FirebaseDataStore()
+  var configuration: Configuration = Configuration()
   var dicesState by mutableStateOf(getDices(7)) //
+
+  init {
+    collectFlow()
+  }
+
+  private fun collectFlow() {
+    viewModelScope.launch { firebase.imagesFlow.collect { images -> dicesState = getDices(20) } }
+  }
 
   // Function to update a single dice
   fun lockDice(dice: Dice) {
@@ -43,23 +56,23 @@ class DiceViewModel : ViewModel() {
             Dice(
                 layers =
                     listOf(
-                        Layer("1", imageId = "${R.drawable.one_transparent}"),
-                        Layer("2", imageId = "${R.drawable.two_transparent}"),
-                        Layer("3", imageId = "${R.drawable.three_transparent}"),
-                        Layer("4", imageId = "${R.drawable.four_transparent}"),
-                        Layer("5", imageId = "${R.drawable.five_transparent}"),
-                        Layer("6", imageId = "${R.drawable.six_transparent}"))))
+                        Layer(imageId = "${R.drawable.one_transparent}"),
+                        Layer(imageId = "${R.drawable.two_transparent}"),
+                        Layer(imageId = "${R.drawable.three_transparent}"),
+                        Layer(imageId = "${R.drawable.four_transparent}"),
+                        Layer(imageId = "${R.drawable.five_transparent}"),
+                        Layer(imageId = "${R.drawable.six_transparent}"))))
     for (i in 1..n) {
       list.add(
           Dice(
               layers =
                   listOf(
-                      Layer("1", imageId = "${R.drawable.one_transparent}"),
-                      Layer("2", imageId = "${R.drawable.two_transparent}"),
-                      Layer("3", imageId = "${R.drawable.three_transparent}"),
-                      Layer("4", imageId = "${R.drawable.four_transparent}"),
-                      Layer("5", imageId = "${R.drawable.five_transparent}"),
-                      Layer("6", imageId = "${R.drawable.six_transparent}"))))
+                      Layer(imageId = "${R.drawable.one_transparent}"),
+                      Layer(imageId = "${R.drawable.two_transparent}"),
+                      Layer(imageId = "${R.drawable.three_transparent}"),
+                      Layer(imageId = "${R.drawable.four_transparent}"),
+                      Layer(imageId = "${R.drawable.five_transparent}"),
+                      Layer(imageId = "${R.drawable.six_transparent}"))))
     }
     return list
   }
