@@ -1,3 +1,5 @@
+package com.example.dynamicdiceprototype.composables
+
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,7 +18,6 @@ import com.example.dynamicdiceprototype.R
 @Composable
 fun DiceButtonM3(onRollClicked: () -> Unit, modifier: Modifier = Modifier) {
   var spinCount by remember { mutableStateOf(0) }
-  val infiniteTransition = rememberInfiniteTransition()
   val rotation by
       animateFloatAsState(
           targetValue = 900f * spinCount,

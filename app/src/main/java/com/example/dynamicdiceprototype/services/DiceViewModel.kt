@@ -1,13 +1,16 @@
-package com.example.dynamicdiceprototype
+package com.example.dynamicdiceprototype.services
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.map
+import com.example.dynamicdiceprototype.R
+import com.example.dynamicdiceprototype.data.Configuration
+import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.DiceState
+import com.example.dynamicdiceprototype.data.Layer
 import kotlinx.coroutines.launch
 
 // extend ViewModel to survive configuration change (landscape mode)
@@ -29,7 +32,6 @@ class DiceViewModel : ViewModel() {
   private fun collectFlow() {
     viewModelScope.launch {
       firebase.imagesFlow.collect { images ->
-        Log.i("MyApp", "images collectFlow ${images.keys}")
         val dices = configuration.configuration[configuration.lastBundle]
         if (dices != null) dicesState = diceMapToList(dices, images)
       }
@@ -65,17 +67,7 @@ class DiceViewModel : ViewModel() {
   }
 
   fun getDices(n: Int = 5): List<Dice> {
-    val list =
-        mutableListOf(
-            Dice(
-                layers =
-                    listOf(
-                        Layer(imageId = "${R.drawable.one_transparent}"),
-                        Layer(imageId = "${R.drawable.two_transparent}"),
-                        Layer(imageId = "${R.drawable.three_transparent}"),
-                        Layer(imageId = "${R.drawable.four_transparent}"),
-                        Layer(imageId = "${R.drawable.five_transparent}"),
-                        Layer(imageId = "${R.drawable.six_transparent}"))))
+    val list = mutableListOf<Dice>()
     for (i in 1..n) {
       list.add(
           Dice(

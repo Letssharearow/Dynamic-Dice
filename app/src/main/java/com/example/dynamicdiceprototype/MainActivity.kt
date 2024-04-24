@@ -1,6 +1,5 @@
 package com.example.dynamicdiceprototype
 
-import LandingPage
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,24 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.dynamicdiceprototype.composables.LandingPage
+import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    //    val res = resources
-    //    val ids =
-    //        arrayOf(
-    //            R.drawable.two_transparent,
-    //            R.drawable.three_transparent,
-    //            R.drawable.four_transparent,
-    //            R.drawable.five_transparent,
-    //            R.drawable.six_transparent,
-    //        )
-    //    ids.forEach {
-    //      var bitmap = BitmapFactory.decodeResource(res, it)
-    //      firebaseDataStore.uploadBitmap("$it", bitmap)
-    //    }
 
     setContent {
       DynamicDicePrototypeTheme {

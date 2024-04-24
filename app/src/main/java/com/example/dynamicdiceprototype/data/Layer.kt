@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype
+package com.example.dynamicdiceprototype.data
 
 import androidx.compose.ui.graphics.ImageBitmap
 

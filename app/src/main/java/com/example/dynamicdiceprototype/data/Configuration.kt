@@ -1,4 +1,6 @@
-package com.example.dynamicdiceprototype
+package com.example.dynamicdiceprototype.data
+
+import com.example.dynamicdiceprototype.R
 
 class Configuration {
 
