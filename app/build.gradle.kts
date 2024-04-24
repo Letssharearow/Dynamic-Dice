@@ -62,4 +62,9 @@ dependencies {
   // When using the BoM, you don't specify versions in Firebase library dependencies
   implementation("com.google.firebase:firebase-firestore")
   implementation("io.coil-kt:coil-compose:1.4.0")
+
+  // Flow
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
 }

@@ -20,7 +20,7 @@ data class Dice(
   }
 
   init {
-    if (current === null) current = roll()
+    if (current === null || !layers.contains(current)) current = roll()
   }
 
   fun roll(): Layer {

@@ -2,7 +2,6 @@ package com.example.dynamicdiceprototype
 
 import LandingPage
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +16,6 @@ import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    val firebaseDataStore = FirebaseDataStore()
     //    val res = resources
     //    val ids =
     //        arrayOf(
@@ -31,11 +29,8 @@ class MainActivity : ComponentActivity() {
     //      var bitmap = BitmapFactory.decodeResource(res, it)
     //      firebaseDataStore.uploadBitmap("$it", bitmap)
     //    }
-    firebaseDataStore.fetchAndStoreCollection()
 
     setContent {
-      val images = firebaseDataStore.images
-      Log.i("MyApp", "setContent images ${images.values}")
       DynamicDicePrototypeTheme {
         // A surface container using the 'background' color from the theme
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {

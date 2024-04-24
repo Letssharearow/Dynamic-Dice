@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.tasks.await
 
 val TAG = "MyApp"
 val COLLECTIONNAME = "images"
@@ -42,12 +43,11 @@ class FirebaseDataStore {
             .addOnFailureListener { exception ->
               // Handle any errors here
             }
+            .await()
         emit(map)
       }
 
-  init {
-    fetchAndStoreCollection()
-  }
+  init {}
 
   // Function to update the map with a new image
   //  fun updateImage(documentId: String, imageUrl: String) {
@@ -56,7 +56,7 @@ class FirebaseDataStore {
   //  }
 
   // Function to fetch and store the collection from Firebase
-  fun fetchAndStoreCollection() {
+  suspend fun fetchAndStoreCollection() {
     val map = mutableMapOf<String, ImageBitmap>()
     val collectionRef = Firebase.firestore.collection(COLLECTIONNAME)
     collectionRef
@@ -76,6 +76,7 @@ class FirebaseDataStore {
         .addOnFailureListener { exception ->
           // Handle any errors here
         }
+        .await()
   }
 
   fun uploadBitmap(key: String, bitmap: Bitmap) {

@@ -1,8 +1,10 @@
 package com.example.dynamicdiceprototype
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.map
@@ -18,8 +20,20 @@ class DiceViewModel : ViewModel() {
     collectFlow()
   }
 
+  private fun diceMapToList(map: Map<String, Dice>, images: Map<String, ImageBitmap>): List<Dice> {
+    return map.values.map { dice ->
+      dice.copy(layers = dice.layers.map { layer -> layer.copy(data = images[layer.imageId]) })
+    }
+  }
+
   private fun collectFlow() {
-    viewModelScope.launch { firebase.imagesFlow.collect { images -> dicesState = getDices(20) } }
+    viewModelScope.launch {
+      firebase.imagesFlow.collect { images ->
+        Log.i("MyApp", "images collectFlow ${images.keys}")
+        val dices = configuration.configuration[configuration.lastBundle]
+        if (dices != null) dicesState = diceMapToList(dices, images)
+      }
+    }
   }
 
   // Function to update a single dice
