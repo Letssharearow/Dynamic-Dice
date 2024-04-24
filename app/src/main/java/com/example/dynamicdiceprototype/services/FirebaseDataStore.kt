@@ -56,7 +56,7 @@ class FirebaseDataStore {
   }
 
   @OptIn(ExperimentalEncodingApi::class)
-  private fun base64ToBitmap(base64String: String): Bitmap {
+  fun base64ToBitmap(base64String: String): Bitmap {
     val decodedBytes = Base64.decode(base64String)
     return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
   }

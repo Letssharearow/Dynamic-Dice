@@ -30,7 +30,7 @@ import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.TAG
 
 @Composable
-fun ImageFromBase64(imageBitmap: ImageBitmap, modifier: Modifier = Modifier) {
+fun ImageBitmap(imageBitmap: ImageBitmap, modifier: Modifier = Modifier) {
   Image(bitmap = imageBitmap, contentDescription = null, modifier)
 }
 
@@ -57,8 +57,7 @@ fun DiceView(dice: Dice, size: Dp, modifier: Modifier = Modifier) {
                 }
                 .shadow(8.dp, RoundedCornerShape(20.dp))) {
           if (imageBitmap != null) {
-            ImageFromBase64(
-                imageBitmap = imageBitmap, modifier = Modifier.fillMaxSize().padding(16.dp))
+            ImageBitmap(imageBitmap = imageBitmap, modifier = Modifier.fillMaxSize().padding(16.dp))
           } else {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_background),
