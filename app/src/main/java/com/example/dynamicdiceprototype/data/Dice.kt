@@ -1,13 +1,16 @@
 package com.example.dynamicdiceprototype.data
 
+import androidx.compose.ui.graphics.Color
 import kotlin.random.Random
 
 data class Dice(
     val id: Int = nextId(),
-    val layers: List<Layer>,
+    val name: String = "diceName",
+    val layers: Array<Layer>,
     var current: Layer? = null,
     var state: DiceState = DiceState.UNLOCKED,
     var rotation: Float = ((Random.nextFloat() * (15) + 5) * if (Random.nextBoolean()) -1 else 1),
+    var backgroundColor: Color = Color(0xFFCCCCCC)
 ) {
 
   companion object {
@@ -20,7 +23,7 @@ data class Dice(
   }
 
   init {
-    if (current === null || !layers.contains(current)) current = roll()
+    if ((current === null || !layers.contains(current)) && layers.isNotEmpty()) current = roll()
   }
 
   fun roll(): Layer {

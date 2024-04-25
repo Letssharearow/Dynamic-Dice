@@ -18,6 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.dynamicdiceprototype.composables.CreateDiceNavGraph
 import com.example.dynamicdiceprototype.composables.ImageBitmap
 import com.example.dynamicdiceprototype.composables.LandingPage
 import com.example.dynamicdiceprototype.services.DiceViewModel
@@ -28,13 +29,12 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val res = resources
-    uploadRessources(res)
+    //    uploadRessources(res)
 
     setContent {
       DynamicDicePrototypeTheme {
         // A surface container using the 'background' color from the theme
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          //          Column { images.values.forEach { ImageFromBase64(imageBitmap = it) } }
           MyApp()
         }
       }
@@ -83,7 +83,7 @@ fun MyApp() {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val name = "Julis Dice Bundle"
 
-  NavHost(navController, startDestination = Screen.MainScreen.route) {
+  NavHost(navController, startDestination = Screen.CreateDice.route) {
     composable(route = Screen.MainScreen.route) {}
     composable(route = "home") {
       LandingPage(
@@ -91,7 +91,7 @@ fun MyApp() {
           name = name,
       ) // TODO refactor this
     }
-    composable(route = Screen.CreateDice.route) { DiceCreationView() }
+    composable(route = Screen.CreateDice.route) { CreateDiceNavGraph(viewModel) }
   }
 }
 
