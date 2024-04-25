@@ -34,9 +34,7 @@ object DiceViewModel : ViewModel() {
 
   private fun diceMapToList(map: Map<String, Dice>, images: Map<String, ImageModel>): List<Dice> {
     return map.values.map { dice ->
-      dice.copy(
-          layers =
-              dice.layers.map { layer -> layer.copy(data = images[layer.imageId]) }.toTypedArray())
+      dice.copy(layers = dice.layers.map { layer -> layer.copy(data = images[layer.imageId]) })
     }
   }
 
@@ -84,7 +82,7 @@ object DiceViewModel : ViewModel() {
       list.add(
           Dice(
               layers =
-                  arrayOf(
+                  listOf(
                       Layer(imageId = "${R.drawable.one_transparent}"),
                       Layer(imageId = "${R.drawable.two_transparent}"),
                       Layer(imageId = "${R.drawable.three_transparent}"),

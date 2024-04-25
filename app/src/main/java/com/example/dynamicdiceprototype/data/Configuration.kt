@@ -11,13 +11,13 @@ class Configuration {
                   "6er" to
                       Dice(
                           layers =
-                              arrayOf(
+                              listOf(
                                   Layer(imageId = "${R.drawable.three_transparent}"),
                                   Layer(imageId = "${R.drawable.rukaiya_rectangular}"))),
                   "6er2" to
                       Dice(
                           layers =
-                              arrayOf(
+                              listOf(
                                   Layer(imageId = "${R.drawable.one_transparent}"),
                                   Layer(imageId = "${R.drawable.two_transparent}"),
                                   Layer(imageId = "${R.drawable.three_transparent}"),
