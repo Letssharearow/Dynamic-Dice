@@ -26,12 +26,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
+import com.example.dynamicdiceprototype.data.ImageModel
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.TAG
 
 @Composable
-fun ImageBitmap(imageBitmap: ImageBitmap, modifier: Modifier = Modifier) {
-  Image(bitmap = imageBitmap, contentDescription = null, modifier)
+fun ImageBitmap(image: ImageModel, modifier: Modifier = Modifier) {
+  Image(bitmap = image.imageBitmap, contentDescription = image.contentDescription, modifier)
 }
 
 @Composable
@@ -39,7 +40,7 @@ fun DiceView(dice: Dice, size: Dp, modifier: Modifier = Modifier) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
 
   Log.d(TAG, "Recompose DiceView dice => $dice")
-  val imageBitmap = dice.current?.data
+  val image = dice.current?.data
 
   Box(contentAlignment = Alignment.Center, modifier = modifier.size(size = size)) {
     Button(
@@ -56,8 +57,8 @@ fun DiceView(dice: Dice, size: Dp, modifier: Modifier = Modifier) {
                   scaleY = scale
                 }
                 .shadow(8.dp, RoundedCornerShape(20.dp))) {
-          if (imageBitmap != null) {
-            ImageBitmap(imageBitmap = imageBitmap, modifier = Modifier.fillMaxSize().padding(16.dp))
+          if (image != null) {
+            ImageBitmap(image = image, modifier = Modifier.fillMaxSize().padding(16.dp))
           } else {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_background),

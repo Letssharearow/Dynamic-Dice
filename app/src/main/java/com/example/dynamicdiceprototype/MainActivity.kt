@@ -1,5 +1,7 @@
 package com.example.dynamicdiceprototype
 
+import android.content.res.Resources
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,11 +21,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.composables.ImageBitmap
 import com.example.dynamicdiceprototype.composables.LandingPage
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    val res = resources
+    uploadRessources(res)
 
     setContent {
       DynamicDicePrototypeTheme {
@@ -37,12 +42,37 @@ class MainActivity : ComponentActivity() {
   }
 }
 
+fun uploadRessources(res: Resources) {
+  val firbase = FirebaseDataStore()
+  data class ImageModelSetDTO(val image: Int, val name: String)
+  val ids =
+      arrayOf<ImageModelSetDTO>(
+          ImageModelSetDTO(image = R.drawable.rukaiya_rectangular, name = "rukaiya_rectangular"),
+          ImageModelSetDTO(image = R.drawable.two_transparent, name = "two_transparent"),
+          ImageModelSetDTO(image = R.drawable.one_transparent, name = "one_transparent"),
+          ImageModelSetDTO(image = R.drawable.three_transparent, name = "three_transparent"),
+          ImageModelSetDTO(image = R.drawable.four_transparent, name = "four_transparent"),
+          ImageModelSetDTO(image = R.drawable.five_transparent, name = "five_transparent"),
+          ImageModelSetDTO(image = R.drawable.six_transparent, name = "six_transparent"))
+  ids.forEach {
+    var bitmap = BitmapFactory.decodeResource(res, it.image)
+    firbase.uploadBitmap(
+        "${it.image}",
+        name = it.name,
+        bitmap = bitmap) // TODO find out why changing the "name" to something else than Id breaks
+  }
+}
+
 @Composable
 fun DiceCreationView() {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val map = viewModel.imageMap
   Column(Modifier.verticalScroll(state = ScrollState(0))) {
-    map.values.map { ImageBitmap(imageBitmap = it) }
+    map.values.map {
+      ImageBitmap(
+          image = it,
+      )
+    }
   }
 }
 
@@ -53,7 +83,7 @@ fun MyApp() {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val name = "Julis Dice Bundle"
 
-  NavHost(navController, startDestination = Screen.CreateDice.route) {
+  NavHost(navController, startDestination = Screen.MainScreen.route) {
     composable(route = Screen.MainScreen.route) {}
     composable(route = "home") {
       LandingPage(
