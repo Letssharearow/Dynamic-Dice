@@ -6,8 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -80,22 +80,18 @@ fun CreateDiceNavGraph(imagesViewModel: DiceViewModel) {
 @Composable
 fun TemplateSelectionScreen(viewModel: DiceCreationViewModel, onCreateNewDice: () -> Unit) {
 
-  Column(
-      modifier = Modifier.fillMaxSize(),
-      verticalArrangement = Arrangement.SpaceBetween,
-      horizontalAlignment = Alignment.CenterHorizontally) {
-        //
-        LazyColumn() {
-          items(viewModel.templates) { template ->
-            // Display each template and handle selection
-            Button(onClick = onCreateNewDice, modifier = Modifier.padding(top = 16.dp)) {
-              Text(template.name)
-            }
-          }
+  ArrangedColumn {
+    LazyColumn() {
+      items(viewModel.templates) { template ->
+        // Display each template and handle selection
+        Button(onClick = onCreateNewDice, modifier = Modifier.padding(top = 16.dp)) {
+          Text(template.name)
         }
-
-        ContinueButton(onClick = onCreateNewDice, text = "Next")
       }
+    }
+
+    ContinueButton(onClick = onCreateNewDice, text = "Next")
+  }
 }
 
 @Composable
@@ -105,36 +101,33 @@ fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateName: () ->
   var numLayers by remember { mutableStateOf("") }
   // Display the list of templates
   // TODO Add some cool pictures or something
-  Column(
-      modifier = Modifier.fillMaxHeight().padding(horizontal = 16.dp),
-      verticalArrangement = Arrangement.Center,
-      horizontalAlignment = Alignment.CenterHorizontally) {
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Dice Name") },
-            modifier = Modifier.fillMaxWidth())
+  ArrangedColumn {
+    TextField(
+        value = name,
+        onValueChange = { name = it },
+        label = { Text("Dice Name") },
+        modifier = Modifier.fillMaxWidth())
 
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = numLayers,
-            onValueChange = { numLayers = if (it.isDigitsOnly()) it else numLayers },
-            label = { Text("Layers Count") },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth())
+    Spacer(modifier = Modifier.height(16.dp))
+    TextField(
+        value = numLayers,
+        onValueChange = { numLayers = if (it.isDigitsOnly()) it else numLayers },
+        label = { Text("Layers Count") },
+        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+        modifier = Modifier.fillMaxWidth())
 
-        Spacer(modifier = Modifier.height(16.dp))
+    Spacer(modifier = Modifier.height(16.dp))
 
-        ContinueButton(
-            onClick = {
-              if (name.isNotEmpty() && numLayers.isNotEmpty()) {
+    ContinueButton(
+        onClick = {
+          if (name.isNotEmpty() && numLayers.isNotEmpty()) {
 
-                viewModel.createNewDice(name, numLayers.toInt())
-                onCreateName()
-              }
-            },
-            text = "Next")
-      }
+            viewModel.createNewDice(name, numLayers.toInt())
+            onCreateName()
+          }
+        },
+        text = "Next")
+  }
 }
 
 @Composable
@@ -150,59 +143,56 @@ fun SelectLayersScreen(
   val images = imagesViewModel.imageMap
 
   // Display the list of images for the user to select
-  Column(
-      modifier = Modifier.fillMaxSize().padding(16.dp),
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.SpaceBetween) {
-        LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1F)) {
-          items(items = images.toList()) { (key, image) ->
-            val matchingLayer = layers[key]
-            val imageIsSelected = matchingLayer != null
-            val weight = matchingLayer?.weight?.toFloat() ?: 1F
-            BoxWithConstraints(
-                modifier =
-                    Modifier.clickable {
-                      val layer = layers[key]
-                      if (layer == null) layers[key] = Layer(imageId = key, data = image)
-                      else layers.remove((key))
-                    }) {
-                  val width = constraints.maxWidth
-                  val density = LocalDensity.current
-                  val maxWidthDp = with(density) { width.toDp() }
+  ArrangedColumn {
+    LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1F)) {
+      items(items = images.toList()) { (key, image) ->
+        val matchingLayer = layers[key]
+        val imageIsSelected = matchingLayer != null
+        val weight = matchingLayer?.weight?.toFloat() ?: 1F
+        BoxWithConstraints(
+            modifier =
+                Modifier.clickable {
+                  val layer = layers[key]
+                  if (layer == null) layers[key] = Layer(imageId = key, data = image)
+                  else layers.remove((key))
+                }) {
+              val width = constraints.maxWidth
+              val density = LocalDensity.current
+              val maxWidthDp = with(density) { width.toDp() }
 
-                  if (imageIsSelected) {
-                    Icon(
-                        imageVector = Icons.Filled.Check,
-                        contentDescription = "Checked",
-                        modifier = Modifier.align(Alignment.TopEnd))
-                  }
-                  ImageBitmap(image = image, modifier = Modifier.size(maxWidthDp).padding(16.dp))
-                  if (imageIsSelected) {
-                    Slider(
-                        value = weight,
-                        onValueChange = { value ->
-                          val layer = layers[key]
-                          if (layer != null) layers[key] = layer.copy(weight = value.toInt())
-                        },
-                        valueRange = 1f..size.toFloat(),
-                        steps = size,
-                        modifier =
-                            Modifier.align(Alignment.BottomCenter)
-                                .padding(8.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.secondaryContainer))
-                  }
-                }
-            // Display the image selection for each layer
-          }
-        }
-        ContinueButton(
-            onClick = {
-              viewModel.updateSelectedLayers(layers)
-              onLayersSelectionClick()
-            },
-            text = "Next: (${layers.values.sumOf {it.weight} ?:0} / $size)")
+              if (imageIsSelected) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = "Checked",
+                    modifier = Modifier.align(Alignment.TopEnd))
+              }
+              ImageBitmap(image = image, modifier = Modifier.size(maxWidthDp).padding(16.dp))
+              if (imageIsSelected) {
+                Slider(
+                    value = weight,
+                    onValueChange = { value ->
+                      val layer = layers[key]
+                      if (layer != null) layers[key] = layer.copy(weight = value.toInt())
+                    },
+                    valueRange = 1f..size.toFloat(),
+                    steps = size,
+                    modifier =
+                        Modifier.align(Alignment.BottomCenter)
+                            .padding(8.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.secondaryContainer))
+              }
+            }
+        // Display the image selection for each layer
       }
+    }
+    ContinueButton(
+        onClick = {
+          viewModel.updateSelectedLayers(layers)
+          onLayersSelectionClick()
+        },
+        text = "Next: (${layers.values.sumOf {it.weight} ?:0} / $size)")
+  }
 }
 
 @Composable
@@ -210,20 +200,25 @@ fun EditTemplateScreen(viewModel: DiceCreationViewModel, onSaveDice: () -> Unit)
   val dice = viewModel.dice
   val layers = dice.layers
 
-  Column(
-      modifier = Modifier.fillMaxSize(),
-      verticalArrangement = Arrangement.SpaceBetween,
-      Alignment.CenterHorizontally) {
-        OneScreenGrid(items = layers, minSize = 10F, modifier = Modifier.weight(1F)) {
-            item,
-            maxWidth ->
-          LayerView(layer = item, size = maxWidth)
-        }
-        ContinueButton(onClick = onSaveDice, text = "Save Dice")
-      }
+  ArrangedColumn {
+    OneScreenGrid(items = layers, minSize = 10F, modifier = Modifier.weight(1F)) { item, maxWidth ->
+      LayerView(layer = item, size = maxWidth)
+    }
+    ContinueButton(onClick = onSaveDice, text = "Save Dice")
+  }
 }
 
 @Composable
 fun ContinueButton(onClick: () -> Unit, text: String) {
   Button(modifier = Modifier.padding(16.dp), onClick = onClick) { Text(text, fontSize = 24.sp) }
+}
+
+@Composable
+fun ArrangedColumn(content: @Composable ColumnScope.() -> Unit) {
+  Column(
+      modifier = Modifier.fillMaxSize(),
+      verticalArrangement = Arrangement.SpaceBetween,
+      horizontalAlignment = Alignment.CenterHorizontally) {
+        content()
+      }
 }
