@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -12,10 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -27,11 +29,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,10 +45,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.Screen
-import com.example.dynamicdiceprototype.data.ImageModel
 import com.example.dynamicdiceprototype.data.Layer
 import com.example.dynamicdiceprototype.services.DiceCreationViewModel
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import getMaxWidth
 
 @Composable
 fun CreateDiceNavGraph(imagesViewModel: DiceViewModel) {
@@ -51,7 +56,7 @@ fun CreateDiceNavGraph(imagesViewModel: DiceViewModel) {
 
   val navController = rememberNavController()
 
-  NavHost(navController, startDestination = Screen.SelectLayers.route) {
+  NavHost(navController, startDestination = Screen.Templates.route) {
     composable(route = Screen.Templates.route) {
       TemplateSelectionScreen(viewModel) { navController.navigate(Screen.CreateNewTemplate.route) }
     }
@@ -96,7 +101,7 @@ fun TemplateSelectionScreen(viewModel: DiceCreationViewModel, onCreateNewDice: (
 @Composable
 fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateNewDice: () -> Unit) {
 
-  var name by remember { mutableStateOf("") }
+  var name by remember { mutableStateOf("Change Later") }
   var numLayers by remember { mutableStateOf("") }
   // Display the list of templates
   // TODO Add some cool pictures or something
@@ -138,91 +143,93 @@ fun SelectLayersScreen(
     onCreateNewDice: () -> Unit
 ) {
   // Display the list of templates
-  val dice = viewModel.dice ?: return
+  var layers = remember { mutableStateMapOf<String, Layer>() }
+
   val size = viewModel.layersSize
   val images = imagesViewModel.imageMap
-  val selection by remember { mutableStateOf(mutableMapOf<String, ImageModel>()) }
 
   // Display the list of images for the user to select
   Column(
       modifier = Modifier.fillMaxSize().padding(16.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.SpaceBetween) {
-        LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Fixed(2), modifier = Modifier.weight(1F)) {
-              items(items = images.toList()) { (key, image) ->
-                val isSelected = dice.layers.find { it.imageId == key } != null
-                Column {
-                  Box(
-                      modifier =
-                          Modifier.fillMaxSize().clickable {
-                            if (selection[key] != null) {
-                              selection.remove(key)
-                            } else {
-                              selection[key] = image
-                            }
-                            viewModel.updateSelectedImages(
-                                selection.map { Layer(data = it.value, imageId = it.key) })
-                          }) {
-                        ImageBitmap(image = image, modifier = Modifier.padding(16.dp))
-                        if (isSelected) {
-                          Icon(
-                              imageVector = Icons.Filled.Check,
-                              contentDescription = "Checked",
-                              modifier = Modifier)
-                        }
-                        if (isSelected)
-                            Slider(
-                                value =
-                                    dice.layers.find { it.imageId == key }?.weight?.toFloat() ?: 1F,
-                                onValueChange = {
-                                  viewModel.changeWeight(weight = it.toInt(), imageId = key)
-                                },
-                                valueRange = 1f..size.toFloat(),
-                                steps = size,
-                                modifier =
-                                    Modifier.fillMaxWidth()
-                                        .align(Alignment.BottomCenter)
-                                        .background(MaterialTheme.colorScheme.background),
-                            )
-                      }
+        LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1F)) {
+          items(items = images.toList()) { (key, image) ->
+            val matchingLayer = layers[key]
+            val imageIsSelected = matchingLayer != null
+            val weight = matchingLayer?.weight?.toFloat() ?: 1F
+            Box(
+                modifier =
+                    Modifier.fillMaxSize().clickable {
+                      val layer = layers[key]
+                      if (layer == null) layers[key] = Layer(imageId = key, data = image)
+                      else layers.remove((key))
+                    }) {
+                  if (imageIsSelected) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "Checked",
+                        modifier = Modifier.align(Alignment.TopEnd))
+                  }
+                  ImageBitmap(image = image, modifier = Modifier.fillMaxSize().padding(16.dp))
+                  if (imageIsSelected) {
+                    Slider(
+                        value = weight,
+                        onValueChange = { value ->
+                          val layer = layers[key]
+                          if (layer != null) layers[key] = layer.copy(weight = value.toInt())
+                        },
+                        valueRange = 1f..size.toFloat(),
+                        steps = size,
+                        modifier =
+                            Modifier.align(Alignment.Center)
+                                .padding(8.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.secondaryContainer))
+                  }
                 }
-                // Display the image selection for each layer
-              }
-            }
+            // Display the image selection for each layer
+          }
+        }
         Button(
             modifier = Modifier.padding(16.dp),
             onClick = {
+              viewModel.updateSelectedLayers(layers)
               // Update the selected images in the view model
-              viewModel.updateSelectedImages(listOf())
               onCreateNewDice() // TODO name
             }) {
-              Text("Next: (${dice.layers.sumOf {it.weight} ?:0} / $size)", fontSize = 24.sp)
+              Text("Next: (${layers.values.sumOf {it.weight} ?:0} / $size)", fontSize = 24.sp)
             }
       }
 }
 
 @Composable
 fun EditTemplateScreen(viewModel: DiceCreationViewModel, onSaveDice: () -> Unit) {
-  val dice = viewModel.dice ?: return
+  val dice = viewModel.dice
+  val layers = dice.layers
 
-  // Display the dice with the selected images and background color
-  Box(modifier = Modifier.fillMaxSize().background(dice.backgroundColor)) {
-    // Display the dice layers
+  BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    val density = LocalDensity.current
+    val maxWidthPixels =
+        getMaxWidth(layers.size, width = constraints.maxWidth, height = constraints.maxHeight)
+    val maxWidthDp = with(density) { maxWidthPixels.toDp() }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween,
+        Alignment.CenterHorizontally) {
+          LazyVerticalGrid(
+              columns = GridCells.Adaptive(minSize = if (maxWidthDp == 0.dp) 1.dp else maxWidthDp),
+              modifier = Modifier.weight(1F)) {
+                items(layers) { layer -> LayerView(layer = layer, size = maxWidthDp) }
+              }
+          Button(
+              onClick = {
+                viewModel.saveDice()
+                onSaveDice()
+              }) {
+                Text("Save Dice")
+              }
+        }
   }
-
-  //    ColorPicker(
-  //        selectedColor = dice.backgroundColor,
-  //        onColorSelected = { color ->
-  //            viewModel.updateBackgroundColor(color)
-  //        }
-  //    )
-
-  Button(
-      onClick = {
-        viewModel.saveDice()
-        onSaveDice()
-      }) {
-        Text("Save Dice")
-      }
 }

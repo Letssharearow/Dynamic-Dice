@@ -4,7 +4,25 @@ import com.example.dynamicdiceprototype.R
 
 class Configuration {
 
-  val bundles: Map<String, List<String>> = hashMapOf("Kniffel" to listOf("6er", "6er2"))
+  val bundles: Map<String, List<String>> =
+      hashMapOf(
+          "Kniffel" to
+              listOf(
+                  "6er",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2"))
   val dices: Map<String, Dice> =
       hashMapOf(
           "6er" to

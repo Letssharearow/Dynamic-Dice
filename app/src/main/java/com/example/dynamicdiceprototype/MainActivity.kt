@@ -83,7 +83,7 @@ fun MyApp() {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val name = "Julis Dice Bundle"
 
-  NavHost(navController, startDestination = Screen.CreateDice.route) {
+  NavHost(navController, startDestination = Screen.MainScreen.route) {
     composable(route = Screen.MainScreen.route) {}
     composable(route = "home") {
       LandingPage(

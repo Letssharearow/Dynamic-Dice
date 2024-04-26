@@ -18,8 +18,8 @@ class DiceCreationViewModel(dices: Map<String, Dice>) : ViewModel() {
     dice = Dice(name = name, layers = listOf())
   }
 
-  fun updateSelectedImages(images: List<Layer>) {
-    dice = dice.copy(layers = images)
+  fun updateSelectedLayers(layers: Map<String, Layer>) {
+    dice = dice.copy(layers = layers.values.toList())
   }
 
   fun updateBackgroundColor(color: Color) {

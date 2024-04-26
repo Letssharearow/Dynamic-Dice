@@ -27,6 +27,7 @@ import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.ImageModel
+import com.example.dynamicdiceprototype.data.Layer
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.TAG
 
@@ -68,6 +69,22 @@ fun DiceView(dice: Dice, size: Dp, modifier: Modifier = Modifier) {
         }
     if (dice.state == DiceState.LOCKED) {
       LockIcon(modifier = Modifier.align(Alignment.TopEnd).size(36.dp))
+    }
+  }
+}
+
+@Composable
+fun LayerView(layer: Layer, size: Dp, modifier: Modifier = Modifier) {
+  Log.d(TAG, "Recompose DiceView dice => $layer")
+  val image = layer.data
+
+  Box(contentAlignment = Alignment.Center, modifier = modifier.size(size = size)) {
+    if (image != null) {
+      ImageBitmap(image = image, modifier = Modifier.fillMaxSize().padding(16.dp))
+    } else {
+      Image(
+          painter = painterResource(id = R.drawable.ic_launcher_background),
+          contentDescription = "no Image") // TODO String reference
     }
   }
 }
