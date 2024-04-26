@@ -12,7 +12,7 @@ sealed class Screen(val route: String) {
 
   object CreateNewTemplate : Screen("$createDiceRoute/newTemplate")
 
-  object SelectLayers : Screen("$createDiceRoute/layers")
+  object SelectFaces : Screen("$createDiceRoute/faces")
 
   object EditTemplate : Screen("$createDiceRoute/templates/edit")
 

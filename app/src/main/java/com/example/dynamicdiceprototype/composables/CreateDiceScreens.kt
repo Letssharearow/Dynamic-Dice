@@ -52,7 +52,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.Screen
 import com.example.dynamicdiceprototype.data.Dice
-import com.example.dynamicdiceprototype.data.Layer
+import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.DiceCreationViewModel
 import com.example.dynamicdiceprototype.services.DiceViewModel
 
@@ -67,10 +67,10 @@ fun CreateDiceNavGraph(imagesViewModel: DiceViewModel) {
       TemplateSelectionScreen(viewModel) { navController.navigate(Screen.CreateNewTemplate.route) }
     }
     composable(route = Screen.CreateNewTemplate.route) {
-      TemplateCreationScreen(viewModel) { navController.navigate(Screen.SelectLayers.route) }
+      TemplateCreationScreen(viewModel) { navController.navigate(Screen.SelectFaces.route) }
     }
-    composable(route = Screen.SelectLayers.route) {
-      SelectLayersScreen(viewModel, imagesViewModel) {
+    composable(route = Screen.SelectFaces.route) {
+      SelectFacesScreen(viewModel, imagesViewModel) {
         navController.navigate(Screen.EditTemplate.route)
       }
     }
@@ -90,13 +90,13 @@ fun DiceCard(dice: Dice) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
           Text(text = dice.name, style = MaterialTheme.typography.displayLarge, color = Color.Black)
           Spacer(modifier = Modifier.height(8.dp))
-          Text(text = "Layers (${dice.layers.size}):", style = MaterialTheme.typography.bodyLarge)
+          Text(text = "Faces (${dice.faces.size}):", style = MaterialTheme.typography.bodyLarge)
           LazyVerticalGrid(
               columns = GridCells.Adaptive(20.dp),
               modifier = Modifier.heightIn(max = 40.dp).padding(top = 4.dp) // Set a max height
               ) {
-                items(dice.layers) { layer ->
-                  Box(Modifier.padding(end = 3.dp)) { LayerView(layer, 20.dp) }
+                items(dice.faces) { face ->
+                  Box(Modifier.padding(end = 3.dp)) { FaceView(face, 20.dp) }
                 }
               }
         }
@@ -123,7 +123,7 @@ fun TemplateSelectionScreen(viewModel: DiceCreationViewModel, onCreateNewDice: (
 fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateName: () -> Unit) {
 
   var name by remember { mutableStateOf("Change Later") }
-  var numLayers by remember { mutableStateOf("") }
+  var numFaces by remember { mutableStateOf("") }
   // Display the list of templates
   // TODO Add some cool pictures or something
   ArrangedColumn {
@@ -135,16 +135,16 @@ fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateName: () ->
           modifier = Modifier.fillMaxWidth())
       Spacer(modifier = Modifier.height(16.dp))
       TextField(
-          value = numLayers,
-          onValueChange = { numLayers = if (it.isDigitsOnly()) it else numLayers },
-          label = { Text("Layers Count") },
+          value = numFaces,
+          onValueChange = { numFaces = if (it.isDigitsOnly()) it else numFaces },
+          label = { Text("Faces Count") },
           keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
           modifier = Modifier.fillMaxWidth())
     }
     ContinueButton(
         onClick = {
-          if (name.isNotEmpty() && numLayers.isNotEmpty()) {
-            viewModel.createNewDice(name, numLayers.toInt())
+          if (name.isNotEmpty() && numFaces.isNotEmpty()) {
+            viewModel.createNewDice(name, numFaces.toInt())
             onCreateName()
           }
         },
@@ -153,30 +153,30 @@ fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateName: () ->
 }
 
 @Composable
-fun SelectLayersScreen(
+fun SelectFacesScreen(
     viewModel: DiceCreationViewModel,
     imagesViewModel: DiceViewModel,
-    onLayersSelectionClick: () -> Unit
+    onFacesSelectionClick: () -> Unit
 ) {
   // Display the list of templates
-  var layers = remember { mutableStateMapOf<String, Layer>() }
+  var faces = remember { mutableStateMapOf<String, Face>() }
 
-  val size = viewModel.layersSize
+  val size = viewModel.facesSize
   val images = imagesViewModel.imageMap
 
   // Display the list of images for the user to select
   ArrangedColumn {
     LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1F)) {
       items(items = images.toList()) { (key, image) ->
-        val matchingLayer = layers[key]
-        val imageIsSelected = matchingLayer != null
-        val weight = matchingLayer?.weight?.toFloat() ?: 1F
+        val matchingFace = faces[key]
+        val imageIsSelected = matchingFace != null
+        val weight = matchingFace?.weight?.toFloat() ?: 1F
         BoxWithConstraints(
             modifier =
                 Modifier.clickable {
-                  val layer = layers[key]
-                  if (layer == null) layers[key] = Layer(imageId = key, data = image)
-                  else layers.remove((key))
+                  val face = faces[key]
+                  if (face == null) faces[key] = Face(imageId = key, data = image)
+                  else faces.remove((key))
                 }) {
               val width = constraints.maxWidth
               val density = LocalDensity.current
@@ -193,8 +193,8 @@ fun SelectLayersScreen(
                 Slider(
                     value = weight,
                     onValueChange = { value ->
-                      val layer = layers[key]
-                      if (layer != null) layers[key] = layer.copy(weight = value.toInt())
+                      val face = faces[key]
+                      if (face != null) faces[key] = face.copy(weight = value.toInt())
                     },
                     valueRange = 1f..size.toFloat(),
                     steps = size,
@@ -205,26 +205,26 @@ fun SelectLayersScreen(
                             .background(MaterialTheme.colorScheme.secondaryContainer))
               }
             }
-        // Display the image selection for each layer
+        // Display the image selection for each face
       }
     }
     ContinueButton(
         onClick = {
-          viewModel.updateSelectedLayers(layers)
-          onLayersSelectionClick()
+          viewModel.updateSelectedFaces(faces)
+          onFacesSelectionClick()
         },
-        text = "Next: (${layers.values.sumOf {it.weight} ?:0} / $size)")
+        text = "Next: (${faces.values.sumOf {it.weight} ?:0} / $size)")
   }
 }
 
 @Composable
 fun EditTemplateScreen(viewModel: DiceCreationViewModel, onSaveDice: () -> Unit) {
   val dice = viewModel.dice
-  val layers = dice.layers
+  val faces = dice.faces
 
   ArrangedColumn {
-    OneScreenGrid(items = layers, minSize = 10F, modifier = Modifier.weight(1F)) { item, maxWidth ->
-      LayerView(layer = item, size = maxWidth)
+    OneScreenGrid(items = faces, minSize = 10F, modifier = Modifier.weight(1F)) { item, maxWidth ->
+      FaceView(face = item, size = maxWidth)
     }
     ContinueButton(onClick = onSaveDice, text = "Save Dice")
   }

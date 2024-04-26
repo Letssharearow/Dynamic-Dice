@@ -6,8 +6,8 @@ import kotlin.random.Random
 data class Dice(
     val id: Int = nextId(),
     val name: String = "diceName",
-    val layers: List<Layer>,
-    var current: Layer? = null,
+    val faces: List<Face>,
+    var current: Face? = null,
     var state: DiceState = DiceState.UNLOCKED,
     var rotation: Float = ((Random.nextFloat() * (15) + 5) * if (Random.nextBoolean()) -1 else 1),
     var backgroundColor: Color = Color(0xFFCCCCCC)
@@ -23,13 +23,13 @@ data class Dice(
   }
 
   init {
-    if ((current === null || !layers.contains(current)) && layers.isNotEmpty()) current = roll()
+    if ((current === null || !faces.contains(current)) && faces.isNotEmpty()) current = roll()
   }
 
-  fun roll(): Layer {
-    // always flip to the other side to show that the layer is a new layer
+  fun roll(): Face {
+    // always flip to the other side to show that the face is a new face
     rotation = ((Random.nextFloat() * (15) + 5) * if (rotation > 0) -1 else 1)
-    return layers.random()
+    return faces.random()
   }
 }
 

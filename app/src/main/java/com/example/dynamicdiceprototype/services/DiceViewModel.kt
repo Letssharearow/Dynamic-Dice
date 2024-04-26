@@ -9,8 +9,8 @@ import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Configuration
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
+import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.ImageModel
-import com.example.dynamicdiceprototype.data.Layer
 import kotlinx.coroutines.launch
 
 // extend ViewModel to survive configuration change (landscape mode)
@@ -34,7 +34,7 @@ object DiceViewModel : ViewModel() {
 
   private fun diceMapToList(dices: List<Dice>, images: Map<String, ImageModel>): List<Dice> {
     return dices.map { dice ->
-      dice.copy(layers = dice.layers.map { layer -> layer.copy(data = images[layer.imageId]) })
+      dice.copy(faces = dice.faces.map { face -> face.copy(data = images[face.imageId]) })
     }
   }
 
@@ -45,7 +45,7 @@ object DiceViewModel : ViewModel() {
         val bundle = configuration.bundles[configuration.lastBundle]
         val dices =
             bundle?.map { key ->
-              configuration.dices[key] ?: Dice(layers = listOf())
+              configuration.dices[key] ?: Dice(faces = listOf())
             } // TODO better handling for null Dice
         if (dices != null) dicesState = diceMapToList(dices, images)
       }
@@ -85,14 +85,14 @@ object DiceViewModel : ViewModel() {
     for (i in 1..n) {
       list.add(
           Dice(
-              layers =
+              faces =
                   listOf(
-                      Layer(imageId = "${R.drawable.one_transparent}"),
-                      Layer(imageId = "${R.drawable.two_transparent}"),
-                      Layer(imageId = "${R.drawable.three_transparent}"),
-                      Layer(imageId = "${R.drawable.four_transparent}"),
-                      Layer(imageId = "${R.drawable.five_transparent}"),
-                      Layer(imageId = "${R.drawable.six_transparent}"))))
+                      Face(imageId = "${R.drawable.one_transparent}"),
+                      Face(imageId = "${R.drawable.two_transparent}"),
+                      Face(imageId = "${R.drawable.three_transparent}"),
+                      Face(imageId = "${R.drawable.four_transparent}"),
+                      Face(imageId = "${R.drawable.five_transparent}"),
+                      Face(imageId = "${R.drawable.six_transparent}"))))
     }
     return list
   }

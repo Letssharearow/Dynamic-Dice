@@ -26,8 +26,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
+import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.ImageModel
-import com.example.dynamicdiceprototype.data.Layer
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.TAG
 
@@ -74,9 +74,9 @@ fun DiceView(dice: Dice, size: Dp, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LayerView(layer: Layer, size: Dp, modifier: Modifier = Modifier) {
-  Log.d(TAG, "Recompose DiceView dice => $layer")
-  val image = layer.data
+fun FaceView(face: Face, size: Dp, modifier: Modifier = Modifier) {
+  Log.d(TAG, "Recompose DiceView dice => $face")
+  val image = face.data
 
   Box(contentAlignment = Alignment.Center, modifier = modifier.size(size = size)) {
     if (image != null) {

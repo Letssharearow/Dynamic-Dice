@@ -6,20 +6,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.example.dynamicdiceprototype.data.Dice
-import com.example.dynamicdiceprototype.data.Layer
+import com.example.dynamicdiceprototype.data.Face
 
 class DiceCreationViewModel(dices: Map<String, Dice>) : ViewModel() {
-  var dice by mutableStateOf<Dice>(Dice(layers = listOf()))
+  var dice by mutableStateOf<Dice>(Dice(faces = listOf()))
   var templates by mutableStateOf<List<Dice>>(dices.values.toList())
-  var layersSize by mutableStateOf<Int>(20)
+  var facesSize by mutableStateOf<Int>(20)
 
-  fun createNewDice(name: String, numLayers: Int) {
-    layersSize = numLayers
-    dice = Dice(name = name, layers = listOf())
+  fun createNewDice(name: String, numFaces: Int) {
+    facesSize = numFaces
+    dice = Dice(name = name, faces = listOf())
   }
 
-  fun updateSelectedLayers(layers: Map<String, Layer>) {
-    dice = dice.copy(layers = layers.values.toList())
+  fun updateSelectedFaces(faces: Map<String, Face>) {
+    dice = dice.copy(faces = faces.values.toList())
   }
 
   fun updateBackgroundColor(color: Color) {
@@ -33,7 +33,6 @@ class DiceCreationViewModel(dices: Map<String, Dice>) : ViewModel() {
   fun changeWeight(weight: Int, imageId: String) {
     dice =
         dice.copy(
-            layers =
-                dice.layers.map { if (it.imageId == imageId) it.copy(weight = weight) else it })
+            faces = dice.faces.map { if (it.imageId == imageId) it.copy(weight = weight) else it })
   }
 }
