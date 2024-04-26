@@ -4,15 +4,18 @@ import OneScreenGrid
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -23,6 +26,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -37,7 +41,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,6 +52,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.Screen
+import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Layer
 import com.example.dynamicdiceprototype.services.DiceCreationViewModel
 import com.example.dynamicdiceprototype.services.DiceViewModel
@@ -78,19 +85,58 @@ fun CreateDiceNavGraph(imagesViewModel: DiceViewModel) {
 }
 
 @Composable
+fun Template(template: Dice, onClick: () -> Unit) {
+  Button(onClick = onClick, modifier = Modifier.padding(top = 16.dp)) { Text(template.name) }
+}
+
+@Composable
+fun DiceCard(dice: Dice) {
+  Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp)) {
+    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+      Text(
+          text = dice.name,
+          style = MaterialTheme.typography.headlineSmall,
+          fontWeight = FontWeight.Bold)
+
+      Box(modifier = Modifier.fillMaxWidth().height(48.dp).background(dice.backgroundColor))
+
+      Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        for (layer in dice.layers) {
+          LayerView(layer, size = 20.dp)
+        }
+      }
+    }
+  }
+}
+
+@Composable
+fun DiceLayerItem(layerName: String) {
+  Box(
+      modifier =
+          Modifier.width(64.dp)
+              .height(64.dp)
+              .background(color = Color.LightGray, shape = RoundedCornerShape(8.dp)),
+      contentAlignment = Alignment.Center) {
+        Text(
+            text = layerName,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Bold)
+      }
+}
+
+@Composable
 fun TemplateSelectionScreen(viewModel: DiceCreationViewModel, onCreateNewDice: () -> Unit) {
 
   ArrangedColumn {
     LazyColumn() {
       items(viewModel.templates) { template ->
         // Display each template and handle selection
-        Button(onClick = onCreateNewDice, modifier = Modifier.padding(top = 16.dp)) {
-          Text(template.name)
+        Box(modifier = Modifier.padding(top = 16.dp).clickable { onCreateNewDice() }) {
+          DiceCard(template)
         }
       }
     }
-
-    ContinueButton(onClick = onCreateNewDice, text = "Next")
+    ContinueButton(onClick = onCreateNewDice, text = "Create New Dice")
   }
 }
 
@@ -102,26 +148,23 @@ fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateName: () ->
   // Display the list of templates
   // TODO Add some cool pictures or something
   ArrangedColumn {
-    TextField(
-        value = name,
-        onValueChange = { name = it },
-        label = { Text("Dice Name") },
-        modifier = Modifier.fillMaxWidth())
-
-    Spacer(modifier = Modifier.height(16.dp))
-    TextField(
-        value = numLayers,
-        onValueChange = { numLayers = if (it.isDigitsOnly()) it else numLayers },
-        label = { Text("Layers Count") },
-        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-        modifier = Modifier.fillMaxWidth())
-
-    Spacer(modifier = Modifier.height(16.dp))
-
+    Column(Modifier.padding(16.dp)) {
+      TextField(
+          value = name,
+          onValueChange = { name = it },
+          label = { Text("Dice Name") },
+          modifier = Modifier.fillMaxWidth())
+      Spacer(modifier = Modifier.height(16.dp))
+      TextField(
+          value = numLayers,
+          onValueChange = { numLayers = if (it.isDigitsOnly()) it else numLayers },
+          label = { Text("Layers Count") },
+          keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+          modifier = Modifier.fillMaxWidth())
+    }
     ContinueButton(
         onClick = {
           if (name.isNotEmpty() && numLayers.isNotEmpty()) {
-
             viewModel.createNewDice(name, numLayers.toInt())
             onCreateName()
           }
