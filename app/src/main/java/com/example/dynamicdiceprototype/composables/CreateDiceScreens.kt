@@ -1,18 +1,21 @@
 package com.example.dynamicdiceprototype.composables
 
 import OneScreenGrid
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
@@ -55,6 +59,8 @@ import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.DiceCreationViewModel
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.getFaces
+import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
 fun CreateDiceNavGraph(imagesViewModel: DiceViewModel) {
@@ -86,21 +92,51 @@ fun CreateDiceNavGraph(imagesViewModel: DiceViewModel) {
 @Composable
 fun DiceCard(dice: Dice) {
   Surface(
-      modifier = Modifier.padding(16.dp), shadowElevation = 8.dp, color = dice.backgroundColor) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-          Text(text = dice.name, style = MaterialTheme.typography.displayLarge, color = Color.Black)
-          Spacer(modifier = Modifier.height(8.dp))
-          Text(text = "Faces (${dice.faces.size}):", style = MaterialTheme.typography.bodyLarge)
-          LazyVerticalGrid(
-              columns = GridCells.Adaptive(20.dp),
-              modifier = Modifier.heightIn(max = 40.dp).padding(top = 4.dp) // Set a max height
-              ) {
-                items(dice.faces) { face ->
-                  Box(Modifier.padding(end = 3.dp)) { FaceView(face, 20.dp) }
-                }
-              }
-        }
+      shadowElevation = 8.dp,
+      color = dice.backgroundColor,
+      modifier =
+          Modifier.padding(8.dp)
+              .border(
+                  BorderStroke(2.dp, MaterialTheme.colorScheme.secondary),
+                  RoundedCornerShape(16.dp))
+              .clip(RoundedCornerShape(16.dp))) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(16.dp).background(dice.backgroundColor)) {
+              Text(
+                  text = dice.name,
+                  style = MaterialTheme.typography.displayLarge,
+                  color = Color.Black,
+                  modifier = Modifier.fillMaxWidth(0.66F).padding(16.dp))
+              Spacer(modifier = Modifier.width(8.dp))
+              Box(
+                  Modifier.fillMaxWidth()
+                      .aspectRatio(1f)
+                      .border(BorderStroke(2.dp, Color.Gray), RoundedCornerShape(16.dp))
+                      .clip(RoundedCornerShape(16.dp))) {
+                    OneScreenGrid(
+                        items = dice.faces,
+                        minSize = 10f,
+                    ) { face, maxWidthDp ->
+                      FaceView(
+                          face,
+                          maxWidthDp,
+                          Modifier.border(BorderStroke(1.dp, Color.Gray), RoundedCornerShape(4.dp))
+                              .clip(RoundedCornerShape(4.dp)))
+                    }
+                    Text(
+                        text = "${dice.faces.size}",
+                        style = MaterialTheme.typography.displayLarge,
+                        modifier = Modifier.align(Alignment.Center))
+                  }
+            }
       }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+  DynamicDicePrototypeTheme { DiceCard(dice = Dice(faces = getFaces(20))) }
 }
 
 @Composable

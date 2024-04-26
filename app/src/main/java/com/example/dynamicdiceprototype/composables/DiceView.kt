@@ -80,11 +80,12 @@ fun FaceView(face: Face, size: Dp, modifier: Modifier = Modifier) {
 
   Box(contentAlignment = Alignment.Center, modifier = modifier.size(size = size)) {
     if (image != null) {
-      ImageBitmap(image = image, modifier = Modifier.fillMaxSize().padding(size.div(8)))
+      ImageBitmap(image = image, modifier = Modifier.fillMaxSize().padding(size.div(10)))
     } else {
       Image(
           painter = painterResource(id = R.drawable.ic_launcher_background),
-          contentDescription = "no Image") // TODO String reference
+          contentDescription = "no Image",
+          modifier = Modifier.fillMaxSize().padding(size.div(10))) // TODO String reference
     }
   }
 }

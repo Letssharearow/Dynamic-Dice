@@ -79,21 +79,29 @@ object DiceViewModel : ViewModel() {
           }
         }
   }
+}
 
-  fun getDices(n: Int = 5): List<Dice> {
-    val list = mutableListOf<Dice>()
-    for (i in 1..n) {
-      list.add(
-          Dice(
-              faces =
-                  listOf(
-                      Face(imageId = "${R.drawable.one_transparent}"),
-                      Face(imageId = "${R.drawable.two_transparent}"),
-                      Face(imageId = "${R.drawable.three_transparent}"),
-                      Face(imageId = "${R.drawable.four_transparent}"),
-                      Face(imageId = "${R.drawable.five_transparent}"),
-                      Face(imageId = "${R.drawable.six_transparent}"))))
-    }
-    return list
+fun getFaces(n: Int): List<Face> {
+  val list = mutableListOf<Face>()
+  for (i in 1..n) {
+    list.add(Face(imageId = "${R.drawable.six_transparent}"))
   }
+  return list
+}
+
+fun getDices(n: Int = 5): List<Dice> {
+  val list = mutableListOf<Dice>()
+  for (i in 1..n) {
+    list.add(
+        Dice(
+            faces =
+                listOf(
+                    Face(imageId = "${R.drawable.one_transparent}"),
+                    Face(imageId = "${R.drawable.two_transparent}"),
+                    Face(imageId = "${R.drawable.three_transparent}"),
+                    Face(imageId = "${R.drawable.four_transparent}"),
+                    Face(imageId = "${R.drawable.five_transparent}"),
+                    Face(imageId = "${R.drawable.six_transparent}"))))
+  }
+  return list
 }
