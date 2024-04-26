@@ -32,8 +32,8 @@ object DiceViewModel : ViewModel() {
     collectFlow()
   }
 
-  private fun diceMapToList(map: Map<String, Dice>, images: Map<String, ImageModel>): List<Dice> {
-    return map.values.map { dice ->
+  private fun diceMapToList(dices: List<Dice>, images: Map<String, ImageModel>): List<Dice> {
+    return dices.map { dice ->
       dice.copy(layers = dice.layers.map { layer -> layer.copy(data = images[layer.imageId]) })
     }
   }
@@ -42,7 +42,11 @@ object DiceViewModel : ViewModel() {
     viewModelScope.launch {
       firebase.imagesFlow.collect { images ->
         imageMap = images
-        val dices = configuration.configuration[configuration.lastBundle]
+        val bundle = configuration.bundles[configuration.lastBundle]
+        val dices =
+            bundle?.map { key ->
+              configuration.dices[key] ?: Dice(layers = listOf())
+            } // TODO better handling for null Dice
         if (dices != null) dicesState = diceMapToList(dices, images)
       }
     }
