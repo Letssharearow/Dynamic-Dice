@@ -27,8 +27,7 @@ class DiceCreationViewModel(dices: Map<String, Dice>) : ViewModel() {
   }
 
   fun saveDice() {
-    // Save the dice to the templates list
-    templates = templates + (dice ?: return)
+    templates = templates + dice
   }
 
   fun changeWeight(weight: Int, imageId: String) {

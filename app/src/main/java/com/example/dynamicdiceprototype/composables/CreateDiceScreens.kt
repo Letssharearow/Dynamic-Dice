@@ -1,9 +1,9 @@
 package com.example.dynamicdiceprototype.composables
 
+import OneScreenGrid
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -48,7 +49,6 @@ import com.example.dynamicdiceprototype.Screen
 import com.example.dynamicdiceprototype.data.Layer
 import com.example.dynamicdiceprototype.services.DiceCreationViewModel
 import com.example.dynamicdiceprototype.services.DiceViewModel
-import getMaxWidth
 
 @Composable
 fun CreateDiceNavGraph(imagesViewModel: DiceViewModel) {
@@ -69,7 +69,10 @@ fun CreateDiceNavGraph(imagesViewModel: DiceViewModel) {
       }
     }
     composable(route = Screen.EditTemplate.route) {
-      EditTemplateScreen(viewModel) { navController.navigate(Screen.EditTemplate.route) }
+      EditTemplateScreen(viewModel) {
+        navController.navigate(Screen.Templates.route)
+        viewModel.saveDice()
+      }
     }
   }
 }
@@ -91,15 +94,12 @@ fun TemplateSelectionScreen(viewModel: DiceCreationViewModel, onCreateNewDice: (
           }
         }
 
-        Button(
-            onClick = onCreateNewDice, modifier = Modifier.padding(bottom = 16.dp, top = 16.dp)) {
-              Text("Create New Dice")
-            }
+        ContinueButton(onClick = onCreateNewDice, text = "Next")
       }
 }
 
 @Composable
-fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateNewDice: () -> Unit) {
+fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateName: () -> Unit) {
 
   var name by remember { mutableStateOf("Change Later") }
   var numLayers by remember { mutableStateOf("") }
@@ -125,14 +125,15 @@ fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateNewDice: ()
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
+        ContinueButton(
             onClick = {
-              if (name.isEmpty() || numLayers.isEmpty()) return@Button
-              viewModel.createNewDice(name, numLayers.toInt())
-              onCreateNewDice()
-            }) {
-              Text("Next")
-            }
+              if (name.isNotEmpty() && numLayers.isNotEmpty()) {
+
+                viewModel.createNewDice(name, numLayers.toInt())
+                onCreateName()
+              }
+            },
+            text = "Next")
       }
 }
 
@@ -140,7 +141,7 @@ fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateNewDice: ()
 fun SelectLayersScreen(
     viewModel: DiceCreationViewModel,
     imagesViewModel: DiceViewModel,
-    onCreateNewDice: () -> Unit
+    onLayersSelectionClick: () -> Unit
 ) {
   // Display the list of templates
   var layers = remember { mutableStateMapOf<String, Layer>() }
@@ -158,20 +159,24 @@ fun SelectLayersScreen(
             val matchingLayer = layers[key]
             val imageIsSelected = matchingLayer != null
             val weight = matchingLayer?.weight?.toFloat() ?: 1F
-            Box(
+            BoxWithConstraints(
                 modifier =
-                    Modifier.fillMaxSize().clickable {
+                    Modifier.clickable {
                       val layer = layers[key]
                       if (layer == null) layers[key] = Layer(imageId = key, data = image)
                       else layers.remove((key))
                     }) {
+                  val width = constraints.maxWidth
+                  val density = LocalDensity.current
+                  val maxWidthDp = with(density) { width.toDp() }
+
                   if (imageIsSelected) {
                     Icon(
                         imageVector = Icons.Filled.Check,
                         contentDescription = "Checked",
                         modifier = Modifier.align(Alignment.TopEnd))
                   }
-                  ImageBitmap(image = image, modifier = Modifier.fillMaxSize().padding(16.dp))
+                  ImageBitmap(image = image, modifier = Modifier.size(maxWidthDp).padding(16.dp))
                   if (imageIsSelected) {
                     Slider(
                         value = weight,
@@ -182,7 +187,7 @@ fun SelectLayersScreen(
                         valueRange = 1f..size.toFloat(),
                         steps = size,
                         modifier =
-                            Modifier.align(Alignment.Center)
+                            Modifier.align(Alignment.BottomCenter)
                                 .padding(8.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(MaterialTheme.colorScheme.secondaryContainer))
@@ -191,15 +196,12 @@ fun SelectLayersScreen(
             // Display the image selection for each layer
           }
         }
-        Button(
-            modifier = Modifier.padding(16.dp),
+        ContinueButton(
             onClick = {
               viewModel.updateSelectedLayers(layers)
-              // Update the selected images in the view model
-              onCreateNewDice() // TODO name
-            }) {
-              Text("Next: (${layers.values.sumOf {it.weight} ?:0} / $size)", fontSize = 24.sp)
-            }
+              onLayersSelectionClick()
+            },
+            text = "Next: (${layers.values.sumOf {it.weight} ?:0} / $size)")
       }
 }
 
@@ -208,28 +210,20 @@ fun EditTemplateScreen(viewModel: DiceCreationViewModel, onSaveDice: () -> Unit)
   val dice = viewModel.dice
   val layers = dice.layers
 
-  BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-    val density = LocalDensity.current
-    val maxWidthPixels =
-        getMaxWidth(layers.size, width = constraints.maxWidth, height = constraints.maxHeight)
-    val maxWidthDp = with(density) { maxWidthPixels.toDp() }
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween,
-        Alignment.CenterHorizontally) {
-          LazyVerticalGrid(
-              columns = GridCells.Adaptive(minSize = if (maxWidthDp == 0.dp) 1.dp else maxWidthDp),
-              modifier = Modifier.weight(1F)) {
-                items(layers) { layer -> LayerView(layer = layer, size = maxWidthDp) }
-              }
-          Button(
-              onClick = {
-                viewModel.saveDice()
-                onSaveDice()
-              }) {
-                Text("Save Dice")
-              }
+  Column(
+      modifier = Modifier.fillMaxSize(),
+      verticalArrangement = Arrangement.SpaceBetween,
+      Alignment.CenterHorizontally) {
+        OneScreenGrid(items = layers, minSize = 10F, modifier = Modifier.weight(1F)) {
+            item,
+            maxWidth ->
+          LayerView(layer = item, size = maxWidth)
         }
-  }
+        ContinueButton(onClick = onSaveDice, text = "Save Dice")
+      }
+}
+
+@Composable
+fun ContinueButton(onClick: () -> Unit, text: String) {
+  Button(modifier = Modifier.padding(16.dp), onClick = onClick) { Text(text, fontSize = 24.sp) }
 }
