@@ -80,7 +80,7 @@ fun LayerView(layer: Layer, size: Dp, modifier: Modifier = Modifier) {
 
   Box(contentAlignment = Alignment.Center, modifier = modifier.size(size = size)) {
     if (image != null) {
-      ImageBitmap(image = image, modifier = Modifier.fillMaxSize().padding(16.dp))
+      ImageBitmap(image = image, modifier = Modifier.fillMaxSize().padding(size.div(8)))
     } else {
       Image(
           painter = painterResource(id = R.drawable.ic_launcher_background),

@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,10 +26,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -43,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -85,42 +84,22 @@ fun CreateDiceNavGraph(imagesViewModel: DiceViewModel) {
 }
 
 @Composable
-fun Template(template: Dice, onClick: () -> Unit) {
-  Button(onClick = onClick, modifier = Modifier.padding(top = 16.dp)) { Text(template.name) }
-}
-
-@Composable
 fun DiceCard(dice: Dice) {
-  Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp)) {
-    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-      Text(
-          text = dice.name,
-          style = MaterialTheme.typography.headlineSmall,
-          fontWeight = FontWeight.Bold)
-
-      Box(modifier = Modifier.fillMaxWidth().height(48.dp).background(dice.backgroundColor))
-
-      Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        for (layer in dice.layers) {
-          LayerView(layer, size = 20.dp)
+  Surface(
+      modifier = Modifier.padding(16.dp), shadowElevation = 8.dp, color = dice.backgroundColor) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+          Text(text = dice.name, style = MaterialTheme.typography.displayLarge, color = Color.Black)
+          Spacer(modifier = Modifier.height(8.dp))
+          Text(text = "Layers (${dice.layers.size}):", style = MaterialTheme.typography.bodyLarge)
+          LazyVerticalGrid(
+              columns = GridCells.Adaptive(20.dp),
+              modifier = Modifier.heightIn(max = 40.dp).padding(top = 4.dp) // Set a max height
+              ) {
+                items(dice.layers) { layer ->
+                  Box(Modifier.padding(end = 3.dp)) { LayerView(layer, 20.dp) }
+                }
+              }
         }
-      }
-    }
-  }
-}
-
-@Composable
-fun DiceLayerItem(layerName: String) {
-  Box(
-      modifier =
-          Modifier.width(64.dp)
-              .height(64.dp)
-              .background(color = Color.LightGray, shape = RoundedCornerShape(8.dp)),
-      contentAlignment = Alignment.Center) {
-        Text(
-            text = layerName,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Bold)
       }
 }
 
