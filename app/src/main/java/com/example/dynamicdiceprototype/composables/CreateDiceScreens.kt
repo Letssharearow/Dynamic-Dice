@@ -19,11 +19,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -55,35 +57,33 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.Screen
-import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.Configuration.Dice
 import com.example.dynamicdiceprototype.data.Face
-import com.example.dynamicdiceprototype.services.DiceCreationViewModel
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.getFaces
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
-fun CreateDiceNavGraph(imagesViewModel: DiceViewModel) {
-  val viewModel = DiceCreationViewModel(imagesViewModel.configuration.dices)
-
+fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
   val navController = rememberNavController()
 
   NavHost(navController, startDestination = Screen.Templates.route) {
     composable(route = Screen.Templates.route) {
-      TemplateSelectionScreen(viewModel) { navController.navigate(Screen.CreateNewTemplate.route) }
+      TemplateSelectionScreen(
+          diceViewModel, onSelectTemplate = { navController.navigate(Screen.EditTemplate.route) }) {
+            navController.navigate(Screen.CreateNewTemplate.route)
+          }
     }
     composable(route = Screen.CreateNewTemplate.route) {
-      TemplateCreationScreen(viewModel) { navController.navigate(Screen.SelectFaces.route) }
+      TemplateCreationScreen(diceViewModel) { navController.navigate(Screen.SelectFaces.route) }
     }
     composable(route = Screen.SelectFaces.route) {
-      SelectFacesScreen(viewModel, imagesViewModel) {
-        navController.navigate(Screen.EditTemplate.route)
-      }
+      SelectFacesScreen(diceViewModel) { navController.navigate(Screen.EditTemplate.route) }
     }
     composable(route = Screen.EditTemplate.route) {
-      EditTemplateScreen(viewModel) {
+      EditTemplateScreen(diceViewModel) {
         navController.navigate(Screen.Templates.route)
-        viewModel.saveDice()
+        diceViewModel.saveDice()
       }
     }
   }
@@ -105,7 +105,7 @@ fun DiceCard(dice: Dice) {
             modifier = Modifier.padding(16.dp).background(dice.backgroundColor)) {
               Text(
                   text = dice.name,
-                  style = MaterialTheme.typography.displayLarge,
+                  style = MaterialTheme.typography.displayMedium, // Changed to displayMedium
                   color = Color.Black,
                   modifier = Modifier.fillMaxWidth(0.66F).padding(16.dp))
               Spacer(modifier = Modifier.width(8.dp))
@@ -124,10 +124,22 @@ fun DiceCard(dice: Dice) {
                           Modifier.border(BorderStroke(1.dp, Color.Gray), RoundedCornerShape(4.dp))
                               .clip(RoundedCornerShape(4.dp)))
                     }
-                    Text(
-                        text = "${dice.faces.size}",
-                        style = MaterialTheme.typography.displayLarge,
-                        modifier = Modifier.align(Alignment.Center))
+                    Box(
+                        modifier =
+                            Modifier.wrapContentSize()
+                                .aspectRatio(1f)
+                                .padding(
+                                    20
+                                        .dp) // TODO better size adjustment, wrapContentSize doesnt
+                                             // work for some reason
+                                .background(Color(0x80000000), CircleShape)
+                                .border(BorderStroke(2.dp, Color.White), CircleShape)) {
+                          Text(
+                              text = "${dice.faces.size}",
+                              style = MaterialTheme.typography.displayMedium,
+                              color = Color.White,
+                              modifier = Modifier.align(Alignment.Center).wrapContentSize())
+                        }
                   }
             }
       }
@@ -140,15 +152,24 @@ fun GreetingPreview() {
 }
 
 @Composable
-fun TemplateSelectionScreen(viewModel: DiceCreationViewModel, onCreateNewDice: () -> Unit) {
+fun TemplateSelectionScreen(
+    viewModel: DiceViewModel,
+    onSelectTemplate: () -> Unit,
+    onCreateNewDice: () -> Unit
+) {
 
   ArrangedColumn {
     LazyColumn() {
-      items(viewModel.templates) { template ->
+      items(viewModel.getDices().values.toList()) { template ->
         // Display each template and handle selection
-        Box(modifier = Modifier.padding(top = 16.dp).clickable { onCreateNewDice() }) {
-          DiceCard(template)
-        }
+        Box(
+            modifier =
+                Modifier.clickable {
+                  viewModel.setStartDice(template)
+                  onSelectTemplate()
+                }) {
+              DiceCard(template)
+            }
       }
     }
     ContinueButton(onClick = onCreateNewDice, text = "Create New Dice")
@@ -156,7 +177,7 @@ fun TemplateSelectionScreen(viewModel: DiceCreationViewModel, onCreateNewDice: (
 }
 
 @Composable
-fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateName: () -> Unit) {
+fun TemplateCreationScreen(viewModel: DiceViewModel, onCreateName: () -> Unit) {
 
   var name by remember { mutableStateOf("Change Later") }
   var numFaces by remember { mutableStateOf("") }
@@ -189,16 +210,12 @@ fun TemplateCreationScreen(viewModel: DiceCreationViewModel, onCreateName: () ->
 }
 
 @Composable
-fun SelectFacesScreen(
-    viewModel: DiceCreationViewModel,
-    imagesViewModel: DiceViewModel,
-    onFacesSelectionClick: () -> Unit
-) {
+fun SelectFacesScreen(viewModel: DiceViewModel, onFacesSelectionClick: () -> Unit) {
   // Display the list of templates
   var faces = remember { mutableStateMapOf<String, Face>() }
 
   val size = viewModel.facesSize
-  val images = imagesViewModel.imageMap
+  val images = viewModel.imageMap
 
   // Display the list of images for the user to select
   ArrangedColumn {
@@ -254,12 +271,11 @@ fun SelectFacesScreen(
 }
 
 @Composable
-fun EditTemplateScreen(viewModel: DiceCreationViewModel, onSaveDice: () -> Unit) {
-  val dice = viewModel.dice
-  val faces = dice.faces
-
+fun EditTemplateScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit) {
   ArrangedColumn {
-    OneScreenGrid(items = faces, minSize = 10F, modifier = Modifier.weight(1F)) { item, maxWidth ->
+    OneScreenGrid(items = viewModel.dice.faces, minSize = 10F, modifier = Modifier.weight(1F)) {
+        item,
+        maxWidth ->
       FaceView(face = item, size = maxWidth)
     }
     ContinueButton(onClick = onSaveDice, text = "Save Dice")

@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.Configuration.Dice
 import com.example.dynamicdiceprototype.services.TAG
 
 @Composable
