@@ -33,8 +33,10 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -48,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role.Companion.Switch
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -71,11 +74,9 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
     composable(route = Screen.Templates.route) {
       TemplateSelectionScreen(
           diceViewModel, onSelectTemplate = { navController.navigate(Screen.EditTemplate.route) }) {
-            navController.navigate(Screen.CreateNewTemplate.route)
+            diceViewModel.setFaceSize(it)
+            navController.navigate(Screen.SelectFaces.route)
           }
-    }
-    composable(route = Screen.CreateNewTemplate.route) {
-      TemplateCreationScreen(diceViewModel) { navController.navigate(Screen.SelectFaces.route) }
     }
     composable(route = Screen.SelectFaces.route) {
       SelectFacesScreen(diceViewModel) { navController.navigate(Screen.EditTemplate.route) }
@@ -90,7 +91,9 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
 }
 
 @Composable
-fun DiceCard(dice: Dice) {
+fun DiceCard(dice: Dice, isCompact: Boolean) {
+    val facesSum = dice.faces.sumOf { it.weight }
+
   Surface(
       shadowElevation = 8.dp,
       color = dice.backgroundColor,
@@ -100,84 +103,146 @@ fun DiceCard(dice: Dice) {
                   BorderStroke(2.dp, MaterialTheme.colorScheme.secondary),
                   RoundedCornerShape(16.dp))
               .clip(RoundedCornerShape(16.dp))) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp).background(dice.backgroundColor)) {
-              Text(
-                  text = dice.name,
-                  style = MaterialTheme.typography.displayMedium, // Changed to displayMedium
-                  color = Color.Black,
-                  modifier = Modifier.fillMaxWidth(0.66F).padding(16.dp))
-              Spacer(modifier = Modifier.width(8.dp))
-              Box(
-                  Modifier.fillMaxWidth()
-                      .aspectRatio(1f)
-                      .border(BorderStroke(2.dp, Color.Gray), RoundedCornerShape(16.dp))
-                      .clip(RoundedCornerShape(16.dp))) {
-                    OneScreenGrid(
-                        items = dice.faces,
-                        minSize = 10f,
-                    ) { face, maxWidthDp ->
-                      FaceView(
-                          face,
-                          maxWidthDp,
-                          Modifier.border(BorderStroke(1.dp, Color.Gray), RoundedCornerShape(4.dp))
-                              .clip(RoundedCornerShape(4.dp)))
+        if (isCompact) {
+          Row(
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.SpaceAround,
+              modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = dice.name,
+                    style = MaterialTheme.typography.titleSmall, // Changed to displayMedium
+                    color = Color.Black,
+                    modifier = Modifier.fillMaxWidth(0.66F))
+
+                Box(
+                    modifier =
+                        Modifier.wrapContentSize()
+                            .padding(8.dp)
+                            .background(Color(0x80000000), CircleShape)) {
+                      Text(
+                          text = "${facesSum}",
+                          style = MaterialTheme.typography.titleSmall,
+                          color = Color.White,
+                          modifier =
+                              Modifier.align(Alignment.Center).wrapContentSize().padding(8.dp))
                     }
-                    Box(
-                        modifier =
-                            Modifier.wrapContentSize()
-                                .aspectRatio(1f)
-                                .padding(
-                                    20
-                                        .dp) // TODO better size adjustment, wrapContentSize doesnt
-                                             // work for some reason
-                                .background(Color(0x80000000), CircleShape)
-                                .border(BorderStroke(2.dp, Color.White), CircleShape)) {
-                          Text(
-                              text = "${dice.faces.size}",
-                              style = MaterialTheme.typography.displayMedium,
-                              color = Color.White,
-                              modifier = Modifier.align(Alignment.Center).wrapContentSize())
+              }
+        } else
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(16.dp).background(dice.backgroundColor)) {
+                  Text(
+                      text = dice.name,
+                      style = MaterialTheme.typography.displayMedium, // Changed to displayMedium
+                      color = Color.Black,
+                      modifier = Modifier.fillMaxWidth(0.66F).padding(16.dp))
+                  Spacer(modifier = Modifier.width(8.dp))
+                  Box(
+                      Modifier.fillMaxWidth()
+                          .aspectRatio(1f)
+                          .border(BorderStroke(2.dp, Color.Gray), RoundedCornerShape(16.dp))
+                          .clip(RoundedCornerShape(16.dp))) {
+                        OneScreenGrid(
+                            items = dice.faces,
+                            minSize = 10f,
+                        ) { face, maxWidthDp ->
+                          FaceView(
+                              face,
+                              maxWidthDp,
+                              Modifier.border(
+                                      BorderStroke(1.dp, Color.Gray), RoundedCornerShape(4.dp))
+                                  .clip(RoundedCornerShape(4.dp)))
                         }
-                  }
-            }
+                        Box(
+                            modifier =
+                                Modifier.wrapContentSize()
+                                    .aspectRatio(1f)
+                                    .padding(20.dp) // TODO better size adjustment, wrapContentSize
+                                    // doesnt
+                                    // work for some reason
+                                    .background(Color(0x80000000), CircleShape)
+                                    .border(BorderStroke(2.dp, Color.White), CircleShape)) {
+                            Text(
+                                  text = "$facesSum",
+                                  style = MaterialTheme.typography.displayMedium,
+                                  color = Color.White,
+                                  modifier = Modifier.align(Alignment.Center).wrapContentSize())
+                            }
+                      }
+                }
       }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-  DynamicDicePrototypeTheme { DiceCard(dice = Dice(faces = getFaces(20))) }
+  DynamicDicePrototypeTheme { DiceCard(dice = Dice(faces = getFaces(100)), true) }
 }
 
 @Composable
 fun TemplateSelectionScreen(
     viewModel: DiceViewModel,
     onSelectTemplate: () -> Unit,
-    onCreateNewDice: () -> Unit
+    onCreateNewDice: (number: Int) -> Unit
 ) {
 
-  ArrangedColumn {
-    LazyColumn() {
-      items(viewModel.getDices().values.toList()) { template ->
-        // Display each template and handle selection
-        Box(
-            modifier =
-                Modifier.clickable {
-                  viewModel.setStartDice(template)
-                  onSelectTemplate()
-                }) {
-              DiceCard(template)
-            }
+  var isCompact by remember { mutableStateOf(false) }
+
+  Column {
+    // Toggle switch for isCompact
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween) {
+          Text(
+              "Copy or Create New Dice",
+          )
+          Row(
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.End) {
+                Text("Toggle View")
+                Switch(checked = isCompact, onCheckedChange = { isCompact = it })
+              }
+        }
+
+    ArrangedColumn {
+      LazyColumn() {
+        items(viewModel.getDices().values.toList()) { template ->
+          // Display each template and handle selection
+          Box(
+              modifier =
+                  Modifier.clickable {
+                    viewModel.setStartDice(template)
+                    onSelectTemplate()
+                  }) {
+                DiceCard(template, isCompact)
+              }
+        }
       }
+      Row(
+          verticalAlignment = Alignment.CenterVertically,
+          modifier = Modifier.wrapContentSize().padding(vertical = 16.dp)) {
+            // Input field for numbers
+            var number by remember { mutableStateOf<String?>("6") }
+            OutlinedTextField(
+                value = number.toString(),
+                onValueChange = { newValue -> number = newValue.takeIf { it.isNotEmpty() } ?: "" },
+                label = { Text("New Dice Faces Count") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.wrapContentSize(),
+                isError = number.isNullOrEmpty())
+            // Continue button
+            ContinueButton(
+                onClick = { onCreateNewDice(number?.toInt() ?: 0) }, // TODO Better handling?
+                text = "+",
+                enabled = !number.isNullOrEmpty())
+          }
     }
-    ContinueButton(onClick = onCreateNewDice, text = "Create New Dice")
   }
 }
 
 @Composable
-fun TemplateCreationScreen(viewModel: DiceViewModel, onCreateName: () -> Unit) {
+fun StringInput(viewModel: DiceViewModel, onCreateName: () -> Unit) {
 
   var name by remember { mutableStateOf("Change Later") }
   var numFaces by remember { mutableStateOf("") }
@@ -266,7 +331,7 @@ fun SelectFacesScreen(viewModel: DiceViewModel, onFacesSelectionClick: () -> Uni
           viewModel.updateSelectedFaces(faces)
           onFacesSelectionClick()
         },
-        text = "Next: (${faces.values.sumOf {it.weight} ?:0} / $size)")
+        text = "Next: (${faces.values.sumOf {it.weight}} / $size)")
   }
 }
 
@@ -283,8 +348,10 @@ fun EditTemplateScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit) {
 }
 
 @Composable
-fun ContinueButton(onClick: () -> Unit, text: String) {
-  Button(modifier = Modifier.padding(16.dp), onClick = onClick) { Text(text, fontSize = 24.sp) }
+fun ContinueButton(onClick: () -> Unit, text: String, enabled: Boolean = true) {
+  Button(modifier = Modifier.padding(16.dp), onClick = onClick, enabled = enabled) {
+    Text(text, fontSize = 24.sp)
+  }
 }
 
 @Composable

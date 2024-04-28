@@ -104,6 +104,10 @@ object DiceViewModel : ViewModel() {
       }
     }
   }
+
+  fun setFaceSize(number: Int) {
+    facesSize = number
+  }
 }
 
 fun getFaces(n: Int): List<Face> {
