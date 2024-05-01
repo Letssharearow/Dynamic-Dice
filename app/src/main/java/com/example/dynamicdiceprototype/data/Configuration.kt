@@ -43,35 +43,7 @@ class Configuration {
                           Face(imageId = "${R.drawable.three_transparent}"),
                           Face(imageId = "${R.drawable.four_transparent}"),
                           Face(imageId = "${R.drawable.five_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}"))))
+                          Face(imageId = "${R.drawable.six_transparent}", weight = 20))))
   var lastBundle: String = "Kniffel"
 
   fun addDice(dice: Dice) {
@@ -98,7 +70,7 @@ class Configuration {
   }
 
   data class Dice(
-      val name: String = "diceName",
+      var name: String = "diceName",
       val faces: List<Face>,
       var current: Face? = null,
       var state: DiceState = DiceState.UNLOCKED,

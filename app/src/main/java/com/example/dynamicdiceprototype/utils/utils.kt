@@ -1,3 +1,7 @@
+import android.content.res.Resources
+import android.util.TypedValue
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import kotlin.math.max
 import kotlin.math.min
 
@@ -8,6 +12,22 @@ fun getMaxWidth(count: Int, width: Int, height: Int): Float {
   }
   return currentMaxWidth
 }
+
+fun pxToDp(density: Density, MaxSize: Float): Dp {
+  with(density) {
+    return MaxSize.toDp()
+  }
+}
+
+fun pxToDp2(resources: Resources, pixels: Float) {
+  TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, pixels, resources.displayMetrics)
+}
+
+fun toPx(dp: Dp) {
+  dp.value
+}
+
+fun Int.toPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
 // TODO Add tests
 

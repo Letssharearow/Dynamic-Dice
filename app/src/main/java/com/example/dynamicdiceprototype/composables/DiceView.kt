@@ -1,27 +1,39 @@
 package com.example.dynamicdiceprototype.composables
 
+import android.content.Context
 import android.util.Log
+import android.util.TypedValue
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Configuration.Dice
@@ -30,6 +42,7 @@ import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.ImageModel
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.TAG
+import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
 fun ImageBitmap(image: ImageModel, modifier: Modifier = Modifier) {
@@ -74,20 +87,57 @@ fun DiceView(dice: Dice, size: Dp, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun FaceView(face: Face, size: Dp, modifier: Modifier = Modifier) {
-  Log.d(TAG, "Recompose DiceView dice => $face")
-  val image = face.data
+fun NumberCircle(text: String, modifier: Modifier = Modifier, fontSize: TextUnit = 12.sp) {
+  Box(
+      modifier =
+          modifier
+              .wrapContentSize()
+              .padding(8.dp)
+              .background(Color(0x80000000), CircleShape)
+              .border(BorderStroke(2.dp, MaterialTheme.colorScheme.secondary), CircleShape)) {
+        Text(
+            text = text,
+            fontSize = fontSize,
+            color = Color.White,
+            modifier = Modifier.align(Alignment.Center).wrapContentSize().padding(8.dp))
+      }
+}
 
-  Box(contentAlignment = Alignment.Center, modifier = modifier.size(size = size)) {
+@Composable
+fun FaceView(face: Face?, size: Dp?, modifier: Modifier = Modifier, showWeight: Boolean = true) {
+  Log.d(TAG, "Recompose DiceView dice => $face")
+  val image = face?.data
+  val sizeFallback = size ?: 24.dp
+
+  val modifier1 = if (size != null) modifier.size(size = size) else modifier.fillMaxSize()
+  Box(contentAlignment = Alignment.Center, modifier = modifier1) {
     if (image != null) {
-      ImageBitmap(image = image, modifier = Modifier.fillMaxSize().padding(size.div(10)))
+      ImageBitmap(image = image, modifier = Modifier.fillMaxSize().padding(sizeFallback.div(10)))
     } else {
       Image(
           painter = painterResource(id = R.drawable.ic_launcher_background),
           contentDescription = "no Image",
-          modifier = Modifier.fillMaxSize().padding(size.div(10))) // TODO String reference
+          modifier = Modifier.fillMaxSize().padding(sizeFallback.div(10))) // TODO String reference
+    }
+    if (showWeight && face != null && face.weight > 1) {
+      NumberCircle(
+          face.weight.toString(),
+          fontSize = Math.min(sizeFallback.value, 36F * 6).sp.div(6),
+          modifier = Modifier.align(Alignment.TopEnd))
     }
   }
+}
+
+fun Number.spToPx(context: Context) =
+    TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP, this.toFloat(), context.resources.displayMetrics)
+        .toInt()
+
+@Preview
+@Composable
+private fun Preview() {
+
+  DynamicDicePrototypeTheme { FaceView(face = Face(weight = 20), size = 100.dp, showWeight = true) }
 }
 
 @Composable

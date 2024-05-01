@@ -30,7 +30,7 @@ object DiceViewModel : ViewModel() {
           ))
 
   // create Dice
-  var dice by mutableStateOf<Dice>(Dice(faces = listOf()))
+  var dice by mutableStateOf<Dice>(Dice(name = "Change Later", faces = listOf()))
   var facesSize by mutableStateOf<Int>(20)
 
   fun getDices(): Map<String, Dice> {
@@ -52,6 +52,10 @@ object DiceViewModel : ViewModel() {
 
   fun updateBackgroundColor(color: Color) {
     dice = dice.copy(backgroundColor = color)
+  }
+
+  fun setDiceName(name: String) {
+    dice.name = name
   }
 
   fun saveDice() {

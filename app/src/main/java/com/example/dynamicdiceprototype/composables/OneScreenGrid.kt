@@ -19,7 +19,7 @@ fun <T> OneScreenGrid(
     val maxWidthPixels =
         getMaxWidth(items.size, width = constraints.maxWidth, height = constraints.maxHeight)
     val MaxSize = Math.max(minSize, maxWidthPixels)
-    val maxWidthDp = with(density) { MaxSize.toDp() }
+    val maxWidthDp = pxToDp(density, MaxSize)
 
     LazyVerticalGrid(columns = GridCells.Adaptive(minSize = maxWidthDp)) {
       items(items) { item -> onRender(item, maxWidthDp) }
