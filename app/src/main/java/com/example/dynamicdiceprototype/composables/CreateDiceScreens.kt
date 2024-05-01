@@ -146,33 +146,41 @@ fun DiceCard(dice: Dice, isCompact: Boolean) {
                         ) { face, maxWidthDp ->
                           FaceView(
                               face,
-                              maxWidthDp,
                               showWeight = false,
-                              modifier =
-                                  Modifier.border(
-                                          BorderStroke(1.dp, Color.Gray), RoundedCornerShape(4.dp))
-                                      .clip(RoundedCornerShape(4.dp)))
+                              spacing = maxWidthDp.div(10),
+                              color = dice.backgroundColor)
                         }
                         if (facesSum > 10) {
-                          Box(
-                              modifier =
-                                  Modifier.wrapContentSize()
-                                      .aspectRatio(1f)
-                                      .padding(
-                                          20.dp) // TODO better size adjustment, wrapContentSize
-                                      // didnt work
-                                      .background(Color(0x80000000), CircleShape)
-                                      .border(BorderStroke(2.dp, Color.White), CircleShape)) {
-                                Text(
-                                    text = "$facesSum",
-                                    style = MaterialTheme.typography.displayMedium,
-                                    color = Color.White,
-                                    modifier = Modifier.align(Alignment.Center).wrapContentSize())
-                              }
+                            CircleOverlay("$facesSum")
                         }
                       }
                 }
       }
+}
+
+@Composable
+private fun CircleOverlay(text: String) {
+    Box(
+        modifier =
+        Modifier
+            .wrapContentSize()
+            .aspectRatio(1f)
+            .padding(
+                20.dp
+            ) // TODO better size adjustment, wrapContentSize
+            // didnt work
+            .background(Color(0x80000000), CircleShape)
+            .border(BorderStroke(2.dp, Color.White), CircleShape)
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.displayMedium,
+            color = Color.White,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .wrapContentSize()
+        )
+    }
 }
 
 @Composable
@@ -346,7 +354,7 @@ fun SelectFacesScreen(viewModel: DiceViewModel, onFacesSelectionClick: () -> Uni
                     contentDescription = "Checked",
                     modifier = Modifier.align(Alignment.TopStart))
               }
-              FaceView(face = faces[key] ?: Face(data = image), size = maxWidthDp)
+              FaceView(face = faces[key] ?: Face(data = image), color = Color.Transparent, spacing = maxWidthDp.div(10))
               if (imageIsSelected) {
                 Slider(
                     value = weight,
@@ -446,14 +454,7 @@ fun EditTemplateScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit:
           items = viewModel.dice.faces, minSize = if (isColorPickerOpen) 2000F else 200F) {
               item,
               maxWidth ->
-            Surface(
-                color = color,
-                modifier =
-                    Modifier.aspectRatio(1F)
-                        .padding(maxWidth.div(20))
-                        .clip(RoundedCornerShape(maxWidth.div(10).coerceAtMost(24.dp)))) {
-                  FaceView(face = item, size = maxWidth, showWeight = true)
-                }
+            FaceView(face = item, showWeight = true, spacing = maxWidth.div(10), color = color)
           }
     }
     if (isColorPickerOpen) {
@@ -496,14 +497,7 @@ fun TestOneScreen(
     }
     Box(modifier = Modifier.weight(1F)) {
       OneScreenGrid(items = faces, minSize = 200F) { item, maxWidth ->
-        Surface(
-            color = Color.Cyan,
-            modifier =
-                Modifier.aspectRatio(1F)
-                    .padding(maxWidth.div(20))
-                    .clip(RoundedCornerShape(maxWidth.div(8)))) {
-              FaceView(face = item, size = maxWidth, showWeight = true)
-            }
+        FaceView(face = item, spacing = maxWidth.div(10), color = Color.Cyan, showWeight = true)
       }
     }
     Row(horizontalArrangement = Arrangement.SpaceAround) {
