@@ -32,12 +32,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
@@ -71,6 +73,7 @@ import com.example.dynamicdiceprototype.Screen
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.getFaces
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import com.github.skydoves.colorpicker.compose.AlphaSlider
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
@@ -377,26 +380,36 @@ fun SelectFacesScreen(viewModel: DiceViewModel, onFacesSelectionClick: () -> Uni
 fun ColorPicker(
     initialColor: Color,
     onColorChange: (color: ColorEnvelope) -> Unit,
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
   val controller = rememberColorPickerController()
 
-  Column(modifier.fillMaxHeight(0.5F).background(MaterialTheme.colorScheme.background)) {
-    HsvColorPicker(
-        initialColor = initialColor,
-        modifier = Modifier.fillMaxWidth().height(300.dp),
-        controller = controller,
-        onColorChanged = { onColorChange(it) })
-    AlphaSlider(
-        modifier = Modifier.fillMaxWidth().padding(4.dp).height(20.dp),
-        initialColor = initialColor,
-        controller = controller,
-    )
-    BrightnessSlider(
-        modifier = Modifier.fillMaxWidth().padding(4.dp).height(20.dp),
-        initialColor = initialColor,
-        controller = controller,
-    )
+  Box {
+    Column(
+        modifier
+            .padding(4.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .border(BorderStroke(3.dp, MaterialTheme.colorScheme.secondary))) {
+          HsvColorPicker(
+              initialColor = initialColor,
+              modifier = Modifier.weight(1F),
+              controller = controller,
+              onColorChanged = { onColorChange(it) })
+          AlphaSlider(
+              modifier = Modifier.fillMaxWidth().padding(4.dp).height(20.dp),
+              initialColor = initialColor,
+              controller = controller,
+          )
+          BrightnessSlider(
+              modifier = Modifier.fillMaxWidth().padding(4.dp).height(20.dp),
+              initialColor = initialColor,
+              controller = controller,
+          )
+        }
+    IconButton(onClick = onDismiss, Modifier.align(Alignment.TopEnd)) {
+      Icon(imageVector = Icons.Filled.Clear, contentDescription = "Close Color Picker")
+    }
   }
 }
 
@@ -408,34 +421,47 @@ fun EditTemplateScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit:
 
   ArrangedColumn {
     // color picker
-    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Max)) {
-      Box {
-        Input(
-            text = name,
-            onValueChange = { name = it },
-            label = "Dice Name",
-            Modifier.padding(8.dp).fillMaxWidth(0.5F))
+    if (!isColorPickerOpen) {
+      Row(Modifier.fillMaxWidth().height(IntrinsicSize.Max)) {
+        Box {
+          Input(
+              text = name,
+              onValueChange = { name = it },
+              label = "Dice Name",
+              Modifier.padding(8.dp).fillMaxWidth(0.5F))
+        }
+        Box(
+            modifier =
+                Modifier.fillMaxWidth().fillMaxHeight().padding(8.dp).background(color).clickable {
+                  isColorPickerOpen = !isColorPickerOpen
+                }) {
+              Text(
+                  text = if (isColorPickerOpen) "Close Color Picker" else "Change Color",
+                  Modifier.align(Alignment.Center))
+            }
       }
-      Box(
-          modifier =
-              Modifier.fillMaxWidth().fillMaxHeight().padding(8.dp).background(color).clickable {
-                isColorPickerOpen = !isColorPickerOpen
-              }) {
-            Text(text = "Change Color", Modifier.align(Alignment.Center))
-          }
     }
     Box(modifier = Modifier.weight(1F)) {
-      OneScreenGrid(items = viewModel.dice.faces, minSize = 10F) { item, maxWidth ->
-        Surface(color = color, modifier = Modifier.padding(20.dp)) {
-          FaceView(face = item, size = maxWidth, showWeight = true)
-        }
-      }
-      if (isColorPickerOpen) {
-        ColorPicker(
-            initialColor = color,
-            onColorChange = { color = if (it.fromUser) it.color else color },
-            modifier = Modifier.align(Alignment.BottomCenter))
-      }
+      OneScreenGrid(
+          items = viewModel.dice.faces, minSize = if (isColorPickerOpen) 2000F else 200F) {
+              item,
+              maxWidth ->
+            Surface(
+                color = color,
+                modifier =
+                    Modifier.aspectRatio(1F)
+                        .padding(maxWidth.div(20))
+                        .clip(RoundedCornerShape(maxWidth.div(8)))) {
+                  FaceView(face = item, size = maxWidth, showWeight = true)
+                }
+          }
+    }
+    if (isColorPickerOpen) {
+      ColorPicker(
+          initialColor = color,
+          onColorChange = { color = if (it.fromUser) it.color else color },
+          onDismiss = { isColorPickerOpen = false },
+          modifier = Modifier.fillMaxHeight(0.4F))
     }
     Row(horizontalArrangement = Arrangement.SpaceAround) {
       ContinueButton(
@@ -452,6 +478,38 @@ fun EditTemplateScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit:
             onSaveDice()
           },
           text = "Save Dice")
+    }
+  }
+}
+
+@Composable
+fun TestOneScreen(
+    faces: List<Face>,
+) {
+
+  ArrangedColumn {
+    // color picker
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Max)) {
+      Box(Modifier.height(350.dp)) {
+        //
+      }
+    }
+    Box(modifier = Modifier.weight(1F)) {
+      OneScreenGrid(items = faces, minSize = 200F) { item, maxWidth ->
+        Surface(
+            color = Color.Cyan,
+            modifier =
+                Modifier.aspectRatio(1F)
+                    .padding(maxWidth.div(20))
+                    .clip(RoundedCornerShape(maxWidth.div(8)))) {
+              FaceView(face = item, size = maxWidth, showWeight = true)
+            }
+      }
+    }
+    Row(horizontalArrangement = Arrangement.SpaceAround) {
+      Box(Modifier.height(108.dp)) {
+        //
+      }
     }
   }
 }
@@ -480,9 +538,9 @@ fun ContinueButton(onClick: () -> Unit, text: String, enabled: Boolean = true) {
 }
 
 @Composable
-fun ArrangedColumn(content: @Composable ColumnScope.() -> Unit) {
+fun ArrangedColumn(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
   Column(
-      modifier = Modifier.fillMaxSize(),
+      modifier = modifier.fillMaxSize(),
       verticalArrangement = Arrangement.SpaceBetween,
       horizontalAlignment = Alignment.CenterHorizontally) {
         content()
@@ -500,6 +558,6 @@ fun GreetingPreview() {
     // LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange
     // LaterChange Later",
     //            facesSum = 20)
-
+    TestOneScreen(faces = getFaces(20))
   }
 }
