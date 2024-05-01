@@ -30,15 +30,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -49,8 +55,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.Role.Companion.Switch
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,7 +67,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.Screen
-import com.example.dynamicdiceprototype.data.Configuration.Dice
+import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
@@ -70,7 +76,7 @@ import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
   val navController = rememberNavController()
 
-  NavHost(navController, startDestination = Screen.Templates.route) {
+  NavHost(navController, startDestination = Screen.EditTemplate.route) {
     composable(route = Screen.Templates.route) {
       TemplateSelectionScreen(
           diceViewModel, onSelectTemplate = { navController.navigate(Screen.EditTemplate.route) }) {
@@ -86,8 +92,8 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
           diceViewModel,
           onEdit = { navController.navigate(Screen.SelectFaces.route) },
           onSaveDice = {
-              navController.navigate(Screen.Templates.route)
-              diceViewModel.saveDice()
+            navController.navigate(Screen.Templates.route)
+            diceViewModel.saveDice()
           })
     }
   }
@@ -138,21 +144,22 @@ fun DiceCard(dice: Dice, isCompact: Boolean) {
                                           BorderStroke(1.dp, Color.Gray), RoundedCornerShape(4.dp))
                                       .clip(RoundedCornerShape(4.dp)))
                         }
-                        if(facesSum > 10){
-                            Box(
-                                modifier =
-                                Modifier.wrapContentSize()
-                                    .aspectRatio(1f)
-                                    .padding(20.dp) // TODO better size adjustment, wrapContentSize
-                                    // didnt work
-                                    .background(Color(0x80000000), CircleShape)
-                                    .border(BorderStroke(2.dp, Color.White), CircleShape)) {
+                        if (facesSum > 10) {
+                          Box(
+                              modifier =
+                                  Modifier.wrapContentSize()
+                                      .aspectRatio(1f)
+                                      .padding(
+                                          20.dp) // TODO better size adjustment, wrapContentSize
+                                      // didnt work
+                                      .background(Color(0x80000000), CircleShape)
+                                      .border(BorderStroke(2.dp, Color.White), CircleShape)) {
                                 Text(
                                     text = "$facesSum",
                                     style = MaterialTheme.typography.displayMedium,
                                     color = Color.White,
                                     modifier = Modifier.align(Alignment.Center).wrapContentSize())
-                            }
+                              }
                         }
                       }
                 }
@@ -188,6 +195,7 @@ fun GreetingPreview() {
   }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TemplateSelectionScreen(
     viewModel: DiceViewModel,
@@ -215,17 +223,42 @@ fun TemplateSelectionScreen(
         }
 
     ArrangedColumn {
-      LazyColumn() {
-        items(viewModel.getDices().values.toList()) { template ->
-          // Display each template and handle selection
-          Box(
-              modifier =
-                  Modifier.clickable {
-                    viewModel.setStartDice(template)
-                    onSelectTemplate()
-                  }) {
-                DiceCard(template, isCompact)
-              }
+      LazyColumn {
+        items(items = viewModel.dices.values.toList(), key = { item -> item.name }) { template ->
+          // Create a dismiss state for each item
+          val dismissState =
+              rememberDismissState(
+                  confirmValueChange = { dismissValue ->
+                    if (dismissValue == DismissValue.DismissedToStart) {
+                      viewModel.removeDice(template) // Replace with your method to remove the item
+                      true // This confirms the dismissal
+                    } else {
+                      false
+                    }
+                  })
+
+          SwipeToDismiss(
+              state = dismissState,
+              directions = setOf(DismissDirection.EndToStart),
+              background = {
+                Box(Modifier.fillMaxSize()) {
+                  Icon(
+                      imageVector = Icons.Filled.Delete,
+                      contentDescription = "Delete",
+                      Modifier.align(Alignment.CenterEnd).size(80.dp))
+                }
+              },
+              dismissContent = {
+                Box(
+                    modifier =
+                        Modifier.clickable {
+                              viewModel.setStartDice(template)
+                              onSelectTemplate()
+                            }
+                            .fillMaxWidth()) {
+                      DiceCard(template, isCompact)
+                    }
+              })
         }
       }
       Row(
@@ -315,8 +348,8 @@ fun SelectFacesScreen(viewModel: DiceViewModel, onFacesSelectionClick: () -> Uni
                     contentDescription = "Checked",
                     modifier = Modifier.align(Alignment.TopStart))
               }
-            FaceView(face = faces[key]?: Face(data = image), size = maxWidthDp)
-            if (imageIsSelected) {
+              FaceView(face = faces[key] ?: Face(data = image), size = maxWidthDp)
+              if (imageIsSelected) {
                 Slider(
                     value = weight,
                     onValueChange = { value ->
@@ -329,7 +362,8 @@ fun SelectFacesScreen(viewModel: DiceViewModel, onFacesSelectionClick: () -> Uni
                         Modifier.align(Alignment.BottomCenter)
                             .padding(8.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5F)))
+                            .background(
+                                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5F)))
               }
             }
         // Display the image selection for each face
@@ -348,12 +382,15 @@ fun SelectFacesScreen(viewModel: DiceViewModel, onFacesSelectionClick: () -> Uni
 fun EditTemplateScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit: () -> Unit) {
   var name by remember { mutableStateOf(viewModel.dice.name) }
   ArrangedColumn {
-    //color picker
-    Input(
-        text = name,
-        onValueChange = { name = it + ((Math.random() * 26) + 48).toInt().toChar() },
-        label = "Dice Name",
-        Modifier.padding(8.dp))
+    // color picker
+    Row {
+      Input(
+          text = name,
+          onValueChange = { name = it + ((Math.random() * 26) + 48).toInt().toChar() },
+          label = "Dice Name",
+          Modifier.padding(8.dp))
+        ColorProducer(function = {Color.White})
+    }
     OneScreenGrid(items = viewModel.dice.faces, minSize = 10F, modifier = Modifier.weight(1F)) {
         item,
         maxWidth ->

@@ -1,15 +1,15 @@
 package com.example.dynamicdiceprototype.services
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dynamicdiceprototype.R
-import com.example.dynamicdiceprototype.data.Configuration
-import com.example.dynamicdiceprototype.data.Configuration.Dice
-import com.example.dynamicdiceprototype.data.Configuration.DiceState
+import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.ImageModel
 import kotlinx.coroutines.launch
@@ -17,7 +17,6 @@ import kotlinx.coroutines.launch
 // extend ViewModel to survive configuration change (landscape mode)
 object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
-  var configuration by mutableStateOf(Configuration())
   var dicesState by mutableStateOf(getDices(7)) //
   var imageMap by
       mutableStateOf(
@@ -32,13 +31,76 @@ object DiceViewModel : ViewModel() {
   // create Dice
   var dice by mutableStateOf<Dice>(Dice(name = "Change Later", faces = listOf()))
   var facesSize by mutableStateOf<Int>(20)
+  val bundles: Map<String, List<String>> =
+      mutableMapOf(
+          "Kniffel" to
+              listOf(
+                  "6er",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2",
+                  "6er2"))
+  val dices =
+      mutableStateMapOf(
+          "random" to
+              Dice(
+                  name = "random",
+                  faces =
+                      listOf(
+                          Face(imageId = "${R.drawable.three_transparent}"),
+                          Face(imageId = "${R.drawable.rukaiya_rectangular}"))),
+          "6er" to
+              Dice(
+                  name = "6er",
+                  faces =
+                      listOf(
+                          Face(imageId = "${R.drawable.one_transparent}"),
+                          Face(imageId = "${R.drawable.two_transparent}"),
+                          Face(imageId = "${R.drawable.three_transparent}"),
+                          Face(imageId = "${R.drawable.four_transparent}"),
+                          Face(imageId = "${R.drawable.five_transparent}"),
+                          Face(imageId = "${R.drawable.six_transparent}", weight = 20))))
+  var lastBundle: String = "Kniffel"
 
-  fun getDices(): Map<String, Dice> {
-    return configuration.dices
+  fun addDice(dice: Dice) {
+    dices[dice.name] = dice
+    // TODO Store config locally
+  }
+
+  fun setImages(images: Map<String, ImageModel>) {
+    dices.forEach { it.value.faces.map { face -> face.data = images[face.imageId] } }
+  }
+
+  fun copyDice(name: String): Dice {
+    val diceState = dices[name]
+    if (diceState != null) {
+      return copyIfNotExists(diceState.copy(name = name + "_copy"))
+    }
+    return Dice(
+        faces = listOf()) // TODO Better handling of error, probably throw exception? Or return null
+  }
+
+  fun copyIfNotExists(dice: Dice): Dice {
+    return if (dices.contains(dice.name)) copyIfNotExists(dice.copy(name = dice.name + "_copy"))
+    else dice
+  }
+
+  fun removeDice(dice: Dice) {
+    dices.remove(dice.name)
   }
 
   fun setStartDice(newDice: Dice) {
-    dice = configuration.copyDice(newDice.name)
+    dice = copyDice(newDice.name)
   }
 
   fun createNewDice(name: String, numFaces: Int) {
@@ -59,7 +121,7 @@ object DiceViewModel : ViewModel() {
   }
 
   fun saveDice() {
-    configuration.addDice(dice)
+    addDice(dice)
   }
   // end create dice
 
@@ -104,7 +166,7 @@ object DiceViewModel : ViewModel() {
     viewModelScope.launch {
       firebase.imagesFlow.collect { images ->
         imageMap = images
-        configuration.setImages(images)
+        setImages(images)
       }
     }
   }

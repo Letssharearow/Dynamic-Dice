@@ -36,8 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.R
-import com.example.dynamicdiceprototype.data.Configuration.Dice
-import com.example.dynamicdiceprototype.data.Configuration.DiceState
+import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.ImageModel
 import com.example.dynamicdiceprototype.services.DiceViewModel
