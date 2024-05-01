@@ -451,7 +451,7 @@ fun EditTemplateScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit:
                 modifier =
                     Modifier.aspectRatio(1F)
                         .padding(maxWidth.div(20))
-                        .clip(RoundedCornerShape(maxWidth.div(8)))) {
+                        .clip(RoundedCornerShape(maxWidth.div(10).coerceAtMost(24.dp)))) {
                   FaceView(face = item, size = maxWidth, showWeight = true)
                 }
           }
@@ -558,6 +558,6 @@ fun GreetingPreview() {
     // LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange
     // LaterChange Later",
     //            facesSum = 20)
-    TestOneScreen(faces = getFaces(20))
+    TestOneScreen(faces = getFaces(1))
   }
 }

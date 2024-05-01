@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -112,12 +113,22 @@ fun FaceView(face: Face?, size: Dp?, modifier: Modifier = Modifier, showWeight: 
   val modifier1 = if (size != null) modifier.size(size = size) else modifier.fillMaxSize()
   Box(contentAlignment = Alignment.Center, modifier = modifier1) {
     if (image != null) {
-      ImageBitmap(image = image, modifier = Modifier.fillMaxSize().padding(sizeFallback.div(10)))
+      ImageBitmap(
+          image = image,
+          modifier =
+              Modifier.fillMaxSize()
+                  .padding(sizeFallback.div(10).coerceAtMost(24.dp))
+                  .clip(RoundedCornerShape(sizeFallback.div(10).coerceAtMost(24.dp))))
     } else {
       Image(
           painter = painterResource(id = R.drawable.ic_launcher_background),
           contentDescription = "no Image",
-          modifier = Modifier.fillMaxSize().padding(sizeFallback.div(10))) // TODO String reference
+          modifier =
+              Modifier.fillMaxSize()
+                  .padding(sizeFallback.div(10).coerceAtMost(24.dp))
+                  .clip(
+                      RoundedCornerShape(
+                          sizeFallback.div(10).coerceAtMost(24.dp)))) // TODO String reference
     }
     if (showWeight && face != null && face.weight > 1) {
       NumberCircle(
@@ -127,12 +138,6 @@ fun FaceView(face: Face?, size: Dp?, modifier: Modifier = Modifier, showWeight: 
     }
   }
 }
-
-fun Number.spToPx(context: Context) =
-    TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP, this.toFloat(), context.resources.displayMetrics)
-        .toInt()
-
 @Preview
 @Composable
 private fun Preview() {
