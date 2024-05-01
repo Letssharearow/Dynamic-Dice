@@ -29,7 +29,7 @@ object DiceViewModel : ViewModel() {
           ))
 
   // create Dice
-  var dice by mutableStateOf<Dice>(Dice(name = "Change Later", faces = listOf()))
+  var dice by mutableStateOf<Dice>(Dice(name = "Change Later", faces = getFaces(20)))
   var facesSize by mutableStateOf<Int>(20)
   val bundles: Map<String, List<String>> =
       mutableMapOf(
@@ -173,6 +173,10 @@ object DiceViewModel : ViewModel() {
 
   fun setFaceSize(number: Int) {
     facesSize = number
+  }
+
+  fun setColor(color: Color) {
+    dice.backgroundColor = color
   }
 }
 

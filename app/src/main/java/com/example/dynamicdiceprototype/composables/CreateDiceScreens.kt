@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -55,7 +57,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,6 +72,11 @@ import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import com.github.skydoves.colorpicker.compose.AlphaSlider
+import com.github.skydoves.colorpicker.compose.BrightnessSlider
+import com.github.skydoves.colorpicker.compose.ColorEnvelope
+import com.github.skydoves.colorpicker.compose.HsvColorPicker
+import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 
 @Composable
 fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
@@ -182,17 +188,6 @@ private fun CompactDiceCard(name: String, facesSum: Int) {
 
         NumberCircle(facesSum.toString())
       }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-  DynamicDicePrototypeTheme {
-    CompactDiceCard(
-        name =
-            "Change LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange Later",
-        facesSum = 20)
-  }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -379,33 +374,81 @@ fun SelectFacesScreen(viewModel: DiceViewModel, onFacesSelectionClick: () -> Uni
 }
 
 @Composable
+fun ColorPicker(
+    initialColor: Color,
+    onColorChange: (color: ColorEnvelope) -> Unit,
+    modifier: Modifier = Modifier
+) {
+  val controller = rememberColorPickerController()
+
+  Column(modifier.fillMaxHeight(0.5F).background(MaterialTheme.colorScheme.background)) {
+    HsvColorPicker(
+        initialColor = initialColor,
+        modifier = Modifier.fillMaxWidth().height(300.dp),
+        controller = controller,
+        onColorChanged = { onColorChange(it) })
+    AlphaSlider(
+        modifier = Modifier.fillMaxWidth().padding(4.dp).height(20.dp),
+        initialColor = initialColor,
+        controller = controller,
+    )
+    BrightnessSlider(
+        modifier = Modifier.fillMaxWidth().padding(4.dp).height(20.dp),
+        initialColor = initialColor,
+        controller = controller,
+    )
+  }
+}
+
+@Composable
 fun EditTemplateScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit: () -> Unit) {
   var name by remember { mutableStateOf(viewModel.dice.name) }
+  var color by remember { mutableStateOf(viewModel.dice.backgroundColor) }
+  var isColorPickerOpen by remember { mutableStateOf(false) }
+
   ArrangedColumn {
     // color picker
-    Row {
-      Input(
-          text = name,
-          onValueChange = { name = it + ((Math.random() * 26) + 48).toInt().toChar() },
-          label = "Dice Name",
-          Modifier.padding(8.dp))
-        ColorProducer(function = {Color.White})
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Max)) {
+      Box {
+        Input(
+            text = name,
+            onValueChange = { name = it },
+            label = "Dice Name",
+            Modifier.padding(8.dp).fillMaxWidth(0.5F))
+      }
+      Box(
+          modifier =
+              Modifier.fillMaxWidth().fillMaxHeight().padding(8.dp).background(color).clickable {
+                isColorPickerOpen = !isColorPickerOpen
+              }) {
+            Text(text = "Change Color", Modifier.align(Alignment.Center))
+          }
     }
-    OneScreenGrid(items = viewModel.dice.faces, minSize = 10F, modifier = Modifier.weight(1F)) {
-        item,
-        maxWidth ->
-      FaceView(face = item, size = maxWidth, showWeight = true)
+    Box(modifier = Modifier.weight(1F)) {
+      OneScreenGrid(items = viewModel.dice.faces, minSize = 10F) { item, maxWidth ->
+        Surface(color = color, modifier = Modifier.padding(20.dp)) {
+          FaceView(face = item, size = maxWidth, showWeight = true)
+        }
+      }
+      if (isColorPickerOpen) {
+        ColorPicker(
+            initialColor = color,
+            onColorChange = { color = if (it.fromUser) it.color else color },
+            modifier = Modifier.align(Alignment.BottomCenter))
+      }
     }
     Row(horizontalArrangement = Arrangement.SpaceAround) {
       ContinueButton(
           onClick = {
             viewModel.setDiceName(name)
+            viewModel.setColor(color)
             onEdit()
           },
           text = "Edit")
       ContinueButton(
           onClick = {
             viewModel.setDiceName(name)
+            viewModel.setColor(color)
             onSaveDice()
           },
           text = "Save Dice")
@@ -444,4 +487,19 @@ fun ArrangedColumn(content: @Composable ColumnScope.() -> Unit) {
       horizontalAlignment = Alignment.CenterHorizontally) {
         content()
       }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+  DynamicDicePrototypeTheme {
+    //        CompactDiceCard(
+    //            name =
+    //            "Change LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange
+    // LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange
+    // LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange LaterChange
+    // LaterChange Later",
+    //            facesSum = 20)
+
+  }
 }
