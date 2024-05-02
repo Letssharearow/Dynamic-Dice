@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.composables
+package com.example.dynamicdiceprototype.composables.createdice
 
 import OneScreenGrid
 import androidx.compose.foundation.BorderStroke
@@ -70,6 +70,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.Screen
+import com.example.dynamicdiceprototype.composables.FaceView
+import com.example.dynamicdiceprototype.composables.NumberCircle
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.DiceViewModel
@@ -123,64 +125,70 @@ fun DiceCard(dice: Dice, isCompact: Boolean) {
               .clip(RoundedCornerShape(16.dp))) {
         if (isCompact) {
           CompactDiceCard(dice.name, facesSum)
-        } else
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(16.dp).background(dice.backgroundColor)) {
-                  Text(
-                      text = dice.name,
-                      style = MaterialTheme.typography.displayMedium,
-                      color = Color.Black,
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis,
-                      modifier = Modifier.fillMaxWidth(0.66F).padding(16.dp))
-                  Spacer(modifier = Modifier.width(8.dp))
-                  Box(
-                      Modifier.fillMaxWidth()
-                          .aspectRatio(1f)
-                          .border(BorderStroke(2.dp, Color.Gray), RoundedCornerShape(16.dp))
-                          .clip(RoundedCornerShape(16.dp))) {
-                        OneScreenGrid(
-                            items = dice.faces,
-                            minSize = 10f,
-                        ) { face, maxWidthDp ->
-                          FaceView(
-                              face,
-                              showWeight = false,
-                              spacing = maxWidthDp.div(10),
-                              color = dice.backgroundColor)
-                        }
-                        if (facesSum > 10) {
-                            CircleOverlay("$facesSum")
-                        }
-                      }
-                }
+        } else {
+          DetailedDiceCard(dice, facesSum)
+        }
+      }
+}
+
+@Composable
+private fun DetailedDiceCard(dice: Dice, facesSum: Int) {
+  Row(
+      verticalAlignment = Alignment.CenterVertically,
+      modifier = Modifier.padding(16.dp).background(dice.backgroundColor)) {
+        Text(
+            text = dice.name,
+            style = MaterialTheme.typography.displayMedium,
+            color = Color.Black,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth(0.66F).padding(16.dp))
+        Spacer(modifier = Modifier.width(8.dp))
+        DicePreview(dice, facesSum)
+      }
+}
+
+@Composable
+private fun DicePreview(dice: Dice, facesSum: Int) {
+  Box(
+      Modifier.fillMaxWidth()
+          .aspectRatio(1f)
+          .border(BorderStroke(2.dp, Color.Gray), RoundedCornerShape(16.dp))
+          .clip(RoundedCornerShape(16.dp))) {
+        OneScreenGrid(
+            items = dice.faces,
+            minSize = 10f,
+        ) { face, maxWidthDp ->
+          Box(contentAlignment = Alignment.Center, modifier = Modifier.size(maxWidthDp)) {
+            FaceView(
+                face,
+                showWeight = false,
+                spacing = maxWidthDp.div(10),
+                color = dice.backgroundColor)
+          }
+        }
+        if (facesSum > 10) {
+          CircleOverlay("$facesSum")
+        }
       }
 }
 
 @Composable
 private fun CircleOverlay(text: String) {
-    Box(
-        modifier =
-        Modifier
-            .wrapContentSize()
-            .aspectRatio(1f)
-            .padding(
-                20.dp
-            ) // TODO better size adjustment, wrapContentSize
-            // didnt work
-            .background(Color(0x80000000), CircleShape)
-            .border(BorderStroke(2.dp, Color.White), CircleShape)
-    ) {
+  Box(
+      modifier =
+          Modifier.wrapContentSize()
+              .aspectRatio(1f)
+              .padding(20.dp) // TODO better size adjustment, wrapContentSize
+              // didnt work
+              .background(Color(0x80000000), CircleShape)
+              .border(BorderStroke(2.dp, Color.White), CircleShape)) {
         Text(
             text = text,
             style = MaterialTheme.typography.displayMedium,
             color = Color.White,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .wrapContentSize()
-        )
-    }
+            modifier = Modifier.align(Alignment.Center).wrapContentSize())
+      }
 }
 
 @Composable
@@ -354,7 +362,10 @@ fun SelectFacesScreen(viewModel: DiceViewModel, onFacesSelectionClick: () -> Uni
                     contentDescription = "Checked",
                     modifier = Modifier.align(Alignment.TopStart))
               }
-              FaceView(face = faces[key] ?: Face(data = image), color = Color.Transparent, spacing = maxWidthDp.div(10))
+              FaceView(
+                  face = faces[key] ?: Face(data = image),
+                  color = Color.Transparent,
+                  spacing = maxWidthDp.div(10))
               if (imageIsSelected) {
                 Slider(
                     value = weight,

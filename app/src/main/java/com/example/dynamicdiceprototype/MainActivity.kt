@@ -18,7 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.dynamicdiceprototype.composables.CreateDiceNavGraph
+import com.example.dynamicdiceprototype.composables.createdice.CreateDiceNavGraph
 import com.example.dynamicdiceprototype.composables.ImageBitmap
 import com.example.dynamicdiceprototype.composables.LandingPage
 import com.example.dynamicdiceprototype.services.DiceViewModel

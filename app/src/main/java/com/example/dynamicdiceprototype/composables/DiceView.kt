@@ -98,8 +98,8 @@ fun NumberCircle(text: String, modifier: Modifier = Modifier, fontSize: TextUnit
 fun FaceView(
     face: Face?,
     spacing: Dp,
-    color: Color,
     modifier: Modifier = Modifier,
+    color: Color = Color.Transparent,
     showWeight: Boolean = true
 ) {
   val spacingMax = spacing.coerceAtMost(24.dp) // TODO refactor or not?
@@ -108,12 +108,12 @@ fun FaceView(
 
   Box(
       modifier =
-          modifier.fillMaxSize().aspectRatio(1f).background(color, RoundedCornerShape(spacingMax))) {
+          modifier
+              .aspectRatio(1f)
+              .background(color, RoundedCornerShape(spacingMax))) {
         SizedImage(
             image = image,
-            Modifier.size(600.dp)
-                .padding(spacingMax)
-                .clip(RoundedCornerShape(spacingMax)))
+            Modifier.fillMaxSize().padding(spacingMax).clip(RoundedCornerShape(spacingMax)))
         if (showWeight && face != null && face.weight > 1) {
           NumberCircle(
               face.weight.toString(),
