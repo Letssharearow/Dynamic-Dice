@@ -9,21 +9,29 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.dynamicdiceprototype.composables.createdice.CreateDiceNavGraph
 import com.example.dynamicdiceprototype.composables.ImageBitmap
-import com.example.dynamicdiceprototype.composables.LandingPage
+import com.example.dynamicdiceprototype.composables.Menu
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,24 +86,37 @@ fun DiceCreationView() {
 
 @Composable
 fun MyApp() {
-
-  val navController = rememberNavController()
-  val viewModel: DiceViewModel = viewModel<DiceViewModel>()
-  val name = "Julis Dice Bundle"
-
-  NavHost(navController, startDestination = Screen.CreateDice.route) {
-    composable(route = Screen.MainScreen.route) {
-      LandingPage(
-          dices = viewModel.dicesState,
-          name = name,
-      ) // TODO refactor this
-    }
-    composable(route = Screen.CreateDice.route) { CreateDiceNavGraph(viewModel) }
+  val scope = rememberCoroutineScope()
+  val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+  Column {
+    AppBar({
+      scope.launch { drawerState.apply { if (isClosed) open() else close() } }
+    }) { /* Handle profile picture button click */}
+    Menu(drawerState = drawerState, scope = scope)
   }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppBar(onMenuClicked: () -> Unit, onProfileClicked: () -> Unit) {
+  TopAppBar(
+      title = { Text(text = "Header Text") },
+      navigationIcon = {
+        IconButton(onClick = { onMenuClicked() }) {
+          Icon(Icons.Filled.Menu, contentDescription = "Menu")
+        }
+      },
+      actions = {
+        IconButton(onClick = onProfileClicked) {
+          Icon(Icons.Filled.AccountCircle, contentDescription = "Profile")
+        }
+      })
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-  DynamicDicePrototypeTheme { DiceCreationView() }
+fun AppBarPreview() {
+  DynamicDicePrototypeTheme {
+    AppBar({ /* Handle navigation icon click */}) { /* Handle profile picture button click */}
+  }
 }

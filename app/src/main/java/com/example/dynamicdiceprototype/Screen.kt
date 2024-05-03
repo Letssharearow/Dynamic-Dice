@@ -4,15 +4,17 @@ private val createDiceRoute = "dice/create"
 
 sealed class Screen(val route: String) {
 
-  object CreateDice : Screen(createDiceRoute)
-
   object MainScreen : Screen("home")
+
+  object CreateDice : Screen(createDiceRoute)
 
   object Templates : Screen("$createDiceRoute/templates")
 
   object SelectFaces : Screen("$createDiceRoute/faces")
 
   object EditTemplate : Screen("$createDiceRoute/templates/edit")
+
+  object DiceGroups : Screen("dice_groups")
 
   fun withArgs(vararg args: String): String {
     return buildString {
