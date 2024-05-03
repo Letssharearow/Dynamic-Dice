@@ -26,6 +26,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.FaceView
 import com.example.dynamicdiceprototype.composables.NumberCircle
@@ -111,7 +115,7 @@ private fun DicePreview(dice: Dice, facesSum: Int) {
                     color = dice.backgroundColor)
               }
         }
-        if (facesSum > 10) {
+        if (facesSum > 2) {
           CircleOverlay("$facesSum")
         }
       }
@@ -135,16 +139,15 @@ private fun CircleOverlay(text: String) {
       }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun DiceCardPeview() {
-  DynamicDicePrototypeTheme { DiceCard(getDices(1).first().copy(faces = getFaces(20)), false) }
-}
 
+class previewProvider: PreviewParameterProvider<Int> {
+    override val values: Sequence<Int>
+        get() = sequenceOf(1,2,3,4,5,6,10,40,45)
+}
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun DiceCardPreviewCompact() {
-  DynamicDicePrototypeTheme { DiceCard(getDices(1).first(), true) }
+fun DiceCardPeview(@PreviewParameter(previewProvider::class) facesCount: Int) {
+  DynamicDicePrototypeTheme { DiceCard(getDices(1).first().copy(faces = getFaces(facesCount)), false) }
 }
 
 @Preview(showBackground = true, backgroundColor = 0, widthDp = 120, heightDp = 120)

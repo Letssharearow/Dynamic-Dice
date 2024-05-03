@@ -12,15 +12,22 @@ import com.example.dynamicdiceprototype.services.DiceViewModel
 @Composable
 fun NavGraph(navController: NavHostController) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
-  val name = "Julis Dice Bundle"
   NavHost(navController, startDestination = Screen.CreateDice.route) {
     composable(route = Screen.MainScreen.route) {
       LandingPage(
           dices = viewModel.dicesState,
-          name = name,
+          name = viewModel.lastBundle,
       ) // TODO refactor this
     }
     composable(route = Screen.CreateDice.route) { CreateDiceNavGraph(viewModel) }
-    composable(route = Screen.DiceGroups.route) { DiceGroupsScreen(viewModel, {}, {}) }
+    composable(route = Screen.DiceGroups.route) {
+      DiceGroupsScreen(
+          viewModel.bundles.keys.toList(),
+          { groupId ->
+            navController.navigate(Screen.MainScreen.route)
+            viewModel.selectDiceGroup(groupId)
+          },
+          {})
+    }
   }
 }

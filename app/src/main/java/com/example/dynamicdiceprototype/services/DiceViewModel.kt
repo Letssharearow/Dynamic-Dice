@@ -70,7 +70,7 @@ object DiceViewModel : ViewModel() {
                           Face(imageId = "${R.drawable.four_transparent}"),
                           Face(imageId = "${R.drawable.five_transparent}"),
                           Face(imageId = "${R.drawable.six_transparent}", weight = 20))))
-  var lastBundle: String = "Kniffel"
+  var lastBundle by mutableStateOf("Kniffel")
 
   fun addDice(dice: Dice) {
     dices[dice.name] = dice
@@ -177,6 +177,15 @@ object DiceViewModel : ViewModel() {
 
   fun setColor(color: Color) {
     dice.backgroundColor = color
+  }
+
+  fun selectDiceGroup(groupId: String) {
+    lastBundle = groupId
+    val mapDices: List<Dice>? =
+        bundles[groupId]?.map {
+          dices[it] ?: Dice(faces = listOf(), name = "delete")
+        } // TODO better handling for null Dice
+    mapDices?.let { dicesState = it }
   }
 }
 

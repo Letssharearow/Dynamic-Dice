@@ -91,7 +91,7 @@ fun MyApp() {
   Column {
     AppBar({
       scope.launch { drawerState.apply { if (isClosed) open() else close() } }
-    }) { /* Handle profile picture button click */}
+    }) { /* TODO Handle profile picture button click */}
     Menu(drawerState = drawerState, scope = scope)
   }
 }

@@ -49,7 +49,7 @@ fun DiceView(
     dice: Dice,
     size: Dp,
     modifier: Modifier = Modifier,
-    onDiceClick: () -> Unit = {},
+    onDiceClick: (dice: Dice) -> Unit = {},
     showWeight: Boolean = false,
 ) {
   val spacing = size.div(10)
@@ -64,7 +64,7 @@ fun DiceView(
                   scaleY = scale
                 }
                 .shadow(spacing, RoundedCornerShape(spacing))
-                .clickable { onDiceClick() }) {
+                .clickable { onDiceClick(dice) }) {
           FaceView(
               face = dice.current,
               showWeight = showWeight,
@@ -106,21 +106,17 @@ fun FaceView(
 
   val image = face?.data
 
-  Box(
-      modifier =
-          modifier
-              .aspectRatio(1f)
-              .background(color, RoundedCornerShape(spacingMax))) {
-        SizedImage(
-            image = image,
-            Modifier.fillMaxSize().padding(spacingMax).clip(RoundedCornerShape(spacingMax)))
-        if (showWeight && face != null && face.weight > 1) {
-          NumberCircle(
-              face.weight.toString(),
-              fontSize = spacingMax.value.sp,
-              modifier = Modifier.align(Alignment.TopEnd))
-        }
-      }
+  Box(modifier = modifier.aspectRatio(1f).background(color, RoundedCornerShape(spacingMax))) {
+    SizedImage(
+        image = image,
+        Modifier.fillMaxSize().padding(spacingMax).clip(RoundedCornerShape(spacingMax)))
+    if (showWeight && face != null && face.weight > 1) {
+      NumberCircle(
+          face.weight.toString(),
+          fontSize = spacingMax.value.sp,
+          modifier = Modifier.align(Alignment.TopEnd))
+    }
+  }
 }
 
 @Composable
