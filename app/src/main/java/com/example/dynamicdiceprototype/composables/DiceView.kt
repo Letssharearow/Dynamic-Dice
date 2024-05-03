@@ -72,7 +72,7 @@ fun DiceView(
               color = dice.backgroundColor)
         }
     if (dice.state == DiceState.LOCKED) {
-      LockIcon(modifier = Modifier.align(Alignment.TopEnd).size(spacing))
+      LockIcon(modifier = Modifier.align(Alignment.TopEnd).size(spacing.times(2)))
     }
   }
 }

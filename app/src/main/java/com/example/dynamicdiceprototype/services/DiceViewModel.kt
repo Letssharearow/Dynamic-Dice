@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 // extend ViewModel to survive configuration change (landscape mode)
 object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
-  var dicesState by mutableStateOf(getDices(7)) //
+  var currentDices by mutableStateOf(getDices(7)) //
   var imageMap by
       mutableStateOf(
           mapOf<String, ImageModel>(
@@ -31,25 +31,13 @@ object DiceViewModel : ViewModel() {
   // create Dice
   var dice by mutableStateOf<Dice>(Dice(name = "Change Later", faces = getFaces(25)))
   var facesSize by mutableStateOf<Int>(20)
-  val bundles: Map<String, List<String>> =
+  val bundles: Map<String, List<Pair<String, Int>>> =
       mutableMapOf(
           "Kniffel" to
               listOf(
-                  "6er",
-                  "6er2",
-                  "6er2",
-                  "6er2",
-                  "6er2",
-                  "6er2",
-                  "6er2",
-                  "6er2",
-                  "6er2",
-                  "6er2",
-                  "6er2",
-                  "6er2",
-                  "6er2",
-                  "6er2",
-                  "6er2"))
+                  Pair("6er", 1),
+                  Pair("random", 15),
+              ))
   val dices =
       mutableStateMapOf(
           "random" to
@@ -131,9 +119,9 @@ object DiceViewModel : ViewModel() {
 
   // Function to update a single dice
   fun lockDice(dice: Dice) {
-    dicesState =
+    currentDices =
         // use Map function to trigger recomposition
-        dicesState.map {
+        currentDices.map {
           if (it == dice) {
             // use copy function to trigger recomposition
             if (dice.state === DiceState.UNLOCKED)
@@ -146,8 +134,8 @@ object DiceViewModel : ViewModel() {
   }
 
   fun rollDices() {
-    dicesState =
-        dicesState.map { dice ->
+    currentDices =
+        currentDices.map { dice ->
           if (dice.state != DiceState.LOCKED) {
             dice.copy(current = null) // set null to trigger recomposition and roll in Dice class
           } else {
@@ -181,11 +169,16 @@ object DiceViewModel : ViewModel() {
 
   fun selectDiceGroup(groupId: String) {
     lastBundle = groupId
-    val mapDices: List<Dice>? =
-        bundles[groupId]?.map {
-          dices[it] ?: Dice(faces = listOf(), name = "delete")
-        } // TODO better handling for null Dice
-    mapDices?.let { dicesState = it }
+    val newDicesState = mutableListOf<Dice>()
+    bundles[groupId]?.forEach { idAndCount ->
+      val diceToAdd = dices[idAndCount.first]
+      diceToAdd?.let {
+        for (i in 1..idAndCount.second) {
+          newDicesState.add(diceToAdd)
+        }
+      } // TODO better handling for null Dice
+    }
+    currentDices = newDicesState
   }
 }
 
