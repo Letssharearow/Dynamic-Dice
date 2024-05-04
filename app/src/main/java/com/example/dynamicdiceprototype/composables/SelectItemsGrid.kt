@@ -13,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceInGroup
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import kotlin.math.ceil
 
 @Composable
 fun <T> SelectItemsGrid(
@@ -52,15 +54,23 @@ fun <T> SelectItemsGrid(
               contentDescription = "Checked",
               modifier = Modifier.align(Alignment.TopStart))
         }
-        view(item, Modifier.clickable { selectedItems[getId(item)] = item }, maxWidthDp)
+        view(
+            item,
+            Modifier.clickable {
+              val selectedItem = selectedItems[getId(item)]
+              if (selectedItem == null) selectedItems[getId(item)] = item
+              else selectedItems.remove(getId(item))
+            },
+            maxWidthDp)
         if (isSelected) {
+            val selectedItem = selectedItems[getId(item)]!!
           Slider(
-              value = getCount(item).toFloat(),
+              value = getCount(selectedItem).toFloat(),
               onValueChange = { value ->
-                selectedItems[getId(item)] = copy(selectedItems[getId(item)]!!, value.toInt())
+                selectedItems[getId(item)] = copy(selectedItems[getId(item)]!!, ceil(value).toInt())
               },
               valueRange = 1f..size.toFloat(),
-              steps = size,
+              steps = size - 1,
               modifier =
                   Modifier.align(Alignment.BottomCenter)
                       .padding(8.dp)
@@ -83,39 +93,39 @@ private fun SelectItemsGridPreview() {
         selectables =
             listOf(
                 DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
-//                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(faces = listOf()), count = 2),
             ),
         size = 2,
         onSaveSelection = {},
