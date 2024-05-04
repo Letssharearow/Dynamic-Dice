@@ -26,13 +26,20 @@ fun Menu(drawerState: DrawerState, scope: CoroutineScope) {
         ModalDrawerSheet {
           Text("Navigate", fontWeight = FontWeight(550), modifier = Modifier.padding(16.dp))
           Divider()
-          NavigationDrawerItem(
-              label = { Text(text = "Main Screen") },
-              selected = false,
-              onClick = {
-                navController.navigate(Screen.MainScreen.route)
-                scope.launch { drawerState.close() }
-              })
+            NavigationDrawerItem(
+                label = { Text(text = "Test Screen") },
+                selected = false,
+                onClick = {
+                    navController.navigate(Screen.TestScreen.route)
+                    scope.launch { drawerState.close() }
+                })
+            NavigationDrawerItem(
+                label = { Text(text = "Main Screen") },
+                selected = false,
+                onClick = {
+                    navController.navigate(Screen.MainScreen.route)
+                    scope.launch { drawerState.close() }
+                })
           NavigationDrawerItem(
               label = { Text(text = "Create Dice") },
               selected = false,

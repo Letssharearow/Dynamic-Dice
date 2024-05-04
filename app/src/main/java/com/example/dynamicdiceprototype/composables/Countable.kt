@@ -1,9 +1,6 @@
 package com.example.dynamicdiceprototype.composables
 
-interface Countable<Me : Countable<Me>> {
-  fun getCount(): Int
+interface Copyable<out T> where T : Copyable<T> {
 
-  fun getId(): String
-
-  fun copy(count: Int): Me
+  fun copy(count: Int): T
 }

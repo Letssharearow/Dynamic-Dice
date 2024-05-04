@@ -5,7 +5,7 @@ import kotlin.random.Random
 
 data class Dice(
     var name: String = "diceName",
-    val faces: List<Face>,
+    var faces: List<Face>,
     var current: Face? = null,
     var state: DiceState = DiceState.UNLOCKED,
     var rotation: Float = ((Random.nextFloat() * (15) + 5) * if (Random.nextBoolean()) -1 else 1),

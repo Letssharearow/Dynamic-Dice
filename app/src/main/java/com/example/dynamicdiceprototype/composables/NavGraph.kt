@@ -15,6 +15,7 @@ import com.example.dynamicdiceprototype.services.TAG
 fun NavGraph(navController: NavHostController) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   NavHost(navController, startDestination = Screen.CreateDice.route) {
+    composable(route = Screen.TestScreen.route) { TestScreen() }
     composable(route = Screen.MainScreen.route) {
       LandingPage(
           dices = viewModel.currentDices,

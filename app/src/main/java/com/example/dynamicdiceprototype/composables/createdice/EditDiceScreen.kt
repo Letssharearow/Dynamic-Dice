@@ -29,8 +29,8 @@ import com.example.dynamicdiceprototype.services.DiceViewModel
 
 @Composable
 fun EditDiceScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit: () -> Unit) {
-  var name by remember { mutableStateOf(viewModel.dice.name) }
-  var color by remember { mutableStateOf(viewModel.dice.backgroundColor) }
+  var name by remember { mutableStateOf(viewModel.newDice.name) }
+  var color by remember { mutableStateOf(viewModel.newDice.backgroundColor) }
   var isColorPickerOpen by remember { mutableStateOf(false) }
 
   ArrangedColumn {
@@ -57,7 +57,7 @@ fun EditDiceScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit: () 
     }
     Box(modifier = Modifier.weight(1F)) {
       OneScreenGrid(
-          items = viewModel.dice.faces, minSize = if (isColorPickerOpen) 2000F else 200F) {
+          items = viewModel.newDice.faces, minSize = if (isColorPickerOpen) 2000F else 200F) {
               item,
               maxWidth ->
             FaceView(face = item, showWeight = true, spacing = maxWidth.div(10), color = color)

@@ -29,7 +29,7 @@ object DiceViewModel : ViewModel() {
           ))
 
   // create Dice
-  var dice by mutableStateOf<Dice>(Dice(name = "Change Later", faces = getFaces(25)))
+  var newDice by mutableStateOf<Dice>(Dice(name = "Change Later", faces = getFaces(25)))
   var facesSize by mutableStateOf<Int>(20)
   val bundles: Map<String, List<Pair<String, Int>>> =
       mutableMapOf(
@@ -65,9 +65,11 @@ object DiceViewModel : ViewModel() {
     // TODO Store config locally
   }
 
-  fun setImages(images: Map<String, ImageModel>) {
+  fun mapDiceIdsToImages(images: Map<String, ImageModel>) {
     dices.forEach { it.value.faces.map { face -> face.data = images[face.imageId] } }
   }
+
+  // create Dice Flow
 
   fun copyDice(name: String): Dice {
     val diceState = dices[name]
@@ -88,28 +90,35 @@ object DiceViewModel : ViewModel() {
   }
 
   fun setStartDice(newDice: Dice) {
-    dice = copyDice(newDice.name)
-  }
-
-  fun createNewDice(name: String, numFaces: Int) {
-    facesSize = numFaces
-    dice = Dice(name = name, faces = listOf())
+    this.newDice = copyDice(newDice.name)
   }
 
   fun updateSelectedFaces(faces: Map<String, Face>) {
-    dice = dice.copy(faces = faces.values.toList())
+    newDice = newDice.copy(faces = faces.values.toList())
   }
 
   fun updateBackgroundColor(color: Color) {
-    dice = dice.copy(backgroundColor = color)
+    newDice = newDice.copy(backgroundColor = color)
   }
 
   fun setDiceName(name: String) {
-    dice.name = name
+    newDice.name = name
+  }
+
+  fun setFaceSize(number: Int) {
+    facesSize = number
+  }
+
+  fun setSelectedFaces(values: Collection<Face>) {
+    newDice.faces = values.toList()
+  }
+
+  fun setColor(color: Color) {
+    newDice.backgroundColor = color
   }
 
   fun saveDice() {
-    addDice(dice)
+    addDice(newDice)
   }
   // end create dice
 
@@ -154,17 +163,9 @@ object DiceViewModel : ViewModel() {
     viewModelScope.launch {
       firebase.imagesFlow.collect { images ->
         imageMap = images
-        setImages(images)
+        mapDiceIdsToImages(images)
       }
     }
-  }
-
-  fun setFaceSize(number: Int) {
-    facesSize = number
-  }
-
-  fun setColor(color: Color) {
-    dice.backgroundColor = color
   }
 
   fun selectDiceGroup(groupId: String) {

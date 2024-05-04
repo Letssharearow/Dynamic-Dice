@@ -6,6 +6,8 @@ sealed class Screen(val route: String) {
 
   object MainScreen : Screen("home")
 
+  object TestScreen : Screen("Test")
+
   object CreateDice : Screen(createDiceRoute)
 
   object Templates : Screen("$createDiceRoute/templates")
