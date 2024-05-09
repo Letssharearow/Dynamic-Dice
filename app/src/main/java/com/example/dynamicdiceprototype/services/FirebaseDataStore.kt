@@ -16,7 +16,7 @@ import kotlinx.coroutines.tasks.await
 
 const val TAG = "MyApp"
 private const val COLLECTION_NAME = "images"
-const val local = true
+const val local = false
 
 enum class ImageProperty {
   CONTENT_DESCRIPTION,

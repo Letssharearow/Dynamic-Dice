@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 // extend ViewModel to survive configuration change (landscape mode)
 object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
-  var currentDices by mutableStateOf(getDices(7)) //
+  var currentDices by mutableStateOf(getDices(5)) //
   var imageMap by
       mutableStateOf(
           mapOf<String, ImageModel>(
@@ -29,14 +29,13 @@ object DiceViewModel : ViewModel() {
           ))
 
   // create Dice
-  var newDice by mutableStateOf<Dice>(Dice(name = "Change Later", faces = getFaces(25)))
+  var newDice by mutableStateOf<Dice>(Dice(name = "Change Later"))
   var facesSize by mutableStateOf<Int>(20)
-  val bundles: Map<String, List<Pair<String, Int>>> =
+  val bundles: MutableMap<String, List<Pair<String, Int>>> =
       mutableMapOf(
           "Kniffel" to
               listOf(
-                  Pair("6er", 1),
-                  Pair("random", 15),
+                  Pair("6er", 5),
               ))
   val dices =
       mutableStateMapOf(
@@ -57,7 +56,7 @@ object DiceViewModel : ViewModel() {
                           Face(imageId = "${R.drawable.three_transparent}"),
                           Face(imageId = "${R.drawable.four_transparent}"),
                           Face(imageId = "${R.drawable.five_transparent}"),
-                          Face(imageId = "${R.drawable.six_transparent}", weight = 20))))
+                          Face(imageId = "${R.drawable.six_transparent}"))))
   var lastBundle by mutableStateOf("Kniffel")
 
   fun addDice(dice: Dice) {
@@ -67,6 +66,7 @@ object DiceViewModel : ViewModel() {
 
   fun mapDiceIdsToImages(images: Map<String, ImageModel>) {
     dices.forEach { it.value.faces.map { face -> face.data = images[face.imageId] } }
+    currentDices.forEach { it.faces.map { face -> face.data = images[face.imageId] } }
   }
 
   // create Dice Flow
@@ -105,8 +105,9 @@ object DiceViewModel : ViewModel() {
     newDice.name = name
   }
 
-  fun setFaceSize(number: Int) {
+  fun createNewDice(number: Int) {
     facesSize = number
+    newDice = Dice(name = "Change Later")
   }
 
   fun setSelectedFaces(values: Collection<Face>) {
@@ -121,6 +122,10 @@ object DiceViewModel : ViewModel() {
     addDice(newDice)
   }
   // end create dice
+
+  fun createDiceGroup(name: String, dices: Map<String, Pair<Dice, Int>>) {
+    bundles[name] = listOf(*dices.map { Pair(it.key, it.value.second) }.toTypedArray())
+  }
 
   init {
     collectFlow()
@@ -196,6 +201,7 @@ fun getDices(n: Int = 5): List<Dice> {
   for (i in 1..n) {
     list.add(
         Dice(
+            name = "6er",
             faces =
                 listOf(
                     Face(imageId = "${R.drawable.one_transparent}"),

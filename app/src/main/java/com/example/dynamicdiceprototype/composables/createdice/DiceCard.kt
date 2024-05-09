@@ -26,8 +26,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewFontScale
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
@@ -90,14 +88,15 @@ private fun DetailedDiceCard(dice: Dice, facesSum: Int) {
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.fillMaxWidth(0.66F).padding(16.dp))
         Spacer(modifier = Modifier.width(8.dp))
-        DicePreview(dice, facesSum)
+        DicePreview(dice, facesSum, Modifier.fillMaxWidth().aspectRatio(1f))
       }
 }
 
 @Composable
-private fun DicePreview(dice: Dice, facesSum: Int) {
+fun DicePreview(dice: Dice, facesSum: Int, modifier: Modifier = Modifier) {
   Box(
-      Modifier.fillMaxWidth()
+      modifier
+          .fillMaxWidth()
           .aspectRatio(1f)
           .border(BorderStroke(2.dp, Color.Gray), RoundedCornerShape(16.dp))
           .clip(RoundedCornerShape(16.dp))) {
@@ -112,7 +111,8 @@ private fun DicePreview(dice: Dice, facesSum: Int) {
                     face,
                     showWeight = false,
                     spacing = maxWidthDp.div(10),
-                    color = dice.backgroundColor)
+                    color = dice.backgroundColor,
+                    modifier = Modifier.padding(maxWidthDp.div(20)))
               }
         }
         if (facesSum > 2) {
@@ -139,15 +139,17 @@ private fun CircleOverlay(text: String) {
       }
 }
 
-
-class previewProvider: PreviewParameterProvider<Int> {
-    override val values: Sequence<Int>
-        get() = sequenceOf(1,2,3,4,5,6,10,40,45)
+class previewProvider : PreviewParameterProvider<Int> {
+  override val values: Sequence<Int>
+    get() = sequenceOf(1, 2, 3, 4, 5, 6, 10, 40, 45)
 }
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun DiceCardPeview(@PreviewParameter(previewProvider::class) facesCount: Int) {
-  DynamicDicePrototypeTheme { DiceCard(getDices(1).first().copy(faces = getFaces(facesCount)), false) }
+  DynamicDicePrototypeTheme {
+    DiceCard(getDices(1).first().copy(faces = getFaces(facesCount)), false)
+  }
 }
 
 @Preview(showBackground = true, backgroundColor = 0, widthDp = 120, heightDp = 120)

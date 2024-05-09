@@ -15,10 +15,16 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
   NavHost(navController, startDestination = Screen.Templates.route) {
     composable(route = Screen.Templates.route) {
       TemplateSelectionScreen(
-          diceViewModel, onSelectTemplate = { navController.navigate(Screen.EditTemplate.route) }) {
-            diceViewModel.setFaceSize(it)
+          dices = diceViewModel.dices.values.toList(),
+          onSelectTemplate = {
+            navController.navigate(Screen.EditTemplate.route)
+            diceViewModel.setStartDice(it)
+          },
+          onCreateNewDice = {
+            diceViewModel.createNewDice(it)
             navController.navigate(Screen.SelectFaces.route)
-          }
+          },
+          onRemoveDice = { diceViewModel.removeDice(it) })
     }
     composable(route = Screen.SelectFaces.route) {
       SelectFacesScreen(

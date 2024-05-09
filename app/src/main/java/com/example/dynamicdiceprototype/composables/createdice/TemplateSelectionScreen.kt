@@ -32,16 +32,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.ContinueButton
-import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.services.getDices
+import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TemplateSelectionScreen(
-    viewModel: DiceViewModel,
-    onSelectTemplate: () -> Unit,
+    dices: List<Dice>,
+    onSelectTemplate: (dice: Dice) -> Unit,
+    onRemoveDice: (dice: Dice) -> Unit,
     onCreateNewDice: (number: Int) -> Unit
 ) {
 
@@ -52,28 +56,25 @@ fun TemplateSelectionScreen(
     Row(
         modifier = Modifier.fillMaxWidth().padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween) {
-          Text(
-              "Copy or Create New Dice",
-          )
+        horizontalArrangement = Arrangement.End) {
           Row(
               verticalAlignment = Alignment.CenterVertically,
               horizontalArrangement = Arrangement.End) {
-                Text("Toggle View")
+                Text("Toggle View", Modifier.padding(end = 8.dp))
                 Switch(checked = isCompact, onCheckedChange = { isCompact = it })
               }
         }
 
     ArrangedColumn {
       LazyColumn {
-        items(items = viewModel.dices.values.toList(), key = { item -> item.name }) { template ->
+        items(items = dices, key = { item -> item.name }) { template ->
           // Create a dismiss state for each item
           val dismissState =
               rememberDismissState(
                   confirmValueChange = { dismissValue ->
                     if (dismissValue == DismissValue.DismissedToStart) {
-                      viewModel.removeDice(template) // Replace with your method to remove the item
-                      true // This confirms the dismissal
+                      onRemoveDice(template)
+                      true
                     } else {
                       false
                     }
@@ -92,15 +93,9 @@ fun TemplateSelectionScreen(
                 }
               },
               dismissContent = {
-                Box(
-                    modifier =
-                        Modifier.clickable {
-                              viewModel.setStartDice(template)
-                              onSelectTemplate()
-                            }
-                            .fillMaxWidth()) {
-                      DiceCard(template, isCompact)
-                    }
+                Box(modifier = Modifier.clickable { onSelectTemplate(template) }.fillMaxWidth()) {
+                  DiceCard(template, isCompact)
+                }
               })
         }
       }
@@ -122,6 +117,16 @@ fun TemplateSelectionScreen(
                 text = "+",
                 enabled = !number.isNullOrEmpty())
           }
+    }
+  }
+}
+
+@Preview
+@Composable
+private fun preview() {
+  DynamicDicePrototypeTheme {
+    TemplateSelectionScreen(dices = getDices(4), onSelectTemplate = {}, onRemoveDice = {}) {
+      //
     }
   }
 }

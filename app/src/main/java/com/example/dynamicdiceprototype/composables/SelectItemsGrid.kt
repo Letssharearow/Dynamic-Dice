@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -46,38 +47,40 @@ fun <T> SelectItemsGrid(
   ArrangedColumn {
     OneScreenGrid(items = selectables, minSize = 400f, Modifier.weight(1f)) { item, maxWidthDp
       -> // TODO hardcoded minSize, maybe as parameter?
-      Box {
-        val isSelected = selectedItems[getId(item)] != null
-        if (isSelected) {
-          Icon(
-              imageVector = Icons.Filled.Check,
-              contentDescription = "Checked",
-              modifier = Modifier.align(Alignment.TopStart))
-        }
-        view(
-            item,
-            Modifier.clickable {
-              val selectedItem = selectedItems[getId(item)]
-              if (selectedItem == null) selectedItems[getId(item)] = item
-              else selectedItems.remove(getId(item))
-            },
-            maxWidthDp)
-        if (isSelected) {
-          val selectedItem = selectedItems[getId(item)]!!
-          Slider(
-              value = getCount(selectedItem).toFloat(),
-              onValueChange = { value ->
-                selectedItems[getId(item)] = copy(selectedItems[getId(item)]!!, ceil(value).toInt())
-              },
-              valueRange = 1f..size.toFloat(),
-              steps = size - 1,
-              modifier =
-                  Modifier.align(Alignment.BottomCenter)
-                      .padding(8.dp)
-                      .clip(RoundedCornerShape(12.dp))
-                      .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5F)))
-        }
-      }
+      Box(
+          contentAlignment = Alignment.Center,
+          modifier =
+              Modifier.fillMaxWidth().padding(8.dp).clickable {
+                val selectedItem = selectedItems[getId(item)]
+                if (selectedItem == null) selectedItems[getId(item)] = item
+                else selectedItems.remove(getId(item))
+              }) {
+            val isSelected = selectedItems[getId(item)] != null
+            if (isSelected) {
+              Icon(
+                  imageVector = Icons.Filled.Check,
+                  contentDescription = "Checked",
+                  modifier = Modifier.align(Alignment.TopStart))
+            }
+            view(item, Modifier, maxWidthDp)
+            if (isSelected) {
+              val selectedItem = selectedItems[getId(item)]!!
+              Slider(
+                  value = getCount(selectedItem).toFloat(),
+                  onValueChange = { value ->
+                    selectedItems[getId(item)] =
+                        copy(selectedItems[getId(item)]!!, ceil(value).toInt())
+                  },
+                  valueRange = 1f..size.toFloat(),
+                  steps = size - 1,
+                  modifier =
+                      Modifier.align(Alignment.BottomCenter)
+                          .padding(8.dp)
+                          .clip(RoundedCornerShape(12.dp))
+                          .background(
+                              MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5F)))
+            }
+          }
     }
     ContinueButton(
         onClick = { onSaveSelection(selectedItems) },

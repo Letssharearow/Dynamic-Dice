@@ -33,6 +33,7 @@ import com.example.dynamicdiceprototype.composables.ImageBitmap
 import com.example.dynamicdiceprototype.composables.Menu
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
+import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import kotlinx.coroutines.launch
 
@@ -40,7 +41,7 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val res = resources
-    //    uploadRessources(res)
+    uploadRessources(res)
 
     setContent {
       DynamicDicePrototypeTheme {
@@ -58,15 +59,21 @@ fun uploadRessources(res: Resources) {
   data class ImageModelSetDTO(val image: Int, val name: String)
   val images =
       arrayOf<ImageModelSetDTO>(
-          ImageModelSetDTO(image = R.drawable.cameleon, name = "cameleon"),
-          ImageModelSetDTO(image = R.drawable.elephant, name = "elephant"),
-          ImageModelSetDTO(image = R.drawable.fish, name = "fish"),
-          ImageModelSetDTO(image = R.drawable.frog, name = "frog"),
-          ImageModelSetDTO(image = R.drawable.lion, name = "lion"),
-          ImageModelSetDTO(image = R.drawable.monkey, name = "monkey"),
-          ImageModelSetDTO(image = R.drawable.owl, name = "owl"),
-          ImageModelSetDTO(image = R.drawable.parrot, name = "parrot"),
-          ImageModelSetDTO(image = R.drawable.penguin, name = "penguin"),
+          //          ImageModelSetDTO(image = R.drawable.cameleon, name = "cameleon"),
+          //          ImageModelSetDTO(image = R.drawable.elephant, name = "elephant"),
+          //          ImageModelSetDTO(image = R.drawable.fish, name = "fish"),
+          //          ImageModelSetDTO(image = R.drawable.frog, name = "frog"),
+          //          ImageModelSetDTO(image = R.drawable.lion, name = "lion"),
+          //          ImageModelSetDTO(image = R.drawable.monkey, name = "monkey"),
+          //          ImageModelSetDTO(image = R.drawable.owl, name = "owl"),
+          //          ImageModelSetDTO(image = R.drawable.parrot, name = "parrot"),
+          //          ImageModelSetDTO(image = R.drawable.penguin, name = "penguin"),
+          ImageModelSetDTO(image = R.drawable.one_transparent, name = "one_transparent"),
+          ImageModelSetDTO(image = R.drawable.two_transparent, name = "two_transparent"),
+          ImageModelSetDTO(image = R.drawable.three_transparent, name = "three_transparent"),
+          ImageModelSetDTO(image = R.drawable.four_transparent, name = "four_transparent"),
+          ImageModelSetDTO(image = R.drawable.five_transparent, name = "five_transparent"),
+          ImageModelSetDTO(image = R.drawable.six_transparent, name = "six_transparent"),
       )
   images.forEach {
     var bitmap = BitmapFactory.decodeResource(res, it.image)
@@ -138,8 +145,9 @@ fun MyApp() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(onMenuClicked: () -> Unit, onProfileClicked: () -> Unit) {
+  val viewModel = viewModel<HeaderViewModel>()
   TopAppBar(
-      title = { Text(text = "Header Text") },
+      title = { Text(text = viewModel.headerText) },
       navigationIcon = {
         IconButton(onClick = { onMenuClicked() }) {
           Icon(Icons.Filled.Menu, contentDescription = "Menu")

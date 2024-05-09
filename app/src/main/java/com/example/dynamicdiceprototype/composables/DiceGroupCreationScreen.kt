@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
+import com.example.dynamicdiceprototype.composables.createdice.DicePreview
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
@@ -29,10 +31,10 @@ fun DiceGroupCreationScreen(
     dices: List<Pair<Dice, Int>>,
     onCreateDiceGroup: (name: String, dices: Map<String, Pair<Dice, Int>>) -> Unit,
     groupSize: Int = 4,
-    initialValue: Map<String, Pair<Dice, Int>>,
+    initialValue: Map<String, Pair<Dice, Int>> = mapOf(),
 ) {
   var name by remember { mutableStateOf("Change Later") }
-  var number by remember { mutableStateOf<String?>("6") }
+  var number by remember { mutableStateOf<String?>("$groupSize") }
   ArrangedColumn {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -46,8 +48,11 @@ fun DiceGroupCreationScreen(
           OutlinedTextField(
               value = number.toString(),
               onValueChange = { newValue ->
-                number = newValue.takeIf { it.isNotEmpty() && it.isDigitsOnly() } ?: ""
+                  number =
+                      newValue.takeIf { it.isDigitsOnly() && it.length <= 3 }
+                          ?: number
               },
+              singleLine = true,
               label = { Text("New Dice Faces Count") },
               keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
               modifier = Modifier.wrapContentSize(),
@@ -56,7 +61,7 @@ fun DiceGroupCreationScreen(
 
     SelectItemsGrid(
         selectables = dices,
-        size = number?.toInt() ?: 0,
+        size = number?.takeIf { it.isDigitsOnly() && it.isNotEmpty() }?.toInt() ?: 0,
         onSaveSelection = { onCreateDiceGroup(name, it) },
         initialValue = initialValue,
         getCount = { it.second },
@@ -65,7 +70,7 @@ fun DiceGroupCreationScreen(
             diceAndCount,
             modifier,
             maxWidth ->
-          DiceView(dice = diceAndCount.first, size = maxWidth, modifier)
+          DicePreview(dice = diceAndCount.first, facesSum = 1, Modifier.size(maxWidth))
         }
   }
 }
