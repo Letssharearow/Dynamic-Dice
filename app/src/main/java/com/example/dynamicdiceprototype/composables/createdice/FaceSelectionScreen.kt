@@ -14,11 +14,12 @@ import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 fun SelectFacesScreen(
     faces: List<Face>,
     initialValue: Map<String, Face>,
+    size: Int,
     onFacesSelectionClick: (Map<String, Face>) -> Unit
 ) {
   SelectItemsGrid<Face>(
       selectables = faces,
-      size = 2,
+      size = size,
       onSaveSelection = { map -> onFacesSelectionClick(map) },
       getCount = { face -> face.weight },
       copy = { face, count -> face.copy(weight = count) },
@@ -30,5 +31,7 @@ fun SelectFacesScreen(
 @Preview(device = Devices.PIXEL_TABLET)
 @Composable
 private fun SelectFacesScreenPreview() {
-  DynamicDicePrototypeTheme { SelectFacesScreen(faces = getFaces(30), initialValue = mapOf()) {} }
+  DynamicDicePrototypeTheme {
+    SelectFacesScreen(faces = getFaces(30), size = 6, initialValue = mapOf()) {}
+  }
 }

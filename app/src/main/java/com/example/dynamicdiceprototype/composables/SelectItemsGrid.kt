@@ -13,7 +13,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,6 +36,7 @@ fun <T> SelectItemsGrid(
     getCount: (T) -> Int,
     getId: (T) -> String,
     copy: (item: T, count: Int) -> T,
+    modifier: Modifier = Modifier,
     view: @Composable (item: T, modifier: Modifier, size: Dp) -> Unit,
 ) {
 
@@ -63,7 +63,7 @@ fun <T> SelectItemsGrid(
             },
             maxWidthDp)
         if (isSelected) {
-            val selectedItem = selectedItems[getId(item)]!!
+          val selectedItem = selectedItems[getId(item)]!!
           Slider(
               value = getCount(selectedItem).toFloat(),
               onValueChange = { value ->

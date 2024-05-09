@@ -23,6 +23,7 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
     composable(route = Screen.SelectFaces.route) {
       SelectFacesScreen(
           faces = diceViewModel.imageMap.map { Face(data = it.value, imageId = it.key) },
+          size = diceViewModel.facesSize,
           initialValue =
               diceViewModel.newDice.faces.associate {
                 Pair(it.imageId, it)

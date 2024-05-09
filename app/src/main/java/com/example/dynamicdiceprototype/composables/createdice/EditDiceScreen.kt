@@ -60,7 +60,12 @@ fun EditDiceScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit: () 
           items = viewModel.newDice.faces, minSize = if (isColorPickerOpen) 2000F else 200F) {
               item,
               maxWidth ->
-            FaceView(face = item, showWeight = true, spacing = maxWidth.div(10), color = color)
+            FaceView(
+                face = item,
+                showWeight = true,
+                spacing = maxWidth.div(10),
+                color = color,
+                modifier = Modifier.padding(maxWidth.div(20)))
           }
     }
     if (isColorPickerOpen) {

@@ -18,6 +18,8 @@ sealed class Screen(val route: String) {
 
   object DiceGroups : Screen("dice_groups")
 
+  object CreateDiceGroup : Screen("dice_groups/create")
+
   fun withArgs(vararg args: String): String {
     return buildString {
       append(route)
