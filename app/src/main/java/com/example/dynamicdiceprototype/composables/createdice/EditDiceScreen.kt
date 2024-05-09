@@ -19,18 +19,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.ColorPicker
 import com.example.dynamicdiceprototype.composables.ContinueButton
 import com.example.dynamicdiceprototype.composables.FaceView
 import com.example.dynamicdiceprototype.composables.SingleLineInput
-import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.data.Dice
 
 @Composable
-fun EditDiceScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit: () -> Unit) {
-  var name by remember { mutableStateOf(viewModel.newDice.name) }
-  var color by remember { mutableStateOf(viewModel.newDice.backgroundColor) }
+fun EditDiceScreen(
+    dice: Dice,
+    onSaveDice: (name: String, color: Color) -> Unit,
+    onEdit: (name: String, color: Color) -> Unit
+) {
+  var name by remember { mutableStateOf(dice.name) }
+  var color by remember { mutableStateOf(dice.backgroundColor) }
   var isColorPickerOpen by remember { mutableStateOf(false) }
 
   ArrangedColumn {
@@ -56,17 +61,16 @@ fun EditDiceScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit: () 
       }
     }
     Box(modifier = Modifier.weight(1F)) {
-      OneScreenGrid(
-          items = viewModel.newDice.faces, minSize = if (isColorPickerOpen) 2000F else 200F) {
-              item,
-              maxWidth ->
-            FaceView(
-                face = item,
-                showWeight = true,
-                spacing = maxWidth.div(10),
-                color = color,
-                modifier = Modifier.padding(maxWidth.div(20)))
-          }
+      OneScreenGrid(items = dice.faces, minSize = if (isColorPickerOpen) 2000F else 200F) {
+          item,
+          maxWidth ->
+        FaceView(
+            face = item,
+            showWeight = true,
+            spacing = maxWidth.div(10),
+            color = color,
+            modifier = Modifier.padding(maxWidth.div(20)))
+      }
     }
     if (isColorPickerOpen) {
       ColorPicker(
@@ -76,20 +80,8 @@ fun EditDiceScreen(viewModel: DiceViewModel, onSaveDice: () -> Unit, onEdit: () 
           modifier = Modifier.fillMaxHeight(0.4F))
     }
     Row(horizontalArrangement = Arrangement.SpaceAround) {
-      ContinueButton(
-          onClick = {
-            viewModel.setDiceName(name)
-            viewModel.setColor(color)
-            onEdit()
-          },
-          text = "Edit")
-      ContinueButton(
-          onClick = {
-            viewModel.setDiceName(name)
-            viewModel.setColor(color)
-            onSaveDice()
-          },
-          text = "Save Dice")
+      ContinueButton(onClick = { onEdit(name, color) }, text = "Edit")
+      ContinueButton(onClick = { onSaveDice(name, color) }, text = "Save Dice")
     }
   }
 }

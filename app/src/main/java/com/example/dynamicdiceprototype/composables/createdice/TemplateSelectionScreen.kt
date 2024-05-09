@@ -1,5 +1,6 @@
 package com.example.dynamicdiceprototype.composables.createdice
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,19 +13,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,37 +74,71 @@ fun TemplateSelectionScreen(
     ArrangedColumn {
       LazyColumn {
         items(items = dices, key = { item -> item.name }) { template ->
-          // Create a dismiss state for each item
-          val dismissState =
-              rememberDismissState(
-                  confirmValueChange = { dismissValue ->
-                    if (dismissValue == DismissValue.DismissedToStart) {
-                      onRemoveDice(template)
-                      true
-                    } else {
-                      false
-                    }
-                  })
+          val dismissState = rememberDismissState()
+          var openDialog by remember { mutableStateOf(false) }
 
-          SwipeToDismiss(
+          LaunchedEffect(dismissState.currentValue) {
+            if (dismissState.currentValue == DismissValue.DismissedToStart) {
+              openDialog = true
+            }
+          }
+
+          LaunchedEffect(openDialog) {
+            if (!openDialog) {
+              dismissState.reset()
+            }
+          }
+
+          if (openDialog) {
+            AlertDialog(
+                onDismissRequest = { openDialog = false },
+                title = { Text("Confirm Deletion") },
+                text = { Text("Are you sure you want to delete this item?") },
+                confirmButton = {
+                  Button(
+                      onClick = {
+                        onRemoveDice(template)
+                        openDialog = false
+                      }) {
+                        Text("Confirm")
+                      }
+                },
+                dismissButton = { Button(onClick = { openDialog = false }) { Text("Cancel") } })
+          }
+
+          SwipeToDismissBox(
               state = dismissState,
+              modifier = Modifier.padding(vertical = 4.dp),
               directions = setOf(DismissDirection.EndToStart),
-              background = {
-                Box(Modifier.fillMaxSize()) {
-                  Icon(
-                      imageVector = Icons.Filled.Delete,
-                      contentDescription = "Delete",
-                      Modifier.align(Alignment.CenterEnd)
-                          .size(80.dp)) // TODO remove fixed size and find better way
-                }
+              backgroundContent = {
+                Box(
+                    Modifier.fillMaxSize()
+                        .padding(8.dp)
+                        .background(
+                            shape =
+                                RoundedCornerShape(
+                                    16
+                                        .dp), // TODO make variable to have the same shape for
+                                              // DiceCard?
+                            color = MaterialTheme.colorScheme.errorContainer)) {
+                      Icon(
+                          imageVector = Icons.Filled.Delete,
+                          contentDescription = "Delete",
+                          Modifier.align(Alignment.CenterEnd).padding(end = 16.dp).size(80.dp))
+                    }
               },
-              dismissContent = {
-                Box(modifier = Modifier.clickable { onSelectTemplate(template) }.fillMaxWidth()) {
-                  DiceCard(template, isCompact)
-                }
+              content = {
+                Box(
+                    modifier =
+                        Modifier.clickable { onSelectTemplate(template) }
+                            .fillMaxWidth()
+                            .padding(8.dp)) {
+                      DiceCard(template, isCompact)
+                    }
               })
         }
       }
+
       Row(
           verticalAlignment = Alignment.CenterVertically,
           modifier = Modifier.wrapContentSize().padding(vertical = 16.dp)) {

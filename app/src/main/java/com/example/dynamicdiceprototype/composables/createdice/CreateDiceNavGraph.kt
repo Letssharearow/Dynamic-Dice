@@ -1,6 +1,13 @@
 package com.example.dynamicdiceprototype.composables.createdice
 
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -39,13 +46,43 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
           }
     }
     composable(route = Screen.EditTemplate.route) {
+      var openDialog by remember { mutableStateOf(false) }
       EditDiceScreen(
-          diceViewModel,
-          onEdit = { navController.navigate(Screen.SelectFaces.route) },
-          onSaveDice = {
-            navController.navigate(Screen.Templates.route)
-            diceViewModel.saveDice()
+          diceViewModel.newDice,
+          onEdit = { name, color ->
+            diceViewModel.setDiceName(name)
+            diceViewModel.setColor(color)
+            navController.navigate(Screen.SelectFaces.route)
+          },
+          onSaveDice = { name, color ->
+            diceViewModel.setDiceName(name)
+            diceViewModel.setColor(color)
+            if (diceViewModel.dices.contains(name)) {
+              openDialog = true
+            } else {
+              diceViewModel.saveDice()
+              navController.navigate(Screen.Templates.route)
+            }
           })
+      if (openDialog) {
+        AlertDialog(
+            onDismissRequest = { openDialog = false },
+            title = { Text("Confirm Overwriting Dice") },
+            text = {
+              Text("A dice with this name already exists, are you sure you want to overwrite it?")
+            },
+            confirmButton = {
+              Button(
+                  onClick = {
+                    openDialog = false
+                    diceViewModel.saveDice()
+                    navController.navigate(Screen.Templates.route)
+                  }) {
+                    Text("Confirm")
+                  }
+            },
+            dismissButton = { Button(onClick = { openDialog = false }) { Text("Cancel") } })
+      }
     }
   }
 }

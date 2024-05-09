@@ -44,8 +44,7 @@ fun DiceCard(dice: Dice, isCompact: Boolean) {
       shadowElevation = 8.dp,
       color = dice.backgroundColor,
       modifier =
-          Modifier.padding(8.dp)
-              .border(
+          Modifier.border(
                   BorderStroke(2.dp, MaterialTheme.colorScheme.secondary),
                   RoundedCornerShape(16.dp))
               .clip(RoundedCornerShape(16.dp))) {
