@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.composables
+package com.example.dynamicdiceprototype.composables.wrapper
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
@@ -29,6 +29,7 @@ fun Menu(drawerState: DrawerState, scope: CoroutineScope) {
           Pair("Create Dice", Screen.CreateDice.route),
           Pair("Dice Groups", Screen.DiceGroups.route),
           Pair("Create Dice Group", Screen.CreateDiceGroup.route),
+          Pair("Upload Image", Screen.UploadImage.route),
       )
 
   ModalNavigationDrawer(

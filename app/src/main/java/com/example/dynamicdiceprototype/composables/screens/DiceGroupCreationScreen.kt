@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.composables
+package com.example.dynamicdiceprototype.composables.screens
 
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -21,6 +21,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
+import com.example.dynamicdiceprototype.composables.SelectItemsGrid
+import com.example.dynamicdiceprototype.composables.SingleLineInput
+import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.createdice.DicePreview
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.services.getDices
@@ -48,9 +51,7 @@ fun DiceGroupCreationScreen(
           OutlinedTextField(
               value = number.toString(),
               onValueChange = { newValue ->
-                  number =
-                      newValue.takeIf { it.isDigitsOnly() && it.length <= 3 }
-                          ?: number
+                number = newValue.takeIf { it.isDigitsOnly() && it.length <= 3 } ?: number
               },
               singleLine = true,
               label = { Text("New Dice Faces Count") },

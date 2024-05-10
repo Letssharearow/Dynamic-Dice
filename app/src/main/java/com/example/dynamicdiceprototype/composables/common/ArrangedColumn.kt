@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.composables
+package com.example.dynamicdiceprototype.composables.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

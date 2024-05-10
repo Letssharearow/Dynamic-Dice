@@ -21,11 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.dynamicdiceprototype.composables.ArrangedColumn
-import com.example.dynamicdiceprototype.composables.ColorPicker
-import com.example.dynamicdiceprototype.composables.ContinueButton
 import com.example.dynamicdiceprototype.composables.FaceView
 import com.example.dynamicdiceprototype.composables.SingleLineInput
+import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
+import com.example.dynamicdiceprototype.composables.common.ColorPicker
+import com.example.dynamicdiceprototype.composables.common.ContinueButton
 import com.example.dynamicdiceprototype.data.Dice
 
 @Composable

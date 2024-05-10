@@ -40,8 +40,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.dynamicdiceprototype.composables.ArrangedColumn
-import com.example.dynamicdiceprototype.composables.ContinueButton
+import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
+import com.example.dynamicdiceprototype.composables.common.ContinueButton
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme

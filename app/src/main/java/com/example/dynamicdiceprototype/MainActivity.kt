@@ -30,7 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
 import com.example.dynamicdiceprototype.composables.ImageBitmap
-import com.example.dynamicdiceprototype.composables.Menu
+import com.example.dynamicdiceprototype.composables.wrapper.Menu
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.HeaderViewModel

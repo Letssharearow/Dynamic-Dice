@@ -1,19 +1,26 @@
-package com.example.dynamicdiceprototype.composables
+package com.example.dynamicdiceprototype.composables.wrapper
 
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.dynamicdiceprototype.Screen
+import com.example.dynamicdiceprototype.composables.LandingPage
 import com.example.dynamicdiceprototype.composables.createdice.CreateDiceNavGraph
+import com.example.dynamicdiceprototype.composables.screens.DiceGroupCreationScreen
+import com.example.dynamicdiceprototype.composables.screens.DiceGroupsScreen
+import com.example.dynamicdiceprototype.composables.screens.TestScreen
+import com.example.dynamicdiceprototype.composables.screens.UploadImageScreen
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.TAG
 
 @Composable
 fun NavGraph(navController: NavHostController) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
+  val context = LocalContext.current
   NavHost(navController, startDestination = Screen.MainScreen.route) {
     composable(route = Screen.TestScreen.route) { TestScreen() }
     composable(route = Screen.MainScreen.route) {
@@ -23,6 +30,9 @@ fun NavGraph(navController: NavHostController) {
       )
     }
     composable(route = Screen.CreateDice.route) { CreateDiceNavGraph(viewModel) }
+    composable(route = Screen.UploadImage.route) {
+      UploadImageScreen(context, { viewModel.uploadImage(it) })
+    }
     composable(route = Screen.DiceGroups.route) {
       DiceGroupsScreen(
           viewModel.bundles.keys.toList(),

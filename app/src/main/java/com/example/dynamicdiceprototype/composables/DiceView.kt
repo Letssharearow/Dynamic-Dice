@@ -7,7 +7,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -34,6 +33,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dynamicdiceprototype.R
+import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
@@ -124,7 +124,7 @@ fun FaceView(
 @Composable
 private fun SizedImage(image: ImageModel?, modifier: Modifier = Modifier) {
   image?.let { ImageBitmap(image = image, modifier) }
-      ?: ArrangedColumn (verticalArrangement = Arrangement.Center) {
+      ?: ArrangedColumn(verticalArrangement = Arrangement.Center) {
         Image(
             painter = painterResource(id = R.drawable.rukaiya),
             contentDescription = "no Image",

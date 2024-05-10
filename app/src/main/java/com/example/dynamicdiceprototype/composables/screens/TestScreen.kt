@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.composables
+package com.example.dynamicdiceprototype.composables.screens
 
 import OneScreenGrid
 import androidx.compose.foundation.background
@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.dynamicdiceprototype.composables.FaceView
 import com.example.dynamicdiceprototype.services.getFaces
 
 @Composable

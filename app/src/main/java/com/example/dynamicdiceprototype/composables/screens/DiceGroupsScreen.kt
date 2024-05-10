@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.composables
+package com.example.dynamicdiceprototype.composables.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -43,7 +43,12 @@ fun DiceGroupsScreen(
 private fun DiceGroupsScreenPreview() {
   DynamicDicePrototypeTheme {
     DiceGroupsScreen(
-        groups = listOf("kniffel", "sonst.", "WürfelSpielX", "Long Name for a Dice Group, Wow this is soo long"),
+        groups =
+            listOf(
+                "kniffel",
+                "sonst.",
+                "WürfelSpielX",
+                "Long Name for a Dice Group, Wow this is soo long"),
         onSelectGroup = {},
         onCreateNewGroup = {})
   }

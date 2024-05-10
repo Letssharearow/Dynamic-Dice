@@ -20,6 +20,8 @@ sealed class Screen(val route: String) {
 
   object CreateDiceGroup : Screen("dice_groups/create")
 
+  object UploadImage : Screen("upload")
+
   fun withArgs(vararg args: String): String {
     return buildString {
       append(route)

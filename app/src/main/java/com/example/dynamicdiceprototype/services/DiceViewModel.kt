@@ -1,5 +1,6 @@
 package com.example.dynamicdiceprototype.services
 
+import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -7,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
@@ -191,6 +193,11 @@ object DiceViewModel : ViewModel() {
       } // TODO better handling for null Dice
     }
     currentDices = newDicesState
+  }
+
+  fun uploadImage(it: Bitmap) {
+    firebase.uploadBitmap(
+        "Proof of Concept", ImageSetDTO(image = it, contentDescription = "Proof of Conecpt"))
   }
 }
 

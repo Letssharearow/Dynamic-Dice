@@ -23,6 +23,8 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
+import com.example.dynamicdiceprototype.composables.common.ContinueButton
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceInGroup
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
