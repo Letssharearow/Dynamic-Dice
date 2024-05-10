@@ -1,8 +1,5 @@
 package com.example.dynamicdiceprototype.DTO.get
 
-import androidx.compose.ui.graphics.ImageBitmap
+import com.example.dynamicdiceprototype.data.Face
 
-data class ImageGetDTO(
-    val imageBitmap: ImageBitmap,
-    val contentDescription: String,
-)
+data class ImageGetDTO(val face: Face)

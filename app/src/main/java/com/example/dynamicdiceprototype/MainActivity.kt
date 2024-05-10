@@ -25,24 +25,29 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
 import com.example.dynamicdiceprototype.composables.ImageBitmap
 import com.example.dynamicdiceprototype.composables.Menu
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import com.example.dynamicdiceprototype.utils.uploadDices
+import com.example.dynamicdiceprototype.utils.uploadImages
+import com.example.dynamicdiceprototype.utils.uploadUser
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val res = resources
-    //    uploadUser()
+    uploadUser()
+    uploadDices()
+    uploadImages(res)
     val firebase = FirebaseDataStore()
-    firebase.fetchUserData("juli", {})
-
     setContent {
       DynamicDicePrototypeTheme {
         // A surface container using the 'background' color from the theme
@@ -83,7 +88,8 @@ fun uploadColors(context: Context) {
   for (color in colors) {
     val namedColor = color.second
     val bitmap = imageCreator.getBitmap(400, color.first.toArgb())
-    //    firebase.uploadBitmap("${color.first.toArgb()}", name = namedColor, bitmap = bitmap)
+    firebase.uploadBitmap(
+        "${color.first.toArgb()}", ImageSetDTO(contentDescription = namedColor, image = bitmap))
   }
 }
 
@@ -102,8 +108,8 @@ fun DiceCreationView() {
 
 @Composable
 fun MyApp() {
-  //  val context = LocalContext.current
-  //  uploadColors(context)
+  val context = LocalContext.current
+  uploadColors(context)
 
   val scope = rememberCoroutineScope()
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

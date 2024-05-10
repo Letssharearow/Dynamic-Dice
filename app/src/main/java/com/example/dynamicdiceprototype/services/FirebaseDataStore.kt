@@ -11,14 +11,17 @@ import com.example.dynamicdiceprototype.DTO.get.UserGetDTO
 import com.example.dynamicdiceprototype.DTO.set.DiceSetDTO
 import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
 import com.example.dynamicdiceprototype.DTO.set.UserSetDTO
+import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.ImageModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import java.io.ByteArrayOutputStream
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 const val TAG = "MyApp"
 private const val IMAGE_COLLECTION_NAME = "images"
@@ -85,30 +88,14 @@ class FirebaseDataStore {
   }
 
   val userFlow = flow {
-    val map = mutableMapOf<String, ImageModel>()
-    if (local) {
-      emit(getMockDiceGroups())
-      return@flow
-    }
-    val collectionRef = db.collection(IMAGE_COLLECTION_NAME)
-    val documents = collectionRef.get().await()
-    for (document in documents) {
-      val documentId = document.id
-      val documentData = document.data
-      Log.d(TAG, "Firebase fetching data: $documentId => $documentData")
-      val base64String = documentData[ImageProperty.IMAGE_BITMAP.name] as? String ?: continue
-      val name = documentData[ImageProperty.CONTENT_DESCRIPTION.name] as? String ?: continue
-      map[documentId] =
-          ImageModel(imageBitmap = base64ToBitmap(base64String), contentDescription = name)
-    }
-    Log.d(TAG, "Firebase all data fetched (keys): ${map.keys}")
-    emit(map)
+    val userDTO = fetchUserData("juli")
+    emit(userDTO)
   }
 
   fun uploadBitmap(key: String, image: ImageSetDTO) {
     val dataMap =
         hashMapOf(
-            ImageProperty.IMAGE_BITMAP.name to image.base64String,
+            ImageProperty.IMAGE_BITMAP.name to bitmapToBase64(image.image),
             ImageProperty.CONTENT_DESCRIPTION.name to image.contentDescription)
 
     setDocument(key, dataMap, IMAGE_COLLECTION_NAME)
@@ -135,64 +122,78 @@ class FirebaseDataStore {
     setDocument(keyName = userId, dataMap = dataMap, collectionName = CONFIG_COLLECTION_NAME)
   }
 
-  fun fetchUserData(userId: String, onComplete: (UserGetDTO?) -> Unit) {
-    val collectionConfig = db.collection(CONFIG_COLLECTION_NAME)
-    collectionConfig
-        .document(userId)
-        .get()
-        .addOnSuccessListener { document ->
-          if (document.exists()) {
+  suspend fun fetchUserData(userId: String): UserGetDTO? =
+      withContext(Dispatchers.IO) {
+        val collectionConfig = db.collection(CONFIG_COLLECTION_NAME)
+        try {
+          val documentSnapshot = collectionConfig.document(userId).get().await()
+          Log.d(TAG, "Firebase fetchUserData: ${documentSnapshot.id} => ${documentSnapshot.data}")
+          if (documentSnapshot.exists()) {
             val diceGroups =
-                document[UserProperty.DICE_GROUPS.name] as? Map<String, Map<String, Int>>
+                documentSnapshot[UserProperty.DICE_GROUPS.name] as? Map<String, Map<String, Int>>
                     ?: emptyMap()
-            val dicesName = document[UserProperty.DICES.name] as? List<String> ?: emptyList()
-            val userGetDTO: UserGetDTO =
-                UserGetDTO(diceGroups = diceGroups, dices = getDicesFromIds(dicesName))
+            val dicesName =
+                documentSnapshot[UserProperty.DICES.name] as? List<String> ?: emptyList()
+            val dices = getDicesFromIds(dicesName)
+            return@withContext UserGetDTO(diceGroups = diceGroups, dices = dices)
+          }
+        } catch (exception: Exception) {
+          Log.e(TAG, "ERROR ${exception.message}")
+        }
+        return@withContext null
+      }
 
-            onComplete(userGetDTO)
-          } else {
-            onComplete(null)
+  private suspend fun getDicesFromIds(dicesName: List<String>): Map<String, DiceGetDTO> =
+      withContext(Dispatchers.IO) {
+        val collectionDices = db.collection(DICES_COLLECTION_NAME)
+        val dicesList: MutableMap<String, DiceGetDTO> = mutableMapOf()
+
+        dicesName.forEach { diceName ->
+          try {
+            val documentSnapshot = collectionDices.document(diceName).get().await()
+            Log.d(
+                TAG, "Firebase getDicesFromIds: ${documentSnapshot.id} => ${documentSnapshot.data}")
+            if (documentSnapshot.exists()) {
+              val imagesId =
+                  documentSnapshot[DiceProperty.IMAGE_IDS.name] as? Map<String, Int> ?: emptyMap()
+              val backgroundColor = documentSnapshot[DiceProperty.COLOR.name] as? Int ?: 0
+              val images = getImagesFromIds(imagesId)
+              dicesList[diceName] = DiceGetDTO(backgroundColor = backgroundColor, images = images)
+            }
+          } catch (exception: Exception) {
+            Log.e(TAG, "ERROR ${exception.message}")
           }
         }
-        .addOnFailureListener { exception ->
-          Log.e(TAG, "ERROR ${exception.message}")
-          onComplete(null)
-        }
-  }
-
-  private fun getDicesFromIds(dicesName: List<String>): List<Map<String, DiceGetDTO>> {
-    val collectionDices = db.collection(DICES_COLLECTION_NAME)
-    val dicesList: MutableList<Map<String, DiceGetDTO>> = mutableListOf()
-    dicesName.forEach { diceName ->
-      collectionDices.document(diceName).get().addOnSuccessListener { document ->
-        if (document.exists()) {
-          val imagesId = document[DiceProperty.IMAGE_IDS.name] as? List<String> ?: emptyList()
-          val backgroundColor = document[DiceProperty.IMAGE_IDS.name] as? Int ?: 0
-          dicesList.add(
-              mapOf(
-                  diceName to
-                      DiceGetDTO(
-                          backgroundColor = backgroundColor, images = getImagesFromIds(imagesId))))
-        }
+        Log.d(TAG, "Firebase dicesList $dicesList")
+        return@withContext dicesList
       }
-    }
-    return dicesList
-  }
 
-  private fun getImagesFromIds(imagesId: List<String>): List<ImageGetDTO> {
+  private suspend fun getImagesFromIds(imagesId: Map<String, Int>): List<ImageGetDTO> {
     val collectionDices = db.collection(IMAGE_COLLECTION_NAME)
     val imagesList: MutableList<ImageGetDTO> = mutableListOf()
-    imagesId.forEach { diceName ->
-      collectionDices.document(diceName).get().addOnSuccessListener { document ->
-        if (document.exists()) {
-          val imageBase64String = document[ImageProperty.IMAGE_BITMAP.name] as? String ?: ""
-          val contentDescription = document[ImageProperty.CONTENT_DESCRIPTION.name] as? String ?: ""
-          imagesList.add(
-              ImageGetDTO(
-                  contentDescription = contentDescription,
-                  imageBitmap = base64ToBitmap(imageBase64String)))
-        }
-      }
+    imagesId.forEach { (imageId, weight) ->
+      collectionDices
+          .document(imageId)
+          .get()
+          .addOnSuccessListener { document ->
+            Log.d(TAG, "Firebase getImagesFromIds: ${document.id} => ${document.data}")
+            if (document.exists()) {
+              val imageBase64String = document[ImageProperty.IMAGE_BITMAP.name] as? String ?: ""
+              val contentDescription =
+                  document[ImageProperty.CONTENT_DESCRIPTION.name] as? String ?: ""
+              imagesList.add(
+                  ImageGetDTO(
+                      Face(
+                          imageId = imageId,
+                          weight = weight,
+                          data =
+                              ImageModel(
+                                  contentDescription = contentDescription,
+                                  imageBitmap = base64ToBitmap(imageBase64String)))))
+            }
+          }
+          .addOnFailureListener { exception -> Log.e(TAG, "ERROR ${exception.message}") }
+          .await()
     }
     return imagesList
   }

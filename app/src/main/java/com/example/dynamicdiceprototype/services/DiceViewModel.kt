@@ -31,13 +31,8 @@ object DiceViewModel : ViewModel() {
   // create Dice
   var newDice by mutableStateOf<Dice>(Dice(name = "Change Later"))
   var facesSize by mutableStateOf<Int>(20)
-  val bundles: MutableMap<String, List<Pair<String, Int>>> =
-      mutableMapOf(
-          "Kniffel" to
-              listOf(
-                  Pair("6er", 5),
-              ))
-  val dices =
+  val bundles: MutableMap<String, Map<String, Int>> = mutableMapOf("Kniffel" to mapOf("6er" to 5))
+  var dices =
       mutableStateMapOf(
           "random" to
               Dice(
@@ -124,11 +119,12 @@ object DiceViewModel : ViewModel() {
   // end create dice
 
   fun createDiceGroup(name: String, dices: Map<String, Pair<Dice, Int>>) {
-    bundles[name] = listOf(*dices.map { Pair(it.key, it.value.second) }.toTypedArray())
+    bundles[name] = mapOf(*dices.map { Pair(it.key, it.value.second) }.toTypedArray())
   }
 
   init {
     collectFlow()
+    collectUser()
   }
 
   // Function to update a single dice
@@ -172,13 +168,24 @@ object DiceViewModel : ViewModel() {
     }
   }
 
+  private fun collectUser() {
+    viewModelScope.launch {
+      firebase.userFlow.collect { userDTO ->
+        userDTO?.dices?.forEach { (key, value) ->
+          dices[key] = Dice(name = key, faces = value.images.map { it.face })
+        }
+        userDTO?.diceGroups?.forEach { (key, value) -> bundles[key] = value }
+      }
+    }
+  }
+
   fun selectDiceGroup(groupId: String) {
     lastBundle = groupId
     val newDicesState = mutableListOf<Dice>()
     bundles[groupId]?.forEach { idAndCount ->
-      val diceToAdd = dices[idAndCount.first]
+      val diceToAdd = dices[idAndCount.key]
       diceToAdd?.let {
-        for (i in 1..idAndCount.second) {
+        for (i in 1..idAndCount.value) {
           newDicesState.add(diceToAdd)
         }
       } // TODO better handling for null Dice

@@ -1,6 +1,8 @@
 package com.example.dynamicdiceprototype.DTO.set
 
+import android.graphics.Bitmap
+
 data class ImageSetDTO(
-    val base64String: String,
+    val image: Bitmap,
     val contentDescription: String,
 )
