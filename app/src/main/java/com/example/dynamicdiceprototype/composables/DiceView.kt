@@ -5,7 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -122,10 +124,13 @@ fun FaceView(
 @Composable
 private fun SizedImage(image: ImageModel?, modifier: Modifier = Modifier) {
   image?.let { ImageBitmap(image = image, modifier) }
-      ?: Image(
-          painter = painterResource(id = R.drawable.rukaiya),
-          contentDescription = "no Image",
-          modifier)
+      ?: ArrangedColumn (verticalArrangement = Arrangement.Center) {
+        Image(
+            painter = painterResource(id = R.drawable.rukaiya),
+            contentDescription = "no Image",
+            Modifier.size(10.dp))
+        Text(text = "Throw Dice", fontSize = 20.sp)
+      }
 }
 
 @Preview

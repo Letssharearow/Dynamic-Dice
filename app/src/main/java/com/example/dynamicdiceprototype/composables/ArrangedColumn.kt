@@ -9,11 +9,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun ArrangedColumn(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+fun ArrangedColumn(
+    modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement.HorizontalOrVertical = Arrangement.SpaceBetween,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    content: @Composable ColumnScope.() -> Unit
+) {
   Column(
       modifier = modifier.fillMaxSize(),
-      verticalArrangement = Arrangement.SpaceBetween,
-      horizontalAlignment = Alignment.CenterHorizontally) {
+      verticalArrangement = verticalArrangement,
+      horizontalAlignment = horizontalAlignment) {
         content()
       }
 }

@@ -136,10 +136,9 @@ object DiceViewModel : ViewModel() {
     currentDices =
         // use Map function to trigger recomposition
         currentDices.map {
-          if (it == dice) {
+          if (it === dice) {
             // use copy function to trigger recomposition
-            if (dice.state === DiceState.UNLOCKED)
-                dice.copy(state = DiceState.LOCKED, rotation = 0F)
+            if (dice.state == DiceState.UNLOCKED) dice.copy(state = DiceState.LOCKED, rotation = 0F)
             else {
               dice.copy(state = DiceState.UNLOCKED, rotation = 0F)
             }

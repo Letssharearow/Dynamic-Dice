@@ -41,24 +41,30 @@ fun EditDiceScreen(
   ArrangedColumn {
     // color picker
     if (!isColorPickerOpen) {
-      Row(Modifier.fillMaxWidth().height(IntrinsicSize.Max)) {
-        Box {
-          SingleLineInput(
-              text = name,
-              onValueChange = { name = it },
-              label = "Dice Name",
-              Modifier.padding(8.dp).fillMaxWidth(0.5F))
-        }
-        Box(
-            modifier =
-                Modifier.fillMaxWidth().fillMaxHeight().padding(8.dp).background(color).clickable {
-                  isColorPickerOpen = !isColorPickerOpen
-                }) {
-              Text(
-                  text = if (isColorPickerOpen) "Close Color Picker" else "Change Color",
-                  Modifier.align(Alignment.Center))
+      Row(
+          Modifier.fillMaxWidth()
+              .height(
+                  IntrinsicSize
+                      .Max)) { // TODO fix: if the name is too long the height of this row changes
+            Box {
+              SingleLineInput(
+                  text = name,
+                  onValueChange = { name = it },
+                  label = "Dice Name",
+                  Modifier.padding(8.dp).fillMaxWidth(0.5F))
             }
-      }
+            Box(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(8.dp)
+                        .background(color)
+                        .clickable { isColorPickerOpen = !isColorPickerOpen }) {
+                  Text(
+                      text = if (isColorPickerOpen) "Close Color Picker" else "Change Color",
+                      Modifier.align(Alignment.Center))
+                }
+          }
     }
     Box(modifier = Modifier.weight(1F)) {
       OneScreenGrid(items = dice.faces, minSize = if (isColorPickerOpen) 2000F else 200F) {

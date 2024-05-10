@@ -72,7 +72,7 @@ fun TemplateSelectionScreen(
         }
 
     ArrangedColumn {
-      LazyColumn {
+      LazyColumn(modifier = Modifier.weight(1f)) {
         items(items = dices, key = { item -> item.name }) { template ->
           val dismissState = rememberDismissState()
           var openDialog by remember { mutableStateOf(false) }
@@ -117,9 +117,8 @@ fun TemplateSelectionScreen(
                         .background(
                             shape =
                                 RoundedCornerShape(
-                                    16
-                                        .dp), // TODO make variable to have the same shape for
-                                              // DiceCard?
+                                    16.dp), // TODO make variable to have the same shape for
+                            // DiceCard?
                             color = MaterialTheme.colorScheme.errorContainer)) {
                       Icon(
                           imageVector = Icons.Filled.Delete,

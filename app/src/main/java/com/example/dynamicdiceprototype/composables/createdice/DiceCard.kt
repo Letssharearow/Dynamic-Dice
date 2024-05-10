@@ -100,7 +100,7 @@ fun DicePreview(dice: Dice, facesSum: Int, modifier: Modifier = Modifier) {
           .border(BorderStroke(2.dp, Color.Gray), RoundedCornerShape(16.dp))
           .clip(RoundedCornerShape(16.dp))) {
         OneScreenGrid(
-            items = dice.faces,
+            items = dice.faces.let { if (it.size >= 10) it.subList(0, 10) else it },
             minSize = 10f,
         ) { face, maxWidthDp ->
           Box(
