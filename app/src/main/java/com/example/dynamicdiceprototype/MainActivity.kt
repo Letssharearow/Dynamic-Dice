@@ -1,8 +1,6 @@
 package com.example.dynamicdiceprototype
 
 import android.content.Context
-import android.content.res.Resources
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -41,7 +39,9 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val res = resources
-    uploadRessources(res)
+    //    uploadUser()
+    val firebase = FirebaseDataStore()
+    firebase.fetchUserData("juli", {})
 
     setContent {
       DynamicDicePrototypeTheme {
@@ -51,33 +51,6 @@ class MainActivity : ComponentActivity() {
         }
       }
     }
-  }
-}
-
-fun uploadRessources(res: Resources) {
-  val firbase = FirebaseDataStore()
-  data class ImageModelSetDTO(val image: Int, val name: String)
-  val images =
-      arrayOf<ImageModelSetDTO>(
-          //          ImageModelSetDTO(image = R.drawable.cameleon, name = "cameleon"),
-          //          ImageModelSetDTO(image = R.drawable.elephant, name = "elephant"),
-          //          ImageModelSetDTO(image = R.drawable.fish, name = "fish"),
-          //          ImageModelSetDTO(image = R.drawable.frog, name = "frog"),
-          //          ImageModelSetDTO(image = R.drawable.lion, name = "lion"),
-          //          ImageModelSetDTO(image = R.drawable.monkey, name = "monkey"),
-          //          ImageModelSetDTO(image = R.drawable.owl, name = "owl"),
-          //          ImageModelSetDTO(image = R.drawable.parrot, name = "parrot"),
-          //          ImageModelSetDTO(image = R.drawable.penguin, name = "penguin"),
-          ImageModelSetDTO(image = R.drawable.one_transparent, name = "one_transparent"),
-          ImageModelSetDTO(image = R.drawable.two_transparent, name = "two_transparent"),
-          ImageModelSetDTO(image = R.drawable.three_transparent, name = "three_transparent"),
-          ImageModelSetDTO(image = R.drawable.four_transparent, name = "four_transparent"),
-          ImageModelSetDTO(image = R.drawable.five_transparent, name = "five_transparent"),
-          ImageModelSetDTO(image = R.drawable.six_transparent, name = "six_transparent"),
-      )
-  images.forEach {
-    var bitmap = BitmapFactory.decodeResource(res, it.image)
-    firbase.uploadBitmap("${it.image}", name = it.name, bitmap = bitmap)
   }
 }
 
@@ -110,7 +83,7 @@ fun uploadColors(context: Context) {
   for (color in colors) {
     val namedColor = color.second
     val bitmap = imageCreator.getBitmap(400, color.first.toArgb())
-    firebase.uploadBitmap("${color.first.toArgb()}", name = namedColor, bitmap = bitmap)
+    //    firebase.uploadBitmap("${color.first.toArgb()}", name = namedColor, bitmap = bitmap)
   }
 }
 
