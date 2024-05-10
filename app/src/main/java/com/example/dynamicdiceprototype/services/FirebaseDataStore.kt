@@ -131,11 +131,9 @@ class FirebaseDataStore {
           if (documentSnapshot.exists()) {
             val diceGroups =
                 documentSnapshot[UserProperty.DICE_GROUPS.name] as? Map<String, Map<String, Int>>
-                    ?: emptyMap()
-            val dicesName =
-                documentSnapshot[UserProperty.DICES.name] as? List<String> ?: emptyList()
-            val dices = getDicesFromIds(dicesName)
-            return@withContext UserGetDTO(diceGroups = diceGroups, dices = dices)
+            val dicesName = documentSnapshot[UserProperty.DICES.name] as? List<String>
+            val dices = getDicesFromIds(dicesName!!)
+            return@withContext UserGetDTO(diceGroups = diceGroups!!, dices = dices)
           }
         } catch (exception: Exception) {
           Log.e(TAG, "ERROR ${exception.message}")
@@ -154,11 +152,12 @@ class FirebaseDataStore {
             Log.d(
                 TAG, "Firebase getDicesFromIds: ${documentSnapshot.id} => ${documentSnapshot.data}")
             if (documentSnapshot.exists()) {
-              val imagesId =
-                  documentSnapshot[DiceProperty.IMAGE_IDS.name] as? Map<String, Int> ?: emptyMap()
-              val backgroundColor = documentSnapshot[DiceProperty.COLOR.name] as? Int ?: 0
-              val images = getImagesFromIds(imagesId)
-              dicesList[diceName] = DiceGetDTO(backgroundColor = backgroundColor, images = images)
+              val imagesId = documentSnapshot[DiceProperty.IMAGE_IDS.name] as? Map<String, Int>
+              val backgroundColor = documentSnapshot[DiceProperty.COLOR.name] as? Int
+              val images =
+                  getImagesFromIds(
+                      imagesId!!) // TODO maybe take a better approach to not null assert
+              dicesList[diceName] = DiceGetDTO(backgroundColor = backgroundColor!!, images = images)
             }
           } catch (exception: Exception) {
             Log.e(TAG, "ERROR ${exception.message}")
@@ -178,9 +177,8 @@ class FirebaseDataStore {
           .addOnSuccessListener { document ->
             Log.d(TAG, "Firebase getImagesFromIds: ${document.id} => ${document.data}")
             if (document.exists()) {
-              val imageBase64String = document[ImageProperty.IMAGE_BITMAP.name] as? String ?: ""
-              val contentDescription =
-                  document[ImageProperty.CONTENT_DESCRIPTION.name] as? String ?: ""
+              val imageBase64String = document[ImageProperty.IMAGE_BITMAP.name] as? String
+              val contentDescription = document[ImageProperty.CONTENT_DESCRIPTION.name] as? String
               imagesList.add(
                   ImageGetDTO(
                       Face(
@@ -188,8 +186,8 @@ class FirebaseDataStore {
                           weight = weight,
                           data =
                               ImageModel(
-                                  contentDescription = contentDescription,
-                                  imageBitmap = base64ToBitmap(imageBase64String)))))
+                                  contentDescription = contentDescription!!,
+                                  imageBitmap = base64ToBitmap(imageBase64String!!)))))
             }
           }
           .addOnFailureListener { exception -> Log.e(TAG, "ERROR ${exception.message}") }
