@@ -14,12 +14,8 @@ import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.TAG
 
 @Composable
-fun LandingPage(
-    dices: List<Dice>,
-    name: String,
-    viewModel: DiceViewModel,
-    modifier: Modifier = Modifier
-) {
+fun LandingPage(dices: List<Dice>, name: String, modifier: Modifier = Modifier) {
+  val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val headerViewModel = viewModel<HeaderViewModel>()
   headerViewModel.changeHeaderText(name)
 

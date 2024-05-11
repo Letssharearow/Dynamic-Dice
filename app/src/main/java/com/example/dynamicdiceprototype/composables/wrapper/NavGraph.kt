@@ -20,8 +20,8 @@ import com.example.dynamicdiceprototype.services.TAG
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+  val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val context = LocalContext.current
-  val viewModel: DiceViewModel = viewModel()
 
   LifecycleAwareComponent { viewModel.saveUser() }
   NavHost(navController, startDestination = Screen.MainScreen.route) {
@@ -30,7 +30,6 @@ fun NavGraph(navController: NavHostController) {
       LandingPage(
           dices = viewModel.currentDices,
           name = viewModel.lastBundle,
-          viewModel = viewModel,
       )
     }
     composable(route = Screen.CreateDice.route) { CreateDiceNavGraph(viewModel) }

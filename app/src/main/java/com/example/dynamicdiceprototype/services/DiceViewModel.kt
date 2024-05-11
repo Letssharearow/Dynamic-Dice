@@ -1,5 +1,6 @@
 package com.example.dynamicdiceprototype.services
 
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -7,11 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.datastore.core.DataStore
+import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dynamicdiceprototype.DTO.set.DiceSetDTO
-import com.example.dynamicdiceprototype.DTO.set.DicesSetDTO
 import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
 import com.example.dynamicdiceprototype.DTO.set.UserSetDTO
 import com.example.dynamicdiceprototype.R
@@ -19,20 +18,17 @@ import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.ImageModel
-import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.launch
 
 // extend ViewModel to survive configuration change (landscape mode)
-object DiceViewModel : ViewModel() {
+class DiceViewModel() : ViewModel() {
 
-  var userDataStore: DataStore<UserSetDTO>? = null
-  var diceDataStore: DataStore<DicesSetDTO>? = null
-
+  val Context.userDataStore by dataStore("user-config.json", UserConfigSerializer)
+  val Context.diceDataStore by dataStore("dices.json", DiceSerializer)
   // config
   var dices = mutableStateMapOf<String, Dice>()
   val bundles = mutableStateMapOf<String, PersistentMap<String, Int>>()
@@ -47,38 +43,6 @@ object DiceViewModel : ViewModel() {
   // create Dice
   var newDice by mutableStateOf<Dice>(Dice(name = "Change Later"))
   var facesSize by mutableStateOf<Int>(20)
-
-  fun getDices() = diceDataStore?.data
-
-  fun saveDices(dices: PersistentMap<String, DiceSetDTO>) {
-    viewModelScope.launch { diceDataStore?.updateData { it.copy(dices = dices) } }
-  }
-
-  fun saveDice(diceName: String, dice: DiceSetDTO) {
-    viewModelScope.launch {
-      diceDataStore?.updateData { dicesList ->
-        dicesList.copy(dices = dicesList.dices.mutate { it[diceName] = dice })
-      }
-    }
-  }
-
-  fun removeDice(diceName: String) {
-    viewModelScope.launch {
-      diceDataStore?.updateData { dicesList ->
-        dicesList.copy(dices = dicesList.dices.mutate { it.remove(diceName) })
-      }
-    }
-  }
-
-  fun getUserConfig() = userDataStore?.data
-
-  fun saveDicesId(dices: PersistentList<String>) {
-    viewModelScope.launch { userDataStore?.updateData { it.copy(dices = dices) } }
-  }
-
-  fun saveDiceGroups(diceGroups: PersistentMap<String, PersistentMap<String, Int>>) {
-    viewModelScope.launch { userDataStore?.updateData { it.copy(diceGroups = diceGroups) } }
-  }
 
   fun addDice(dice: Dice) {
     dices[dice.name] = dice

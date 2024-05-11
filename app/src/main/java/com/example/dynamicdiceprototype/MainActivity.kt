@@ -4,8 +4,10 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
@@ -27,15 +29,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.DTO.set.DiceSetDTO
-import com.example.dynamicdiceprototype.DTO.set.DicesSetDTO
 import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
 import com.example.dynamicdiceprototype.DTO.set.UserSetDTO
+import com.example.dynamicdiceprototype.composables.ImageBitmap
 import com.example.dynamicdiceprototype.composables.wrapper.Menu
 import com.example.dynamicdiceprototype.services.DiceSerializer
 import com.example.dynamicdiceprototype.services.DiceViewModel
@@ -65,7 +66,7 @@ class MainActivity : ComponentActivity() {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           val userConfig = userDataStore.data.collectAsState(initial = UserSetDTO())
           val dices = diceDataStore.data.collectAsState(initial = DiceSetDTO())
-          MyApp(userDataStore, diceDataStore)
+          MyApp()
         }
       }
     }
@@ -107,14 +108,22 @@ fun uploadColors(context: Context) {
 }
 
 @Composable
-fun MyApp(userDataStore: DataStore<UserSetDTO>, diceDataStore: DataStore<DicesSetDTO>) {
+fun DiceCreationView() {
+  val viewModel: DiceViewModel = viewModel<DiceViewModel>()
+  val map = viewModel.imageMap
+  Column(Modifier.verticalScroll(state = ScrollState(0))) {
+    map.values.map {
+      ImageBitmap(
+          image = it,
+      )
+    }
+  }
+}
+
+@Composable
+fun MyApp() {
   val scope = rememberCoroutineScope()
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
-  val viewModel: DiceViewModel = viewModel()
-  viewModel.userDataStore = userDataStore
-  viewModel.diceDataStore = diceDataStore
-
   Column {
     AppBar({
       scope.launch { drawerState.apply { if (isClosed) open() else close() } }
