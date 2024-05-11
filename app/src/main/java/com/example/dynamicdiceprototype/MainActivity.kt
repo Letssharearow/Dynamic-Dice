@@ -4,10 +4,8 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
@@ -21,17 +19,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
-import com.example.dynamicdiceprototype.composables.ImageBitmap
 import com.example.dynamicdiceprototype.composables.wrapper.Menu
-import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
@@ -44,7 +43,8 @@ class MainActivity : ComponentActivity() {
     //    uploadUser()
     //    uploadDices()
     //    uploadImages(res)
-    val firebase = FirebaseDataStore()
+    //    val firebase = FirebaseDataStore()
+
     setContent {
       DynamicDicePrototypeTheme {
         // A surface container using the 'background' color from the theme
@@ -91,23 +91,7 @@ fun uploadColors(context: Context) {
 }
 
 @Composable
-fun DiceCreationView() {
-  val viewModel: DiceViewModel = viewModel<DiceViewModel>()
-  val map = viewModel.imageMap
-  Column(Modifier.verticalScroll(state = ScrollState(0))) {
-    map.values.map {
-      ImageBitmap(
-          image = it,
-      )
-    }
-  }
-}
-
-@Composable
 fun MyApp() {
-  val context = LocalContext.current
-  //  uploadColors(context)
-
   val scope = rememberCoroutineScope()
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   Column {
@@ -116,6 +100,28 @@ fun MyApp() {
     }) { /* TODO Handle profile picture button click */}
     Menu(drawerState = drawerState, scope = scope)
   }
+}
+
+@Composable
+fun LifecycleAwareComponent(onClose: () -> Unit) {
+  val lifecycleOwner = LocalLifecycleOwner.current
+
+  DisposableEffect(lifecycleOwner) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_STOP) {
+        // App is being closed, save data here
+        onClose()
+      }
+    }
+
+    // Add the observer to the lifecycle
+    lifecycleOwner.lifecycle.addObserver(observer)
+
+    // When the effect leaves the Composition, remove the observer
+    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+  }
+
+  // Your composable content goes here
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
