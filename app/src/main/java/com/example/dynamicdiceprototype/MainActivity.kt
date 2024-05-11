@@ -35,18 +35,15 @@ import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
-import com.example.dynamicdiceprototype.utils.uploadDices
-import com.example.dynamicdiceprototype.utils.uploadImages
-import com.example.dynamicdiceprototype.utils.uploadUser
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val res = resources
-    uploadUser()
-    uploadDices()
-    uploadImages(res)
+    //    uploadUser()
+    //    uploadDices()
+    //    uploadImages(res)
     val firebase = FirebaseDataStore()
     setContent {
       DynamicDicePrototypeTheme {
@@ -109,7 +106,7 @@ fun DiceCreationView() {
 @Composable
 fun MyApp() {
   val context = LocalContext.current
-  uploadColors(context)
+  //  uploadColors(context)
 
   val scope = rememberCoroutineScope()
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

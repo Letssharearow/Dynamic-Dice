@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.dynamicdiceprototype.LifecycleAwareComponent
 import com.example.dynamicdiceprototype.Screen
 import com.example.dynamicdiceprototype.composables.LandingPage
 import com.example.dynamicdiceprototype.composables.createdice.CreateDiceNavGraph
@@ -21,6 +22,8 @@ import com.example.dynamicdiceprototype.services.TAG
 fun NavGraph(navController: NavHostController) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val context = LocalContext.current
+
+  LifecycleAwareComponent { viewModel.saveUser() }
   NavHost(navController, startDestination = Screen.MainScreen.route) {
     composable(route = Screen.TestScreen.route) { TestScreen() }
     composable(route = Screen.MainScreen.route) {
@@ -31,7 +34,7 @@ fun NavGraph(navController: NavHostController) {
     }
     composable(route = Screen.CreateDice.route) { CreateDiceNavGraph(viewModel) }
     composable(route = Screen.UploadImage.route) {
-      UploadImageScreen(context, { viewModel.uploadImage(it) })
+      UploadImageScreen(context, { bitmap, name -> viewModel.uploadImage(bitmap, name) })
     }
     composable(route = Screen.DiceGroups.route) {
       DiceGroupsScreen(

@@ -129,7 +129,7 @@ private fun SizedImage(image: ImageModel?, modifier: Modifier = Modifier) {
             painter = painterResource(id = R.drawable.rukaiya),
             contentDescription = "no Image",
             Modifier.size(10.dp))
-        Text(text = "Throw Dice", fontSize = 20.sp)
+        Text(text = "Roll Dice", fontSize = 20.sp)
       }
 }
 

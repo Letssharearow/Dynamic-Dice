@@ -27,7 +27,7 @@ const val TAG = "MyApp"
 private const val IMAGE_COLLECTION_NAME = "images"
 private const val DICES_COLLECTION_NAME = "dices"
 private const val CONFIG_COLLECTION_NAME = "users"
-const val local = true
+const val local = false
 
 enum class ImageProperty {
   CONTENT_DESCRIPTION,
@@ -63,25 +63,6 @@ class FirebaseDataStore {
       val name = documentData[ImageProperty.CONTENT_DESCRIPTION.name] as? String ?: continue
       map[documentId] =
           ImageModel(imageBitmap = base64ToBitmap(base64String), contentDescription = name)
-    }
-    Log.d(TAG, "Firebase all data fetched (keys): ${map.keys}")
-    emit(map)
-  }
-
-  val dicesFlow = flow {
-    val map = mutableMapOf<String, Array<String>>()
-    if (local) {
-      emit(getMockDices())
-      return@flow
-    }
-    val collectionRef = db.collection(DICES_COLLECTION_NAME)
-    val documents = collectionRef.get().await()
-    for (document in documents) {
-      val documentId = document.id
-      val documentData = document.data
-      Log.d(TAG, "Firebase fetching data: $documentId => $documentData")
-      val imageIds = documentData[DiceProperty.IMAGE_IDS.name] as? Array<String> ?: continue
-      map[documentId] = imageIds
     }
     Log.d(TAG, "Firebase all data fetched (keys): ${map.keys}")
     emit(map)
@@ -136,6 +117,7 @@ class FirebaseDataStore {
             return@withContext UserGetDTO(diceGroups = diceGroups!!, dices = dices)
           }
         } catch (exception: Exception) {
+          exception.printStackTrace()
           Log.e(TAG, "ERROR ${exception.message}")
         }
         return@withContext null
@@ -153,13 +135,16 @@ class FirebaseDataStore {
                 TAG, "Firebase getDicesFromIds: ${documentSnapshot.id} => ${documentSnapshot.data}")
             if (documentSnapshot.exists()) {
               val imagesId = documentSnapshot[DiceProperty.IMAGE_IDS.name] as? Map<String, Int>
-              val backgroundColor = documentSnapshot[DiceProperty.COLOR.name] as? Int
+              val backgroundColor = documentSnapshot[DiceProperty.COLOR.name] as? Number
+              Log.d(TAG, "Firebase getDicesFromIds backgroundColor: $backgroundColor")
               val images =
                   getImagesFromIds(
                       imagesId!!) // TODO maybe take a better approach to not null assert
-              dicesList[diceName] = DiceGetDTO(backgroundColor = backgroundColor!!, images = images)
+              dicesList[diceName] =
+                  DiceGetDTO(backgroundColor = backgroundColor!!.toInt(), images = images)
             }
           } catch (exception: Exception) {
+            exception.printStackTrace()
             Log.e(TAG, "ERROR ${exception.message}")
           }
         }
@@ -190,7 +175,10 @@ class FirebaseDataStore {
                                   imageBitmap = base64ToBitmap(imageBase64String!!)))))
             }
           }
-          .addOnFailureListener { exception -> Log.e(TAG, "ERROR ${exception.message}") }
+          .addOnFailureListener { exception ->
+            exception.printStackTrace()
+            Log.e(TAG, "ERROR ${exception.message}")
+          }
           .await()
     }
     return imagesList
