@@ -2,7 +2,6 @@ plugins {
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.jetbrainsKotlinAndroid)
   id("com.google.gms.google-services")
-  kotlin("plugin.serialization") version "1.9.0" // TODO make version variable
 }
 
 android {
@@ -47,7 +46,6 @@ dependencies {
   implementation(libs.androidx.material3)
   implementation(libs.androidx.navigation.compose)
   implementation(libs.androidx.room.ktx)
-  implementation(libs.androidx.datastore.core.android)
   testImplementation(libs.junit)
   testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
   androidTestImplementation(libs.androidx.junit)
@@ -73,9 +71,4 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
   implementation("com.github.skydoves:colorpicker-compose:1.0.7")
-
-  // DataStore
-  implementation("androidx.datastore:datastore:1.0.0")
-  implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
 }

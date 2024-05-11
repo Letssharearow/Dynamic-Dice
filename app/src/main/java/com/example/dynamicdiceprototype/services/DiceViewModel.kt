@@ -1,6 +1,5 @@
 package com.example.dynamicdiceprototype.services
 
-import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -8,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
@@ -18,31 +16,20 @@ import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.ImageModel
-import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.persistentHashMapOf
-import kotlinx.collections.immutable.toPersistentList
-import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.launch
 
 // extend ViewModel to survive configuration change (landscape mode)
-class DiceViewModel() : ViewModel() {
-
-  val Context.userDataStore by dataStore("user-config.json", UserConfigSerializer)
-  val Context.diceDataStore by dataStore("dices.json", DiceSerializer)
-  // config
-  var dices = mutableStateMapOf<String, Dice>()
-  val bundles = mutableStateMapOf<String, PersistentMap<String, Int>>()
-
+object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
-  var imageMap = mutableStateMapOf<String, ImageModel>()
-
-  // Main ScreenDices
-  var lastBundle by mutableStateOf("Kniffel")
   var currentDices by mutableStateOf(getDices(5)) //
+  var imageMap = mutableStateMapOf<String, ImageModel>()
 
   // create Dice
   var newDice by mutableStateOf<Dice>(Dice(name = "Change Later"))
   var facesSize by mutableStateOf<Int>(20)
+  val bundles = mutableStateMapOf<String, Map<String, Int>>()
+  var dices = mutableStateMapOf<String, Dice>()
+  var lastBundle by mutableStateOf("Kniffel")
 
   fun addDice(dice: Dice) {
     dices[dice.name] = dice
@@ -109,7 +96,7 @@ class DiceViewModel() : ViewModel() {
   // end create dice
 
   fun createDiceGroup(name: String, dices: Map<String, Pair<Dice, Int>>) {
-    bundles[name] = persistentHashMapOf(*dices.map { Pair(it.key, it.value.second) }.toTypedArray())
+    bundles[name] = mapOf(*dices.map { Pair(it.key, it.value.second) }.toTypedArray())
   }
 
   init {
@@ -164,7 +151,7 @@ class DiceViewModel() : ViewModel() {
         userDTO?.dices?.forEach { (key, value) ->
           dices[key] = Dice(name = key, faces = value.images.map { it.face })
         }
-        userDTO?.diceGroups?.forEach { (key, value) -> bundles[key] = value.toPersistentMap() }
+        userDTO?.diceGroups?.forEach { (key, value) -> bundles[key] = value }
       }
     }
   }
@@ -190,10 +177,7 @@ class DiceViewModel() : ViewModel() {
 
   fun saveUser() {
     firebase.uploadUserConfig(
-        "juli",
-        UserSetDTO(
-            dices = dices.map { it.key }.toPersistentList(),
-            diceGroups = bundles.toPersistentMap()))
+        "juli", UserSetDTO(dices = dices.map { it.key }, diceGroups = bundles))
   }
 }
 

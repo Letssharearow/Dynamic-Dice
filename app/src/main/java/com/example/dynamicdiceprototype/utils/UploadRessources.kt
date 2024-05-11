@@ -9,8 +9,6 @@ import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
 import com.example.dynamicdiceprototype.DTO.set.UserSetDTO
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
-import kotlinx.collections.immutable.persistentHashMapOf
-import kotlinx.collections.immutable.persistentListOf
 
 fun uploadImages(res: Resources) {
   val firbase = FirebaseDataStore()
@@ -46,14 +44,14 @@ fun uploadDices() {
           Pair(
               "red_and_green",
               DiceSetDTO(
-                  persistentHashMapOf(
+                  mapOf(
                       Color.Red.toArgb().toString() to 1,
                       Color.Green.toArgb().toString() to 1,
                   ))),
           Pair(
               "animals",
               DiceSetDTO(
-                  persistentHashMapOf(
+                  mapOf(
                       (R.drawable.cameleon.toString() to 1),
                       (R.drawable.elephant.toString() to 1),
                       (R.drawable.frog.toString() to 1),
@@ -67,7 +65,7 @@ fun uploadDices() {
           Pair(
               "6er",
               DiceSetDTO(
-                  persistentHashMapOf(
+                  mapOf(
                       (R.drawable.six_transparent.toString() to 1),
                       (R.drawable.five_transparent.toString() to 1),
                       (R.drawable.four_transparent.toString() to 1),
@@ -82,11 +80,11 @@ fun uploadUser() {
   val firbase = FirebaseDataStore()
 
   val diceGroups =
-      persistentHashMapOf(
-          "Kniffel" to persistentHashMapOf("6er" to 5),
-          "animals count" to persistentHashMapOf("6er" to 1, "animals" to 5),
+      mapOf(
+          "Kniffel" to mapOf("6er" to 5),
+          "animals count" to mapOf("6er" to 1, "animals" to 5),
       )
-  val dices = persistentListOf("random", "6er", "animals")
+  val dices = listOf("random", "6er", "animals")
 
   firbase.uploadUserConfig("juli", UserSetDTO(dices = dices, diceGroups = diceGroups))
 }
