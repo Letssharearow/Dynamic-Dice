@@ -91,6 +91,10 @@ class FirebaseDataStore {
     setDocument(key, dataMap, DICES_COLLECTION_NAME)
   }
 
+  fun uploadDices(mapOf: Map<String, DiceSetDTO>) {
+    mapOf.forEach { uploadDice(key = it.key, dice = it.value) }
+  }
+
   fun uploadUserConfig(
       userId: String,
       user: UserSetDTO,

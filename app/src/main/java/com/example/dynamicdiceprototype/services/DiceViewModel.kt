@@ -7,8 +7,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dynamicdiceprototype.DTO.set.DiceSetDTO
 import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
 import com.example.dynamicdiceprototype.DTO.set.UserSetDTO
 import com.example.dynamicdiceprototype.R
@@ -149,7 +151,11 @@ object DiceViewModel : ViewModel() {
     viewModelScope.launch {
       firebase.userFlow.collect { userDTO ->
         userDTO?.dices?.forEach { (key, value) ->
-          dices[key] = Dice(name = key, faces = value.images.map { it.face })
+          dices[key] =
+              Dice(
+                  name = key,
+                  faces = value.images.map { it.face },
+                  backgroundColor = Color(value.backgroundColor)) // TODO create mapper function?
         }
         userDTO?.diceGroups?.forEach { (key, value) -> bundles[key] = value }
       }
@@ -178,6 +184,15 @@ object DiceViewModel : ViewModel() {
   fun saveUser() {
     firebase.uploadUserConfig(
         "juli", UserSetDTO(dices = dices.map { it.key }, diceGroups = bundles))
+    firebase.uploadDices(
+        dices
+            .map { (key, value) ->
+              key to
+                  DiceSetDTO(
+                      images = value.faces.map { it.imageId to it.weight }.toMap(),
+                      backgroundColor = value.backgroundColor.toArgb())
+            }
+            .toMap())
   }
 }
 
