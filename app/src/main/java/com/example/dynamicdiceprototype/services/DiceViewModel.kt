@@ -142,7 +142,7 @@ object DiceViewModel : ViewModel() {
     viewModelScope.launch {
       firebase.imagesFlow.collect { images ->
         images.forEach { (key, value) -> imageMap[key] = value }
-        //        mapDiceIdsToImages(images)
+        mapDiceIdsToImages(images)
       }
     }
   }

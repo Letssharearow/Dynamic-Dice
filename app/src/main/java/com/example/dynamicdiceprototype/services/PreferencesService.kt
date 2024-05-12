@@ -5,7 +5,8 @@ import android.content.Context
 object PreferencesService {
 
   enum class Preferences {
-    IS_COMPACT
+    IS_COMPACT,
+    LAST_GROUP
   }
 
   fun saveData(context: Context, integer: Int) {
@@ -30,6 +31,22 @@ object PreferencesService {
     val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
     with(sharedPreferences.edit()) {
       putBoolean(Preferences.IS_COMPACT.name, isCompact)
+      apply()
+    }
+  }
+
+  fun loadLastBundle(context: Context): String {
+    val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+    return sharedPreferences.getString(
+        Preferences.LAST_GROUP.name,
+        "Kniffel")!! /*TODO resolve assert, this getString function doesnt return null, so why do I
+                     need the assert?*/
+  }
+
+  fun saveLastBundle(context: Context, lastGroup: String) {
+    val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+    with(sharedPreferences.edit()) {
+      putString(Preferences.LAST_GROUP.name, lastGroup)
       apply()
     }
   }

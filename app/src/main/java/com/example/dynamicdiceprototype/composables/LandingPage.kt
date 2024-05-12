@@ -6,17 +6,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.HeaderViewModel
+import com.example.dynamicdiceprototype.services.PreferencesService
 import com.example.dynamicdiceprototype.services.TAG
 
 @Composable
 fun LandingPage(dices: List<Dice>, name: String, modifier: Modifier = Modifier) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val headerViewModel = viewModel<HeaderViewModel>()
+  val preferencesService: PreferencesService = PreferencesService
+  val context = LocalContext.current
+  PreferencesService.saveLastBundle(context = context, name)
   headerViewModel.changeHeaderText(name)
 
   Log.d(TAG, "Recompose LandingPage $name => $dices")

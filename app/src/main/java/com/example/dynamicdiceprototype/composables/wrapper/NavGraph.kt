@@ -16,12 +16,15 @@ import com.example.dynamicdiceprototype.composables.screens.DiceGroupsScreen
 import com.example.dynamicdiceprototype.composables.screens.TestScreen
 import com.example.dynamicdiceprototype.composables.screens.UploadImageScreen
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.PreferencesService
 import com.example.dynamicdiceprototype.services.TAG
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+  val preferencesService: PreferencesService = PreferencesService
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val context = LocalContext.current
+  viewModel.lastBundle = preferencesService.loadLastBundle(context)
 
   LifecycleAwareComponent { viewModel.saveUser() }
   NavHost(navController, startDestination = Screen.MainScreen.route) {
