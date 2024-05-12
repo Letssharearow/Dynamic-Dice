@@ -29,9 +29,9 @@ object DiceViewModel : ViewModel() {
   // create Dice
   var newDice by mutableStateOf<Dice>(Dice(name = "Change Later"))
   var facesSize by mutableStateOf<Int>(20)
-  val bundles = mutableStateMapOf<String, Map<String, Int>>()
+  val diceGroups = mutableStateMapOf<String, Map<String, Int>>()
   var dices = mutableStateMapOf<String, Dice>()
-  var lastBundle by mutableStateOf("Kniffel")
+  var lastDiceGroup by mutableStateOf("Kniffel")
 
   fun addDice(dice: Dice) {
     dices[dice.name] = dice
@@ -98,7 +98,7 @@ object DiceViewModel : ViewModel() {
   // end create dice
 
   fun createDiceGroup(name: String, dices: Map<String, Pair<Dice, Int>>) {
-    bundles[name] = mapOf(*dices.map { Pair(it.key, it.value.second) }.toTypedArray())
+    diceGroups[name] = mapOf(*dices.map { Pair(it.key, it.value.second) }.toTypedArray())
   }
 
   init {
@@ -157,15 +157,15 @@ object DiceViewModel : ViewModel() {
                   faces = value.images.map { it.face },
                   backgroundColor = Color(value.backgroundColor)) // TODO create mapper function?
         }
-        userDTO?.diceGroups?.forEach { (key, value) -> bundles[key] = value }
+        userDTO?.diceGroups?.forEach { (key, value) -> diceGroups[key] = value }
       }
     }
   }
 
   fun selectDiceGroup(groupId: String) {
-    lastBundle = groupId
+    lastDiceGroup = groupId
     val newDicesState = mutableListOf<Dice>()
-    bundles[groupId]?.forEach { idAndCount ->
+    diceGroups[groupId]?.forEach { idAndCount ->
       val diceToAdd = dices[idAndCount.key]
       diceToAdd?.let {
         for (i in 1..idAndCount.value) {
@@ -183,7 +183,7 @@ object DiceViewModel : ViewModel() {
 
   fun saveUser() {
     firebase.uploadUserConfig(
-        "juli", UserSetDTO(dices = dices.map { it.key }, diceGroups = bundles))
+        "juli", UserSetDTO(dices = dices.map { it.key }, diceGroups = diceGroups))
     firebase.uploadDices(
         dices
             .map { (key, value) ->

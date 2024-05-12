@@ -24,7 +24,7 @@ fun NavGraph(navController: NavHostController) {
   val preferencesService: PreferencesService = PreferencesService
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val context = LocalContext.current
-  viewModel.lastBundle = preferencesService.loadLastBundle(context)
+  viewModel.lastDiceGroup = preferencesService.loadLastBundle(context)
 
   LifecycleAwareComponent { viewModel.saveUser() }
   NavHost(navController, startDestination = Screen.MainScreen.route) {
@@ -32,7 +32,7 @@ fun NavGraph(navController: NavHostController) {
     composable(route = Screen.MainScreen.route) {
       LandingPage(
           dices = viewModel.currentDices,
-          name = viewModel.lastBundle,
+          name = viewModel.lastDiceGroup,
       )
     }
     composable(route = Screen.CreateDice.route) { CreateDiceNavGraph(viewModel) }
@@ -41,7 +41,7 @@ fun NavGraph(navController: NavHostController) {
     }
     composable(route = Screen.DiceGroups.route) {
       DiceGroupsScreen(
-          viewModel.bundles.keys.toList(),
+          viewModel.diceGroups.keys.toList(),
           { groupId ->
             try {
               viewModel.selectDiceGroup(groupId)
