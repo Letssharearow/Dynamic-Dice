@@ -16,6 +16,7 @@ import com.example.dynamicdiceprototype.composables.screens.DiceGroupsScreen
 import com.example.dynamicdiceprototype.composables.screens.TestScreen
 import com.example.dynamicdiceprototype.composables.screens.UploadImageScreen
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferencesService
 import com.example.dynamicdiceprototype.services.TAG
 
@@ -30,10 +31,15 @@ fun NavGraph(navController: NavHostController) {
   NavHost(navController, startDestination = Screen.MainScreen.route) {
     composable(route = Screen.TestScreen.route) { TestScreen() }
     composable(route = Screen.MainScreen.route) {
+      val headerViewModel = viewModel<HeaderViewModel>()
+      val context = LocalContext.current
+      PreferencesService.saveLastBundle(context = context, viewModel.lastDiceGroup)
+      headerViewModel.changeHeaderText(viewModel.lastDiceGroup)
       LandingPage(
           dices = viewModel.currentDices,
           name = viewModel.lastDiceGroup,
-      )
+          isLoading = viewModel.collectFlows <= 1,
+          onRollClicked = { viewModel.rollDices() })
     }
     composable(route = Screen.CreateDice.route) { CreateDiceNavGraph(viewModel) }
     composable(route = Screen.UploadImage.route) {

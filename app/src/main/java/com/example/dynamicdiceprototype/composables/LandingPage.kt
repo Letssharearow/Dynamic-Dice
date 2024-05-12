@@ -1,34 +1,53 @@
 package com.example.dynamicdiceprototype.composables
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.data.Dice
-import com.example.dynamicdiceprototype.services.DiceViewModel
-import com.example.dynamicdiceprototype.services.HeaderViewModel
-import com.example.dynamicdiceprototype.services.PreferencesService
 import com.example.dynamicdiceprototype.services.TAG
+import com.example.dynamicdiceprototype.services.getDices
+import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
-fun LandingPage(dices: List<Dice>, name: String, modifier: Modifier = Modifier) {
-  val viewModel: DiceViewModel = viewModel<DiceViewModel>()
-  val headerViewModel = viewModel<HeaderViewModel>()
-  val preferencesService: PreferencesService = PreferencesService
-  val context = LocalContext.current
-  PreferencesService.saveLastBundle(context = context, name)
-  headerViewModel.changeHeaderText(name)
+fun LandingPage(
+    dices: List<Dice>,
+    name: String,
+    isLoading: Boolean,
+    onRollClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
 
   Log.d(TAG, "Recompose LandingPage $name => $dices")
-  Column(modifier) {
-    DiceBundle(dices = dices, modifier = Modifier.weight(1f))
-    DiceButtonM3(
-        onRollClicked = { viewModel.rollDices() },
-        modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 16.dp))
+
+  Column(
+      verticalArrangement = Arrangement.SpaceBetween,
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = modifier.fillMaxSize()) {
+        AnimatedVisibility(visible = !isLoading) {
+          DiceBundle(dices = dices, modifier = Modifier.weight(1f))
+        }
+        AnimatedVisibility(visible = isLoading, Modifier.weight(1f)) {
+          CircularProgressIndicator(modifier = Modifier.wrapContentSize(align = Alignment.Center))
+        }
+        DiceButtonM3(onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
+      }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun prev() {
+  DynamicDicePrototypeTheme {
+    LandingPage(dices = getDices(5), name = "Test", isLoading = false, onRollClicked = { /*TODO*/})
   }
 }

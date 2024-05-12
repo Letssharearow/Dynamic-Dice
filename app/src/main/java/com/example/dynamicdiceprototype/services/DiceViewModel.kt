@@ -23,8 +23,9 @@ import kotlinx.coroutines.launch
 // extend ViewModel to survive configuration change (landscape mode)
 object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
-  var currentDices by mutableStateOf(getDices(5)) //
+  var currentDices by mutableStateOf(listOf<Dice>()) //
   var imageMap = mutableStateMapOf<String, ImageModel>()
+  var collectFlows by mutableStateOf(0)
 
   // create Dice
   var newDice by mutableStateOf<Dice>(Dice(name = "Change Later"))
@@ -144,6 +145,7 @@ object DiceViewModel : ViewModel() {
         images.forEach { (key, value) -> imageMap[key] = value }
         mapDiceIdsToImages(images)
       }
+      collectFlows++
     }
   }
 
@@ -158,7 +160,16 @@ object DiceViewModel : ViewModel() {
                   backgroundColor = Color(value.backgroundColor)) // TODO create mapper function?
         }
         userDTO?.diceGroups?.forEach { (key, value) -> diceGroups[key] = value }
+        val dicesList = mutableListOf<Dice>()
+        diceGroups[lastDiceGroup]?.map {
+          for (i in 1..it.value) {
+            dicesList.add(dices[it.key] ?: continue)
+          }
+        }
+        currentDices = dicesList
+        mapDiceIdsToImages(imageMap)
       }
+      collectFlows++
     }
   }
 
