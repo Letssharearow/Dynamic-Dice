@@ -1,6 +1,7 @@
 package com.example.dynamicdiceprototype.composables.wrapper
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,6 +27,9 @@ fun NavGraph(navController: NavHostController) {
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val context = LocalContext.current
   viewModel.lastDiceGroup = preferencesService.loadLastBundle(context)
+  if (viewModel.getErrorMessage() != null) {
+    Toast.makeText(context, "Error Loading ${viewModel.getErrorMessage()}, check internet connection and restart app", Toast.LENGTH_LONG).show()
+  }
 
   LifecycleAwareComponent { viewModel.saveUser() }
   NavHost(navController, startDestination = Screen.MainScreen.route) {

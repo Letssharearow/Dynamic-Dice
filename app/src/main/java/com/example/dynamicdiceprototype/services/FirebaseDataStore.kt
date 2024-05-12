@@ -3,6 +3,9 @@ package com.example.dynamicdiceprototype.services
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.example.dynamicdiceprototype.DTO.get.DiceGetDTO
@@ -46,6 +49,7 @@ enum class UserProperty {
 
 class FirebaseDataStore {
   private val db = Firebase.firestore
+  var errorMessage by mutableStateOf<String?>(null)
 
   val imagesFlow = flow {
     val map = mutableMapOf<String, ImageModel>()
@@ -54,7 +58,15 @@ class FirebaseDataStore {
       return@flow
     }
     val collectionRef = db.collection(IMAGE_COLLECTION_NAME)
-    val documents = collectionRef.get().await()
+    val documents =
+        collectionRef
+            .get()
+            .addOnFailureListener {
+              it.printStackTrace()
+              Log.e(TAG, "Firebase $IMAGE_COLLECTION_NAME")
+              errorMessage = "Fetching Images"
+            }
+            .await()
     for (document in documents) {
       val documentId = document.id
       val documentData = document.data
@@ -123,6 +135,7 @@ class FirebaseDataStore {
         } catch (exception: Exception) {
           exception.printStackTrace()
           Log.e(TAG, "ERROR ${exception.message}")
+          errorMessage = "Fetching UserData"
         }
         return@withContext null
       }
@@ -150,6 +163,7 @@ class FirebaseDataStore {
           } catch (exception: Exception) {
             exception.printStackTrace()
             Log.e(TAG, "ERROR ${exception.message}")
+            errorMessage = "Fetching Devices"
           }
         }
         Log.d(TAG, "Firebase dicesList $dicesList")
@@ -182,6 +196,7 @@ class FirebaseDataStore {
           .addOnFailureListener { exception ->
             exception.printStackTrace()
             Log.e(TAG, "ERROR ${exception.message}")
+            errorMessage = "Fetching Images"
           }
           .await()
     }

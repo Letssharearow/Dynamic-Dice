@@ -34,6 +34,8 @@ object DiceViewModel : ViewModel() {
   var dices = mutableStateMapOf<String, Dice>()
   var lastDiceGroup by mutableStateOf("Kniffel")
 
+  fun getErrorMessage() = firebase.errorMessage
+
   fun addDice(dice: Dice) {
     dices[dice.name] = dice
     // TODO Store config locally
@@ -171,6 +173,10 @@ object DiceViewModel : ViewModel() {
       }
       collectFlows++
     }
+  }
+
+  private fun loadUserConfig() {
+    viewModelScope.launch { userConfig = firebase.fetchUserData("juli") }
   }
 
   fun selectDiceGroup(groupId: String) {

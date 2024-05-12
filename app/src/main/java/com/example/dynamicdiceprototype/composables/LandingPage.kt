@@ -34,8 +34,8 @@ fun LandingPage(
       verticalArrangement = Arrangement.SpaceBetween,
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = modifier.fillMaxSize()) {
-        AnimatedVisibility(visible = !isLoading) {
-          DiceBundle(dices = dices, modifier = Modifier.weight(1f))
+        AnimatedVisibility(visible = !isLoading, modifier = Modifier.weight(1f)) {
+          DiceBundle(dices = dices)
         }
         AnimatedVisibility(visible = isLoading, Modifier.weight(1f)) {
           CircularProgressIndicator(modifier = Modifier.wrapContentSize(align = Alignment.Center))
