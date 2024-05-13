@@ -23,5 +23,8 @@ class UtilsKtTest {
 
     maxGridWidth = getMaxGridWidth(count = 8, containerHeight = 20, containerWidth = 80)
     assertEquals(10f, maxGridWidth)
+
+    maxGridWidth = getMaxGridWidth(count = 10, containerHeight = 650, containerWidth = 300)
+    assertEquals(130f, maxGridWidth)
   }
 }

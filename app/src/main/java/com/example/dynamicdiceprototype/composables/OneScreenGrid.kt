@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.FaceView
 import com.example.dynamicdiceprototype.services.getFaces
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import kotlin.math.floor
 
 /** Use with modifier.weight(1f) otherwise */
 @Composable
@@ -37,7 +38,7 @@ fun <T> OneScreenGrid(
             items.size,
             containerWidth = constraints.maxWidth,
             containerHeight = constraints.maxHeight)
-    val maxSize = minSize.coerceAtLeast(maxWidthPixels)
+    val maxSize = floor(minSize.coerceAtLeast(maxWidthPixels))
     val maxWidthDp = pxToDp(density, maxSize)
 
     LazyVerticalGrid(columns = GridCells.Adaptive(minSize = maxWidthDp)) {

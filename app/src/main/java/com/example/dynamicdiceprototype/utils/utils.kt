@@ -2,6 +2,7 @@ import android.content.res.Resources
 import android.util.TypedValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
@@ -13,7 +14,7 @@ fun getMaxGridWidth(count: Int, containerWidth: Int, containerHeight: Int): Floa
         max(
             currentMaxWidth,
             min(
-                containerHeight.toFloat() / (count / i), // "max height for i columns
+                containerHeight.toFloat() / ceil(count / i.toFloat()), // "max height for i columns
                 containerWidth.toFloat() / i // max width for i columns
                 ))
   }
@@ -23,7 +24,7 @@ fun getMaxGridWidth(count: Int, containerWidth: Int, containerHeight: Int): Floa
         max(
             currentMaxHeight,
             min(
-                containerWidth.toFloat() / (count / i), // "max height for i rows
+                containerWidth.toFloat() / ceil(count / i.toFloat()), // "max height for i rows
                 containerHeight.toFloat() / i // max width for i rows
                 ))
   }

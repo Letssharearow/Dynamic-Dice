@@ -28,7 +28,11 @@ fun NavGraph(navController: NavHostController) {
   val context = LocalContext.current
   viewModel.lastDiceGroup = preferencesService.loadLastBundle(context)
   if (viewModel.getErrorMessage() != null) {
-    Toast.makeText(context, "Error Loading ${viewModel.getErrorMessage()}, check internet connection and restart app", Toast.LENGTH_LONG).show()
+    Toast.makeText(
+            context,
+            "Error Loading ${viewModel.getErrorMessage()}, check internet connection and restart app",
+            Toast.LENGTH_LONG)
+        .show()
   }
 
   LifecycleAwareComponent { viewModel.saveUser() }
@@ -45,7 +49,10 @@ fun NavGraph(navController: NavHostController) {
           isLoading = viewModel.collectFlows <= 1,
           onRollClicked = { viewModel.rollDices() })
     }
-    composable(route = Screen.CreateDice.route) { CreateDiceNavGraph(viewModel) }
+    composable(route = Screen.CreateDice.route) {
+      viewModel.loadAllImages()
+      CreateDiceNavGraph(viewModel)
+    }
     composable(route = Screen.UploadImage.route) {
       UploadImageScreen(context, { bitmap, name -> viewModel.uploadImage(bitmap, name) })
     }
