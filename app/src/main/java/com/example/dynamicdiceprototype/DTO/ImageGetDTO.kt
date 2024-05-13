@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.DTO.get
+package com.example.dynamicdiceprototype.DTO
 
 import com.example.dynamicdiceprototype.data.Face
 

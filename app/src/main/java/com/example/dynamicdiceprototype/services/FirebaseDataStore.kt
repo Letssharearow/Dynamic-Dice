@@ -8,9 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import com.example.dynamicdiceprototype.DTO.get.DiceDTO
-import com.example.dynamicdiceprototype.DTO.get.UserDTO
-import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
+import com.example.dynamicdiceprototype.DTO.DiceDTO
+import com.example.dynamicdiceprototype.DTO.ImageSetDTO
+import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.data.Face
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot

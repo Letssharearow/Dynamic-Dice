@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.DTO.get
+package com.example.dynamicdiceprototype.DTO
 
 data class UserDTO(
     var dices: List<String> = listOf(),

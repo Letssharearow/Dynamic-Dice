@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.DTO.get
+package com.example.dynamicdiceprototype.DTO
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb

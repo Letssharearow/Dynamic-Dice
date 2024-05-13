@@ -9,9 +9,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dynamicdiceprototype.DTO.get.UserDTO
-import com.example.dynamicdiceprototype.DTO.get.toDice
-import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
+import com.example.dynamicdiceprototype.DTO.ImageSetDTO
+import com.example.dynamicdiceprototype.DTO.UserDTO
+import com.example.dynamicdiceprototype.DTO.toDice
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState

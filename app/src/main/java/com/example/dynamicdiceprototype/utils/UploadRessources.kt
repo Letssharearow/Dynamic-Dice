@@ -4,9 +4,9 @@ import android.content.res.Resources
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.example.dynamicdiceprototype.DTO.get.DiceDTO
-import com.example.dynamicdiceprototype.DTO.get.UserDTO
-import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
+import com.example.dynamicdiceprototype.DTO.DiceDTO
+import com.example.dynamicdiceprototype.DTO.ImageSetDTO
+import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 

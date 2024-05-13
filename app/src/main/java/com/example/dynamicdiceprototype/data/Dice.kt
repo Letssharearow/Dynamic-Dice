@@ -2,7 +2,7 @@ package com.example.dynamicdiceprototype.data
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.example.dynamicdiceprototype.DTO.get.DiceDTO
+import com.example.dynamicdiceprototype.DTO.DiceDTO
 import kotlin.random.Random
 
 data class Dice(

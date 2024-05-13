@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.DTO.set
+package com.example.dynamicdiceprototype.DTO
 
 import android.graphics.Bitmap
 
