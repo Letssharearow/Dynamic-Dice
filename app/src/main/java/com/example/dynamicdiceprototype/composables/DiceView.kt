@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,13 +38,12 @@ import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
-import com.example.dynamicdiceprototype.data.ImageModel
 import com.example.dynamicdiceprototype.services.getFaces
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
-fun ImageBitmap(image: ImageModel, modifier: Modifier = Modifier) {
-  Image(bitmap = image.imageBitmap, contentDescription = image.contentDescription, modifier)
+fun ImageBitmap(image: ImageBitmap, contentDescription: String, modifier: Modifier = Modifier) {
+  Image(bitmap = image, contentDescription = contentDescription, modifier)
 }
 
 @Composable
@@ -106,11 +106,9 @@ fun FaceView(
 ) {
   val spacingMax = spacing.coerceAtMost(24.dp) // TODO refactor or not?
 
-  val image = face?.data
-
   Box(modifier = modifier.aspectRatio(1f).background(color, RoundedCornerShape(spacingMax))) {
     SizedImage(
-        image = image,
+        image = face,
         Modifier.fillMaxSize().padding(spacingMax).clip(RoundedCornerShape(spacingMax)))
     if (showWeight && face != null && face.weight > 1) {
       NumberCircle(
@@ -122,8 +120,15 @@ fun FaceView(
 }
 
 @Composable
-private fun SizedImage(image: ImageModel?, modifier: Modifier = Modifier) {
-  image?.let { ImageBitmap(image = image, modifier) }
+private fun SizedImage(image: Face?, modifier: Modifier = Modifier) {
+  image?.let { imageNotNull ->
+    imageNotNull.data?.let {
+      ImageBitmap(image = it, contentDescription = imageNotNull.contentDescription, modifier)
+    }
+        ?: Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+          Text(text = imageNotNull.contentDescription)
+        }
+  }
       ?: ArrangedColumn(verticalArrangement = Arrangement.Center) {
         Image(
             painter = painterResource(id = R.drawable.rukaiya),

@@ -24,7 +24,7 @@ fun SelectFacesScreen(
       onSaveSelection = { map -> onFacesSelectionClick(map) },
       getCount = { face -> face.weight },
       copy = { face, count -> face.copy(weight = count) },
-      getId = { face -> face.imageId }) { face, modifier, maxWidthDp ->
+      getId = { face -> face.contentDescription }) { face, modifier, maxWidthDp ->
         FaceView(face = face, spacing = maxWidthDp.div(10), modifier = modifier.fillMaxSize())
       }
 }

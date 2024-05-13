@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dynamicdiceprototype.DTO.get.toDice
 import com.example.dynamicdiceprototype.DTO.set.DiceSetDTO
 import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
 import com.example.dynamicdiceprototype.DTO.set.UserSetDTO
@@ -17,14 +18,13 @@ import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
-import com.example.dynamicdiceprototype.data.ImageModel
 import kotlinx.coroutines.launch
 
 // extend ViewModel to survive configuration change (landscape mode)
 object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
-  var currentDices by mutableStateOf(listOf<Dice>()) //
-  var imageMap = mutableStateMapOf<String, ImageModel>()
+  var currentDices by mutableStateOf(listOf<Dice>())
+  var imageMap = mutableStateMapOf<String, Face>()
   var collectFlows by mutableStateOf(0)
 
   // create Dice
@@ -41,9 +41,13 @@ object DiceViewModel : ViewModel() {
     // TODO Store config locally
   }
 
-  fun mapDiceIdsToImages(images: Map<String, ImageModel>) {
-    dices.forEach { it.value.faces.map { face -> face.data = images[face.imageId] } }
-    currentDices.forEach { it.faces.map { face -> face.data = images[face.imageId] } }
+  fun mapDiceIdsToImages(images: Map<String, Face>) {
+    dices.forEach {
+      it.value.faces.map { face -> face.data = images[face.contentDescription]?.data }
+    }
+    currentDices.forEach {
+      it.faces.map { face -> face.data = images[face.contentDescription]?.data }
+    }
   }
 
   // create Dice Flow
@@ -105,8 +109,8 @@ object DiceViewModel : ViewModel() {
   }
 
   init {
-    collectFlow()
-    collectUser()
+    collectImagesFlow()
+    loadUserConfig()
   }
 
   // Function to update a single dice
@@ -135,13 +139,7 @@ object DiceViewModel : ViewModel() {
         }
   }
 
-  private fun diceMapToList(dices: List<Dice>, images: Map<String, ImageModel>): List<Dice> {
-    return dices.map { dice ->
-      dice.copy(faces = dice.faces.map { face -> face.copy(data = images[face.imageId]) })
-    }
-  }
-
-  private fun collectFlow() {
+  private fun collectImagesFlow() {
     viewModelScope.launch {
       firebase.imagesFlow.collect { images ->
         images.forEach { (key, value) -> imageMap[key] = value }
@@ -151,32 +149,44 @@ object DiceViewModel : ViewModel() {
     }
   }
 
-  private fun collectUser() { // TODO create more flows and collect data simultaneously
+  private fun loadUserConfig() {
     viewModelScope.launch {
-      firebase.userFlow.collect { userDTO ->
-        userDTO?.dices?.forEach { (key, value) ->
-          dices[key] =
-              Dice(
-                  name = key,
-                  faces = value.images.map { it.face },
-                  backgroundColor = Color(value.backgroundColor)) // TODO create mapper function?
-        }
-        userDTO?.diceGroups?.forEach { (key, value) -> diceGroups[key] = value }
-        val dicesList = mutableListOf<Dice>()
-        diceGroups[lastDiceGroup]?.map {
-          for (i in 1..it.value) {
-            dicesList.add(dices[it.key] ?: continue)
-          }
-        }
-        currentDices = dicesList
-        mapDiceIdsToImages(imageMap)
-      }
+      val userDTO = firebase.fetchUserData("juli")
+      userDTO?.diceGroups?.forEach { diceGroups[it.key] = it.value } // TODO handle config null
       collectFlows++
+      userDTO?.dices?.forEach {
+        dices[it] = Dice(name = it)
+        loadDice(it)
+      }
+      selectDiceGroup(lastDiceGroup)
     }
   }
 
-  private fun loadUserConfig() {
-    viewModelScope.launch { userConfig = firebase.fetchUserData("juli") }
+  private fun loadDice(diceId: String) {
+    viewModelScope.launch {
+      val diceDTO = firebase.getDiceFromId(diceId)
+      diceDTO?.let { diceGetDTO ->
+        dices[diceId] = diceGetDTO.toDice(diceId)
+        diceGetDTO.images.forEach { loadImage(diceId = diceId, imageId = it.key) }
+      }
+    }
+  }
+
+  private fun loadImage(diceId: String, imageId: String) {
+    viewModelScope.launch {
+      val bitmap = firebase.getImageFromId(imageId)
+      bitmap?.let { bitmapNotNull ->
+        val diceToUpdate = dices[diceId]
+        diceToUpdate?.let { dice ->
+          dices[diceId] =
+              dice.copy(
+                  faces =
+                      dice.faces.map {
+                        if (it.contentDescription == imageId) it.copy(data = bitmapNotNull) else it
+                      })
+        }
+      }
+    }
   }
 
   fun selectDiceGroup(groupId: String) {
@@ -194,7 +204,7 @@ object DiceViewModel : ViewModel() {
   }
 
   fun uploadImage(bitmap: Bitmap, name: String) {
-    imageMap[name] = ImageModel(contentDescription = name, imageBitmap = bitmap.asImageBitmap())
+    imageMap[name] = Face(contentDescription = name, data = bitmap.asImageBitmap())
     firebase.uploadBitmap(name, ImageSetDTO(image = bitmap, contentDescription = name))
   }
 
@@ -206,7 +216,7 @@ object DiceViewModel : ViewModel() {
             .map { (key, value) ->
               key to
                   DiceSetDTO(
-                      images = value.faces.map { it.imageId to it.weight }.toMap(),
+                      images = value.faces.map { it.contentDescription to it.weight }.toMap(),
                       backgroundColor = value.backgroundColor.toArgb())
             }
             .toMap())
@@ -216,7 +226,7 @@ object DiceViewModel : ViewModel() {
 fun getFaces(n: Int): List<Face> {
   val list = mutableListOf<Face>()
   for (i in 1..n) {
-    list.add(Face(imageId = "${R.drawable.six_transparent}"))
+    list.add(Face(contentDescription = "${R.drawable.six_transparent}"))
   }
   return list
 }
@@ -229,12 +239,12 @@ fun getDices(n: Int = 5): List<Dice> {
             name = "6er",
             faces =
                 listOf(
-                    Face(imageId = "${R.drawable.one_transparent}"),
-                    Face(imageId = "${R.drawable.two_transparent}"),
-                    Face(imageId = "${R.drawable.three_transparent}"),
-                    Face(imageId = "${R.drawable.four_transparent}"),
-                    Face(imageId = "${R.drawable.five_transparent}"),
-                    Face(imageId = "${R.drawable.six_transparent}"))))
+                    Face(contentDescription = "${R.drawable.one_transparent}"),
+                    Face(contentDescription = "${R.drawable.two_transparent}"),
+                    Face(contentDescription = "${R.drawable.three_transparent}"),
+                    Face(contentDescription = "${R.drawable.four_transparent}"),
+                    Face(contentDescription = "${R.drawable.five_transparent}"),
+                    Face(contentDescription = "${R.drawable.six_transparent}"))))
   }
   return list
 }

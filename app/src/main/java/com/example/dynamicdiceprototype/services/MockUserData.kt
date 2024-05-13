@@ -19,16 +19,16 @@ fun getMockDices() =
                 name = "random",
                 faces =
                     listOf(
-                        Face(imageId = "${R.drawable.three_transparent}"),
-                        Face(imageId = "${R.drawable.rukaiya_rectangular}"))),
+                        Face(contentDescription = "${R.drawable.three_transparent}"),
+                        Face(contentDescription = "${R.drawable.rukaiya_rectangular}"))),
         "6er" to
             Dice(
                 name = "6er",
                 faces =
                     listOf(
-                        Face(imageId = "${R.drawable.one_transparent}"),
-                        Face(imageId = "${R.drawable.two_transparent}"),
-                        Face(imageId = "${R.drawable.three_transparent}"),
-                        Face(imageId = "${R.drawable.four_transparent}"),
-                        Face(imageId = "${R.drawable.five_transparent}"),
-                        Face(imageId = "${R.drawable.six_transparent}"))))
+                        Face(contentDescription = "${R.drawable.one_transparent}"),
+                        Face(contentDescription = "${R.drawable.two_transparent}"),
+                        Face(contentDescription = "${R.drawable.three_transparent}"),
+                        Face(contentDescription = "${R.drawable.four_transparent}"),
+                        Face(contentDescription = "${R.drawable.five_transparent}"),
+                        Face(contentDescription = "${R.drawable.six_transparent}"))))

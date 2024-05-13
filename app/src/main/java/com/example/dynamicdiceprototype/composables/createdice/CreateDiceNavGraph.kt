@@ -12,7 +12,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.Screen
-import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.DiceViewModel
 
 @Composable
@@ -35,11 +34,11 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
     }
     composable(route = Screen.SelectFaces.route) {
       SelectFacesScreen(
-          faces = diceViewModel.imageMap.map { Face(data = it.value, imageId = it.key) },
+          faces = diceViewModel.imageMap.values.toList(),
           size = diceViewModel.facesSize,
           initialValue =
               diceViewModel.newDice.faces.associate {
-                Pair(it.imageId, it)
+                Pair(it.contentDescription, it)
               }) { // TODO Consider using same datatype (map probably) for everything)
             navController.navigate(Screen.EditTemplate.route)
             diceViewModel.setSelectedFaces(it.values)
