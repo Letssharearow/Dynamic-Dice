@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.common.ContinueButton
 import com.example.dynamicdiceprototype.data.Dice
@@ -154,7 +155,12 @@ fun TemplateSelectionScreen(
             var number by remember { mutableStateOf<String?>("6") }
             OutlinedTextField(
                 value = number.toString(),
-                onValueChange = { newValue -> number = newValue.takeIf { it.isNotEmpty() } ?: "" },
+                onValueChange = { newValue ->
+                  number =
+                      newValue.takeIf {
+                        it.isDigitsOnly() && (it.isNotEmpty() && it.toInt() <= 100 || it.isEmpty())
+                      } ?: number
+                },
                 label = { Text("New Dice Faces Count") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.wrapContentSize(),

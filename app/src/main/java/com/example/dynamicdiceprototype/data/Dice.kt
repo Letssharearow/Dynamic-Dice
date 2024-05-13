@@ -1,6 +1,8 @@
 package com.example.dynamicdiceprototype.data
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import com.example.dynamicdiceprototype.DTO.get.DiceDTO
 import kotlin.random.Random
 
 data class Dice(
@@ -27,3 +29,8 @@ enum class DiceState {
   LOCKED,
   UNLOCKED
 }
+
+fun Dice.toDiceGetDTO(): DiceDTO =
+    DiceDTO(
+        images = this.faces.associate { Pair(it.contentDescription, it.weight) },
+        backgroundColor = this.backgroundColor.toArgb())

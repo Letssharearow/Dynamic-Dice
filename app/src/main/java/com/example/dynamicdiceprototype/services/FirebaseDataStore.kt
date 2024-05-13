@@ -8,15 +8,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import com.example.dynamicdiceprototype.DTO.get.DiceGetDTO
-import com.example.dynamicdiceprototype.DTO.get.UserGetDTO
-import com.example.dynamicdiceprototype.DTO.set.DiceSetDTO
+import com.example.dynamicdiceprototype.DTO.get.DiceDTO
+import com.example.dynamicdiceprototype.DTO.get.UserDTO
 import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
-import com.example.dynamicdiceprototype.DTO.set.UserSetDTO
 import com.example.dynamicdiceprototype.data.Face
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
 import java.io.ByteArrayOutputStream
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -47,6 +46,10 @@ class FirebaseDataStore {
   private val db = Firebase.firestore
   var errorMessage by mutableStateOf<String?>(null)
 
+  init {
+    //    GlobalScope.launch { loadAllDices() }
+  }
+
   suspend fun loadAllImages(): MutableMap<String, Face> {
     val map = mutableMapOf<String, Face>()
     val collectionRef = db.collection(IMAGE_COLLECTION_NAME)
@@ -71,6 +74,28 @@ class FirebaseDataStore {
     return map
   }
 
+  suspend fun loadAllDices() {
+    val collectionRef = db.collection(DICES_COLLECTION_NAME)
+    val documents =
+        collectionRef
+            .get()
+            .addOnFailureListener {
+              it.printStackTrace()
+              Log.e(TAG, "Firebase $DICES_COLLECTION_NAME")
+              errorMessage = "Fetching $DICES_COLLECTION_NAME"
+            }
+            .await()
+    for (document in documents) {
+      val documentId = document.id
+      val imagesId = document[DiceProperty.IMAGE_IDS.name] as? Map<String, Int>
+      val backgroundColor = document[DiceProperty.COLOR.name] as? Number
+      if (imagesId != null && backgroundColor != null) {
+        val upload = DiceDTO(backgroundColor = backgroundColor.toInt(), images = imagesId)
+        uploadDice(documentId, upload)
+      }
+    }
+  }
+
   fun uploadBitmap(key: String, image: ImageSetDTO) {
     val dataMap =
         hashMapOf(
@@ -80,29 +105,19 @@ class FirebaseDataStore {
     setDocument(image.contentDescription, dataMap, IMAGE_COLLECTION_NAME)
   }
 
-  fun uploadDice(key: String, dice: DiceSetDTO) {
-    val dataMap =
-        hashMapOf(
-            DiceProperty.IMAGE_IDS.name to dice.images,
-            DiceProperty.COLOR.name to dice.backgroundColor,
-        )
-    setDocument(key, dataMap, DICES_COLLECTION_NAME)
+  fun uploadDice(key: String, dice: DiceDTO) {
+    setDocument(key, dice, DICES_COLLECTION_NAME)
   }
 
-  fun uploadDices(mapOf: Map<String, DiceSetDTO>) {
+  fun uploadDices(mapOf: Map<String, DiceDTO>) {
     mapOf.forEach { uploadDice(key = it.key, dice = it.value) }
   }
 
   fun uploadUserConfig(
       userId: String,
-      user: UserSetDTO,
+      user: UserDTO,
   ) {
-    val dataMap =
-        hashMapOf(
-            UserProperty.DICE_GROUPS.name to user.diceGroups,
-            UserProperty.DICES.name to user.dices,
-        )
-    setDocument(keyName = userId, dataMap = dataMap, collectionName = CONFIG_COLLECTION_NAME)
+    setDocument(keyName = userId, dataMap = user, collectionName = CONFIG_COLLECTION_NAME)
   }
 
   private suspend inline fun <reified T> fetchDocumentData(
@@ -125,28 +140,15 @@ class FirebaseDataStore {
     return null
   }
 
-  suspend fun fetchUserData(userId: String): UserGetDTO? {
+  suspend fun fetchUserData(userId: String): UserDTO? {
     return fetchDocumentData(CONFIG_COLLECTION_NAME, userId) { documentSnapshot ->
-      val diceGroups =
-          documentSnapshot[UserProperty.DICE_GROUPS.name] as? Map<String, Map<String, Int>>
-      val dicesName = documentSnapshot[UserProperty.DICES.name] as? List<String>
-      if (diceGroups != null && dicesName != null) {
-        UserGetDTO(diceGroups = diceGroups, dices = dicesName)
-      } else {
-        null
-      }
+      documentSnapshot.toObject<UserDTO>()
     }
   }
 
-  suspend fun getDiceFromId(diceName: String): DiceGetDTO? {
+  suspend fun getDiceFromId(diceName: String): DiceDTO? {
     return fetchDocumentData(DICES_COLLECTION_NAME, diceName) { documentSnapshot ->
-      val imagesId = documentSnapshot[DiceProperty.IMAGE_IDS.name] as? Map<String, Int>
-      val backgroundColor = documentSnapshot[DiceProperty.COLOR.name] as? Number
-      if (imagesId != null && backgroundColor != null) {
-        DiceGetDTO(backgroundColor = backgroundColor.toInt(), images = imagesId)
-      } else {
-        null
-      }
+      documentSnapshot.toObject<DiceDTO>()
     }
   }
 

@@ -7,17 +7,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dynamicdiceprototype.DTO.get.UserDTO
 import com.example.dynamicdiceprototype.DTO.get.toDice
-import com.example.dynamicdiceprototype.DTO.set.DiceSetDTO
 import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
-import com.example.dynamicdiceprototype.DTO.set.UserSetDTO
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
+import com.example.dynamicdiceprototype.data.toDiceGetDTO
+import kotlin.random.Random
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
@@ -26,13 +26,14 @@ import kotlinx.coroutines.launch
 object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
-  var imageMap by mutableStateOf(mutableMapOf<String, Face>()) // TODO
+  var imageMap by mutableStateOf(mutableMapOf<String, Face>()) // TODO fix warning
   var collectFlows by mutableStateOf(0)
 
   // create Dice
   var newDice by mutableStateOf<Dice>(Dice(name = "Change Later"))
   var facesSize by mutableStateOf<Int>(20)
   val diceGroups = mutableStateMapOf<String, Map<String, Int>>()
+  var userConfigIsNull: Boolean = false
   var dices = mutableStateMapOf<String, Dice>()
   var lastDiceGroup by mutableStateOf("Kniffel")
 
@@ -40,7 +41,7 @@ object DiceViewModel : ViewModel() {
 
   fun addDice(dice: Dice) {
     dices[dice.name] = dice
-    // TODO Store config locally
+    firebase.uploadDice(dice.name, dice.toDiceGetDTO())
   }
 
   fun mapDiceIdsToImages(images: Map<String, Face>) {
@@ -74,14 +75,6 @@ object DiceViewModel : ViewModel() {
 
   fun setStartDice(newDice: Dice) {
     this.newDice = copyDice(newDice.name)
-  }
-
-  fun updateSelectedFaces(faces: Map<String, Face>) {
-    newDice = newDice.copy(faces = faces.values.toList())
-  }
-
-  fun updateBackgroundColor(color: Color) {
-    newDice = newDice.copy(backgroundColor = color)
   }
 
   fun setDiceName(name: String) {
@@ -143,16 +136,20 @@ object DiceViewModel : ViewModel() {
   private fun loadUserConfig() {
     viewModelScope.launch {
       val userDTO = firebase.fetchUserData("juli")
-      userDTO?.diceGroups?.forEach { diceGroups[it.key] = it.value } // TODO handle config null
-      val tasks =
-          userDTO?.dices?.map {
-            dices[it] = Dice(name = it)
-            async { loadDice(it) }
-          }
-      tasks?.awaitAll()
-      collectFlows++
-      collectFlows++
-      selectDiceGroup(lastDiceGroup)
+      if (userDTO != null) {
+        userDTO.diceGroups.forEach { diceGroups[it.key] = it.value } // TODO handle config null
+        val tasks =
+            userDTO.dices.map {
+              dices[it] = Dice(name = it)
+              async { loadDice(it) }
+            }
+        tasks.awaitAll()
+        collectFlows++
+        collectFlows++
+        selectDiceGroup(lastDiceGroup)
+      } else {
+        userConfigIsNull = true
+      }
     }
   }
 
@@ -194,11 +191,11 @@ object DiceViewModel : ViewModel() {
   fun selectDiceGroup(groupId: String) {
     lastDiceGroup = groupId
     val newDicesState = mutableListOf<Dice>()
-    diceGroups[groupId]?.forEach { idAndCount ->
-      val diceToAdd = dices[idAndCount.key]
+    diceGroups[groupId]?.forEach { diceId, count ->
+      val diceToAdd = dices[diceId]
       diceToAdd?.let {
-        for (i in 1..idAndCount.value) {
-          newDicesState.add(diceToAdd)
+        for (i in 1..count) {
+          newDicesState.add(diceToAdd.copy(rotation = Random.nextFloat() * i))
         }
       } // TODO better handling for null Dice
     }
@@ -214,17 +211,10 @@ object DiceViewModel : ViewModel() {
   }
 
   fun saveUser() {
-    firebase.uploadUserConfig(
-        "juli", UserSetDTO(dices = dices.map { it.key }, diceGroups = diceGroups))
-    firebase.uploadDices(
-        dices
-            .map { (key, value) ->
-              key to
-                  DiceSetDTO(
-                      images = value.faces.map { it.contentDescription to it.weight }.toMap(),
-                      backgroundColor = value.backgroundColor.toArgb())
-            }
-            .toMap())
+    if (!userConfigIsNull && dices.isNotEmpty() && diceGroups.isNotEmpty()) {
+      firebase.uploadUserConfig(
+          "juli", UserDTO(dices = dices.map { it.key }, diceGroups = diceGroups))
+    }
   }
 }
 

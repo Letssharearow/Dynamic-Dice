@@ -51,7 +51,10 @@ fun DiceGroupCreationScreen(
           OutlinedTextField(
               value = number.toString(),
               onValueChange = { newValue ->
-                number = newValue.takeIf { it.isDigitsOnly() && it.length <= 3 } ?: number
+                number =
+                    newValue.takeIf {
+                      it.isDigitsOnly() && (it.isNotEmpty() && it.toInt() <= 100 || it.isEmpty())
+                    } ?: number
               },
               singleLine = true,
               label = { Text("New Dice Faces Count") },

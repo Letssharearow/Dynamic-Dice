@@ -24,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
@@ -34,6 +35,7 @@ import com.example.dynamicdiceprototype.composables.wrapper.Menu
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import com.example.dynamicdiceprototype.utils.uploadImages
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -42,7 +44,7 @@ class MainActivity : ComponentActivity() {
     val res = resources
     //    uploadUser()
     //    uploadDices()
-    //    uploadImages(res)
+    uploadImages(res)
     //    val firebase = FirebaseDataStore()
 
     setContent {
@@ -92,6 +94,7 @@ fun uploadColors(context: Context) {
 
 @Composable
 fun MyApp() {
+  uploadColors(LocalContext.current)
   val scope = rememberCoroutineScope()
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   Column {

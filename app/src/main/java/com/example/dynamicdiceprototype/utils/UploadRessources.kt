@@ -4,9 +4,9 @@ import android.content.res.Resources
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.example.dynamicdiceprototype.DTO.set.DiceSetDTO
+import com.example.dynamicdiceprototype.DTO.get.DiceDTO
+import com.example.dynamicdiceprototype.DTO.get.UserDTO
 import com.example.dynamicdiceprototype.DTO.set.ImageSetDTO
-import com.example.dynamicdiceprototype.DTO.set.UserSetDTO
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 
@@ -43,14 +43,14 @@ fun uploadDices() {
       arrayOf(
           Pair(
               "red_and_green",
-              DiceSetDTO(
+              DiceDTO(
                   mapOf(
                       Color.Red.toArgb().toString() to 1,
                       Color.Green.toArgb().toString() to 1,
                   ))),
           Pair(
               "animals",
-              DiceSetDTO(
+              DiceDTO(
                   mapOf(
                       (R.drawable.cameleon.toString() to 1),
                       (R.drawable.elephant.toString() to 1),
@@ -64,7 +64,7 @@ fun uploadDices() {
                   ))),
           Pair(
               "6er",
-              DiceSetDTO(
+              DiceDTO(
                   mapOf(
                       (R.drawable.six_transparent.toString() to 1),
                       (R.drawable.five_transparent.toString() to 1),
@@ -86,5 +86,5 @@ fun uploadUser() {
       )
   val dices = listOf("random", "6er", "animals")
 
-  firbase.uploadUserConfig("juli", UserSetDTO(dices = dices, diceGroups = diceGroups))
+  firbase.uploadUserConfig("juli", UserDTO(dices = dices, diceGroups = diceGroups))
 }

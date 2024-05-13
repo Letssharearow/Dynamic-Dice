@@ -5,12 +5,12 @@ import androidx.compose.ui.graphics.toArgb
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Face
 
-data class DiceGetDTO(
-    val images: Map<String, Int>,
+data class DiceDTO(
+    val images: Map<String, Int> = mapOf(),
     var backgroundColor: Int = Color(0xFFCCCCCC).toArgb()
 )
 
-fun DiceGetDTO.toDice(name: String): Dice {
+fun DiceDTO.toDice(name: String): Dice {
   val faces =
       this.images.map { image -> Face(contentDescription = image.key, weight = image.value) }
 
