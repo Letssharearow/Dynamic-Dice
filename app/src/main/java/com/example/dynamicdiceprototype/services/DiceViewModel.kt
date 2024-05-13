@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
-  var imageMap = mutableStateMapOf<String, Face>()
+  var imageMap by mutableStateOf(mutableMapOf<String, Face>()) // TODO
   var collectFlows by mutableStateOf(0)
 
   // create Dice
@@ -140,16 +140,6 @@ object DiceViewModel : ViewModel() {
         }
   }
 
-  private fun collectImagesFlow() {
-    viewModelScope.launch {
-      firebase.imagesFlow.collect { images ->
-        images.forEach { (key, value) -> imageMap[key] = value }
-        mapDiceIdsToImages(images)
-      }
-      collectFlows++
-    }
-  }
-
   private fun loadUserConfig() {
     viewModelScope.launch {
       val userDTO = firebase.fetchUserData("juli")
@@ -193,6 +183,14 @@ object DiceViewModel : ViewModel() {
     }
   }
 
+  fun loadAllImages() {
+    //    if (imageMap.isNotEmpty()) return
+    viewModelScope.launch {
+      val images = firebase.loadAllImages()
+      imageMap = images
+    }
+  }
+
   fun selectDiceGroup(groupId: String) {
     lastDiceGroup = groupId
     val newDicesState = mutableListOf<Dice>()
@@ -208,7 +206,10 @@ object DiceViewModel : ViewModel() {
   }
 
   fun uploadImage(bitmap: Bitmap, name: String) {
-    imageMap[name] = Face(contentDescription = name, data = bitmap.asImageBitmap())
+    imageMap[name] =
+        Face(
+            contentDescription = name,
+            data = bitmap.asImageBitmap()) // TODO make sure upload was successful
     firebase.uploadBitmap(name, ImageSetDTO(image = bitmap, contentDescription = name))
   }
 
