@@ -18,6 +18,8 @@ import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 // extend ViewModel to survive configuration change (landscape mode)
@@ -109,7 +111,6 @@ object DiceViewModel : ViewModel() {
   }
 
   init {
-    collectImagesFlow()
     loadUserConfig()
   }
 
@@ -153,38 +154,41 @@ object DiceViewModel : ViewModel() {
     viewModelScope.launch {
       val userDTO = firebase.fetchUserData("juli")
       userDTO?.diceGroups?.forEach { diceGroups[it.key] = it.value } // TODO handle config null
+      val tasks =
+          userDTO?.dices?.map {
+            dices[it] = Dice(name = it)
+            async { loadDice(it) }
+          }
+      tasks?.awaitAll()
       collectFlows++
-      userDTO?.dices?.forEach {
-        dices[it] = Dice(name = it)
-        loadDice(it)
-      }
+      collectFlows++
       selectDiceGroup(lastDiceGroup)
     }
   }
 
-  private fun loadDice(diceId: String) {
-    viewModelScope.launch {
-      val diceDTO = firebase.getDiceFromId(diceId)
-      diceDTO?.let { diceGetDTO ->
-        dices[diceId] = diceGetDTO.toDice(diceId)
-        diceGetDTO.images.forEach { loadImage(diceId = diceId, imageId = it.key) }
+  private suspend fun loadDice(diceId: String) {
+    val diceDTO = firebase.getDiceFromId(diceId)
+    diceDTO?.let { diceGetDTO ->
+      dices[diceId] = diceGetDTO.toDice(diceId)
+      viewModelScope.launch {
+        val tasks = diceGetDTO.images.map { async { loadImage(diceId = diceId, imageId = it.key) } }
+        tasks.awaitAll()
+        selectDiceGroup(lastDiceGroup)
       }
     }
   }
 
-  private fun loadImage(diceId: String, imageId: String) {
-    viewModelScope.launch {
-      val bitmap = firebase.getImageFromId(imageId)
-      bitmap?.let { bitmapNotNull ->
-        val diceToUpdate = dices[diceId]
-        diceToUpdate?.let { dice ->
-          dices[diceId] =
-              dice.copy(
-                  faces =
-                      dice.faces.map {
-                        if (it.contentDescription == imageId) it.copy(data = bitmapNotNull) else it
-                      })
-        }
+  private suspend fun loadImage(diceId: String, imageId: String) {
+    val bitmap = firebase.getImageFromId(imageId)
+    bitmap?.let { bitmapNotNull ->
+      val diceToUpdate = dices[diceId]
+      diceToUpdate?.let { dice ->
+        dices[diceId] =
+            dice.copy(
+                faces =
+                    dice.faces.map {
+                      if (it.contentDescription == imageId) it.copy(data = bitmapNotNull) else it
+                    })
       }
     }
   }

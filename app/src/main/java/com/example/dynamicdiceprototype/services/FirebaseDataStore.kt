@@ -49,10 +49,6 @@ class FirebaseDataStore {
 
   val imagesFlow = flow {
     val map = mutableMapOf<String, Face>()
-    if (local) {
-      emit(mockImages())
-      return@flow
-    }
     val collectionRef = db.collection(IMAGE_COLLECTION_NAME)
     val documents =
         collectionRef
@@ -75,18 +71,13 @@ class FirebaseDataStore {
     emit(map)
   }
 
-  val userFlow = flow {
-    val userDTO = fetchUserData("juli")
-    emit(userDTO)
-  }
-
   fun uploadBitmap(key: String, image: ImageSetDTO) {
     val dataMap =
         hashMapOf(
             ImageProperty.IMAGE_BITMAP.name to bitmapToBase64(image.image),
             ImageProperty.CONTENT_DESCRIPTION.name to image.contentDescription)
 
-    setDocument(key, dataMap, IMAGE_COLLECTION_NAME)
+    setDocument(image.contentDescription, dataMap, IMAGE_COLLECTION_NAME)
   }
 
   fun uploadDice(key: String, dice: DiceSetDTO) {
