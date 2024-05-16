@@ -23,7 +23,7 @@ import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 fun DicesView(dices: List<Dice>, modifier: Modifier = Modifier) {
   val inPreviewMode = LocalInspectionMode.current
   val viewModel: DiceViewModel? = if (inPreviewMode) null else viewModel()
-  OneScreenGrid<Dice>(dices, minSize = 10F, modifier) { dice, maxSize ->
+  OneScreenGrid<Dice>(dices, minSize = 200F, modifier) { dice, maxSize ->
     DiceView(dice = dice, size = maxSize, onDiceClick = {viewModel?.lockDice(it)})
   }
 }

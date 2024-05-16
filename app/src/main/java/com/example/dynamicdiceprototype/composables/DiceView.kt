@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -65,13 +66,18 @@ fun DiceView(
                   scaleX = scale
                   scaleY = scale
                 }
-                .shadow(spacing, RoundedCornerShape(spacing))
+                .shadow(spacing, RoundedCornerShape(spacing), clip = false)
                 .clickable { onDiceClick(dice) }) {
           FaceView(
               face = dice.current,
               showWeight = showWeight,
               spacing = spacing.coerceAtMost(24.dp),
               color = dice.backgroundColor)
+          NumberCircle(
+              text = "${dice.faces.size}",
+              fontSize = 24.sp,
+              modifier =
+                  Modifier.align(Alignment.BottomEnd).absoluteOffset(x = spacing, y = spacing))
         }
     if (dice.state == DiceState.LOCKED) {
       LockIcon(modifier = Modifier.align(Alignment.TopEnd).size(spacing.times(2)))
@@ -138,13 +144,13 @@ private fun SizedImage(image: Face?, modifier: Modifier = Modifier) {
       }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun Preview() {
 
   DynamicDicePrototypeTheme {
     //    FaceView(face = Face(weight = 20), showWeight = true, spacing = 36.dp, color = Color.Cyan)
-    DiceView(dice = Dice(faces = getFaces(2)), onDiceClick = {}, size = 300.dp)
+    DiceView(dice = Dice(faces = getFaces(5)), onDiceClick = {}, size = 300.dp)
   }
 }
 

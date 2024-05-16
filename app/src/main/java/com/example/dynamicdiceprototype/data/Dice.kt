@@ -15,14 +15,17 @@ data class Dice(
 ) {
 
   init {
-    if ((current === null || !faces.contains(current)) && faces.isNotEmpty()) current = roll()
+    //    if ((current === null || !faces.contains(current)) && faces.isNotEmpty()) current = roll()
   }
 
-  fun roll(): Face {
-    // always flip to the other side to show that the face is a new face
-    rotation = ((Random.nextFloat() * (15) + 5) * if (rotation > 0) -1 else 1)
-    return faces.random()
+  fun roll2() {
+    current = if (faces.isEmpty()) null else faces.random()
   }
+
+  fun roll(): Dice =
+      this.copy(
+          current = if (faces.isEmpty()) null else faces.random(),
+          rotation = ((Random.nextFloat() * (15) + 5) * if (rotation > 0) -1 else 1))
 }
 
 enum class DiceState {

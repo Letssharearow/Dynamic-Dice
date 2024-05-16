@@ -73,8 +73,8 @@ fun <T> SelectItemsGrid(
                     selectedItems[getId(item)] =
                         copy(selectedItems[getId(item)]!!, ceil(value).toInt())
                   },
-                  valueRange = 1f..size.toFloat(),
-                  steps = size - 1,
+                  valueRange = 1f..size.toFloat().coerceAtLeast(1f),
+                  steps = (size - 1).coerceAtLeast(1),
                   modifier =
                       Modifier.align(Alignment.BottomCenter)
                           .padding(8.dp)

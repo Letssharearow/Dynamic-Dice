@@ -9,6 +9,7 @@ import com.example.dynamicdiceprototype.DTO.ImageSetDTO
 import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
+import com.example.dynamicdiceprototype.services.USER
 
 fun uploadImages(res: Resources) {
   val firbase = FirebaseDataStore()
@@ -86,5 +87,5 @@ fun uploadUser() {
       )
   val dices = listOf("random", "6er", "animals")
 
-  firbase.uploadUserConfig("juli", UserDTO(dices = dices, diceGroups = diceGroups))
+  firbase.uploadUserConfig(USER, UserDTO(dices = dices, diceGroups = diceGroups))
 }

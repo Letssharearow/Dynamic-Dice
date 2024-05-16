@@ -35,7 +35,7 @@ object DiceViewModel : ViewModel() {
   val diceGroups = mutableStateMapOf<String, Map<String, Int>>()
   var userConfigIsNull: Boolean = false
   var dices = mutableStateMapOf<String, Dice>()
-  var lastDiceGroup by mutableStateOf("Kniffel")
+  var lastDiceGroup by mutableStateOf("Red flag or Green flag")
 
   fun getErrorMessage() = firebase.errorMessage
 
@@ -101,6 +101,7 @@ object DiceViewModel : ViewModel() {
 
   fun createDiceGroup(name: String, dices: Map<String, Pair<Dice, Int>>) {
     diceGroups[name] = mapOf(*dices.map { Pair(it.key, it.value.second) }.toTypedArray())
+    saveUser()
   }
 
   init {
@@ -126,7 +127,7 @@ object DiceViewModel : ViewModel() {
     currentDices =
         currentDices.map { dice ->
           if (dice.state != DiceState.LOCKED) {
-            dice.copy(current = null) // set null to trigger recomposition and roll in Dice class
+            dice.roll()
           } else {
             dice
           }
@@ -135,7 +136,7 @@ object DiceViewModel : ViewModel() {
 
   private fun loadUserConfig() {
     viewModelScope.launch {
-      val userDTO = firebase.fetchUserData("juli")
+      val userDTO = firebase.fetchUserData(USER)
       if (userDTO != null) {
         userDTO.diceGroups.forEach { diceGroups[it.key] = it.value } // TODO handle config null
         val tasks =
@@ -213,7 +214,7 @@ object DiceViewModel : ViewModel() {
   fun saveUser() {
     if (!userConfigIsNull && dices.isNotEmpty() && diceGroups.isNotEmpty()) {
       firebase.uploadUserConfig(
-          "juli", UserDTO(dices = dices.map { it.key }, diceGroups = diceGroups))
+          USER, UserDTO(dices = dices.map { it.key }, diceGroups = diceGroups))
     }
   }
 }
