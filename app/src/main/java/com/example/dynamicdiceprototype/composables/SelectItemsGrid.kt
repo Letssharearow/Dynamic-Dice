@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
@@ -47,15 +48,20 @@ fun <T> SelectItemsGrid(
     mutableStateMapOf<String, T>(*initialValue.map { Pair(it.key, it.value) }.toTypedArray())
   }
   ArrangedColumn {
-    OneScreenGrid(items = selectables, minSize = 400f, Modifier.weight(1f)) { item, maxWidthDp
+    OneScreenGrid(items = selectables, minSize = 400f, modifier.weight(1f)) { item, maxWidthDp
       -> // TODO hardcoded minSize, maybe as parameter?
       Box(
           contentAlignment = Alignment.Center,
           modifier =
               Modifier.fillMaxWidth().padding(8.dp).clickable {
                 val selectedItem = selectedItems[getId(item)]
-                if (selectedItem == null) selectedItems[getId(item)] = item
-                else selectedItems.remove(getId(item))
+                if (selectedItem == null) {
+                  selectedItems[getId(item)] = item
+                  copy(item, 1)
+                } else {
+                  copy(item, 0)
+                  selectedItems.remove(getId(item))
+                }
               }) {
             val isSelected = selectedItems[getId(item)] != null
             if (isSelected) {
@@ -81,6 +87,15 @@ fun <T> SelectItemsGrid(
                           .clip(RoundedCornerShape(12.dp))
                           .background(
                               MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5F)))
+            } else {
+              Text(
+                  text = getId(item),
+                  modifier =
+                      Modifier.align(Alignment.BottomCenter)
+                          .padding(8.dp)
+                          .clip(RoundedCornerShape(12.dp))
+                          .background(
+                              MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5F)))
             }
           }
     }
@@ -97,8 +112,8 @@ private fun SelectItemsGridPreview() {
     SelectItemsGrid<DiceInGroup>(
         selectables =
             listOf(
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
+                DiceInGroup(Dice(name = "testDiceCheck", faces = listOf()), count = 2),
+                DiceInGroup(Dice(name = "testDiceCheckAndName", faces = listOf()), count = 2),
                 DiceInGroup(Dice(faces = listOf()), count = 2),
                 DiceInGroup(Dice(faces = listOf()), count = 2),
                 DiceInGroup(Dice(faces = listOf()), count = 2),
@@ -134,6 +149,10 @@ private fun SelectItemsGridPreview() {
             ),
         size = 2,
         onSaveSelection = {},
+        initialValue =
+            mutableMapOf(
+                "testDiceCheck" to DiceInGroup(Dice(), 2),
+                "testDiceCheckAndName" to DiceInGroup(Dice(), 0)),
         getCount = { diceWithCount -> diceWithCount.count },
         copy = { diceWithCount, count -> diceWithCount.copy(count = count) },
         getId = { diceWithCount -> diceWithCount.dice.name }) { item, modifier, maxWidthDp ->

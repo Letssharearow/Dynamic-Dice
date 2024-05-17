@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
@@ -26,7 +27,6 @@ import com.example.dynamicdiceprototype.composables.SingleLineInput
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.createdice.DicePreview
 import com.example.dynamicdiceprototype.data.Dice
-import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
@@ -74,19 +74,23 @@ fun DiceGroupCreationScreen(
             diceAndCount,
             modifier,
             maxWidth ->
-          DicePreview(dice = diceAndCount.first, facesSum = 1, Modifier.size(maxWidth))
+          DicePreview(
+              dice = diceAndCount.first,
+              facesSum = diceAndCount.first.faces.sumOf { it.weight },
+              Modifier.size(maxWidth))
         }
   }
 }
 
 @Composable
-@Preview(showSystemUi = true)
+@Preview(showSystemUi = true, device = Devices.PIXEL_TABLET)
 fun DiceroupsScreenPreview() {
   DynamicDicePrototypeTheme {
+    val dices = listOf(Dice("checked"), Dice("Name"), Dice("Name"))
     DiceGroupCreationScreen(
-        getDices(20).map { Pair(it, 2) },
-        { string, map -> },
+        dices = dices.map { Pair(it, 0) },
+        onCreateDiceGroup = { string, map -> },
         groupSize = 20,
-        initialValue = mapOf("diceName" to Pair(first = Dice(faces = listOf()), second = 3)))
+        initialValue = mapOf("checked" to Pair(first = Dice(), second = 3)))
   }
 }
