@@ -37,14 +37,15 @@ import com.example.dynamicdiceprototype.services.getFaces
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
-fun DiceCard(dice: Dice, isCompact: Boolean) {
+fun DiceCard(dice: Dice, isCompact: Boolean, modifier: Modifier = Modifier) {
   val facesSum = dice.faces.sumOf { it.weight }
 
   Surface(
       shadowElevation = 8.dp,
       color = dice.backgroundColor,
       modifier =
-          Modifier.border(
+          modifier
+              .border(
                   BorderStroke(2.dp, MaterialTheme.colorScheme.secondary),
                   RoundedCornerShape(16.dp))
               .clip(RoundedCornerShape(16.dp))) {
@@ -78,14 +79,14 @@ private fun CompactDiceCard(name: String, facesSum: Int) {
 private fun DetailedDiceCard(dice: Dice, facesSum: Int) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.padding(16.dp).background(dice.backgroundColor)) {
+      modifier = Modifier.padding(8.dp).background(dice.backgroundColor)) {
         Text(
             text = dice.name,
             style = MaterialTheme.typography.displayMedium,
             color = Color.Black,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.fillMaxWidth(0.66F).padding(16.dp))
+            modifier = Modifier.fillMaxWidth(0.66F))
         Spacer(modifier = Modifier.width(8.dp))
         DicePreview(dice, facesSum, Modifier.fillMaxWidth().aspectRatio(1f))
       }

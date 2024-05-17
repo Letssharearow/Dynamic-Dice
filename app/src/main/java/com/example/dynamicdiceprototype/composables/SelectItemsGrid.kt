@@ -6,15 +6,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -56,47 +55,38 @@ fun <T> SelectItemsGrid(
               Modifier.fillMaxWidth().padding(8.dp).clickable {
                 val selectedItem = selectedItems[getId(item)]
                 if (selectedItem == null) {
-                  selectedItems[getId(item)] = item
-                  copy(item, 1)
+                  selectedItems[getId(item)] = copy(item, 1)
                 } else {
-                  copy(item, 0)
                   selectedItems.remove(getId(item))
                 }
               }) {
-            val isSelected = selectedItems[getId(item)] != null
-            if (isSelected) {
-              Icon(
-                  imageVector = Icons.Filled.Check,
-                  contentDescription = "Checked",
-                  modifier = Modifier.align(Alignment.TopStart))
+            val selectedItem = selectedItems[getId(item)]
+            selectedItem?.let {
+              Text(text = getCount(it).toString(), modifier = Modifier.align(Alignment.TopStart))
             }
+
             view(item, Modifier, maxWidthDp)
-            if (isSelected) {
-              val selectedItem = selectedItems[getId(item)]!!
-              Slider(
-                  value = getCount(selectedItem).toFloat(),
-                  onValueChange = { value ->
-                    selectedItems[getId(item)] =
-                        copy(selectedItems[getId(item)]!!, ceil(value).toInt())
-                  },
-                  valueRange = 1f..size.toFloat().coerceAtLeast(1f),
-                  steps = (size - 1).coerceAtLeast(1),
-                  modifier =
-                      Modifier.align(Alignment.BottomCenter)
-                          .padding(8.dp)
-                          .clip(RoundedCornerShape(12.dp))
-                          .background(
-                              MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5F)))
-            } else {
-              Text(
-                  text = getId(item),
-                  modifier =
-                      Modifier.align(Alignment.BottomCenter)
-                          .padding(8.dp)
-                          .clip(RoundedCornerShape(12.dp))
-                          .background(
-                              MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5F)))
-            }
+            Box(
+                Modifier.align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.66f))
+                    .padding(8.dp)) {
+                  selectedItem?.let {
+                    Slider(
+                        value = getCount(it).toFloat(),
+                        onValueChange = { value ->
+                          selectedItems[getId(item)] = copy(it, ceil(value).toInt())
+                        },
+                        valueRange = 1f..size.toFloat().coerceAtLeast(1f),
+                        steps = (size - 1).coerceAtLeast(1))
+                  }
+                      ?: Text(
+                          text = getId(item),
+                          style = MaterialTheme.typography.bodyLarge,
+                          modifier = Modifier.align(Alignment.Center))
+                }
           }
     }
     ContinueButton(

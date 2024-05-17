@@ -40,7 +40,6 @@ fun NavGraph(navController: NavHostController) {
     composable(route = Screen.TestScreen.route) { TestScreen() }
     composable(route = Screen.MainScreen.route) {
       val headerViewModel = viewModel<HeaderViewModel>()
-      val context = LocalContext.current
       PreferencesService.saveLastBundle(context = context, viewModel.lastDiceGroup)
       headerViewModel.changeHeaderText(viewModel.lastDiceGroup)
       LandingPage(
@@ -54,12 +53,12 @@ fun NavGraph(navController: NavHostController) {
       CreateDiceNavGraph(viewModel)
     }
     composable(route = Screen.UploadImage.route) {
-      UploadImageScreen(context, { bitmap, name -> viewModel.uploadImage(bitmap, name) })
+      UploadImageScreen(context) { bitmap, name -> viewModel.uploadImage(bitmap, name) }
     }
     composable(route = Screen.DiceGroups.route) {
       DiceGroupsScreen(
-          viewModel.diceGroups.keys.toList(),
-          { groupId ->
+          groups = viewModel.diceGroups.keys.toList(),
+          onSelectGroup = { groupId ->
             try {
               viewModel.selectDiceGroup(groupId)
               navController.navigate(Screen.MainScreen.route)
@@ -67,7 +66,8 @@ fun NavGraph(navController: NavHostController) {
               Log.e(TAG, "One Dice is probably not found in the global dices ${e.message}")
             }
           },
-          {})
+          onRemoveGroup = { viewModel.removeGroup(it) },
+          onCreateNewGroup = {})
     }
     composable(route = Screen.CreateDiceGroup.route) {
       DiceGroupCreationScreen(

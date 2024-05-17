@@ -71,6 +71,7 @@ object DiceViewModel : ViewModel() {
 
   fun removeDice(dice: Dice) {
     dices.remove(dice.name)
+    saveUser()
   }
 
   fun setStartDice(newDice: Dice) {
@@ -192,7 +193,7 @@ object DiceViewModel : ViewModel() {
   fun selectDiceGroup(groupId: String) {
     lastDiceGroup = groupId
     val newDicesState = mutableListOf<Dice>()
-    diceGroups[groupId]?.forEach { diceId, count ->
+    diceGroups[groupId]?.forEach { (diceId, count) ->
       val diceToAdd = dices[diceId]
       diceToAdd?.let {
         for (i in 1..count) {
@@ -212,10 +213,15 @@ object DiceViewModel : ViewModel() {
   }
 
   fun saveUser() {
-    if (!userConfigIsNull && dices.isNotEmpty() && diceGroups.isNotEmpty()) {
+    if (!userConfigIsNull && dices.isNotEmpty()) {
       firebase.uploadUserConfig(
           USER, UserDTO(dices = dices.map { it.key }, diceGroups = diceGroups))
     }
+  }
+
+  fun removeGroup(it: String) {
+    diceGroups.remove(it)
+    saveUser()
   }
 }
 

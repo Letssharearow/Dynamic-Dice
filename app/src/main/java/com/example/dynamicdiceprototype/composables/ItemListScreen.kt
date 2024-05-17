@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.composables.createdice
+package com.example.dynamicdiceprototype.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,46 +44,46 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.common.ContinueButton
+import com.example.dynamicdiceprototype.composables.createdice.DiceCard
+import com.example.dynamicdiceprototype.composables.screens.DiceGroupItem
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.services.PreferencesService
-import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TemplateSelectionScreen(
-    dices: List<Dice>,
-    onSelectTemplate: (dice: Dice) -> Unit,
-    onRemoveDice: (dice: Dice) -> Unit,
-    onCreateNewDice: (number: Int) -> Unit
+fun <T> ItemListScreen(
+    items: List<T>,
+    onSelect: (item: T) -> Unit,
+    onRemove: (item: T) -> Unit,
+    getKey: (item: T) -> String,
+    onCreateItem: (amount: Int) -> Unit,
+    modifier: Modifier = Modifier,
+    view: @Composable (item: T, isCompact: Boolean, modifier: Modifier) -> Unit,
 ) {
 
   val preferencesService: PreferencesService = PreferencesService
   val context = LocalContext.current
   var isCompact by remember { mutableStateOf(preferencesService.loadIsCompact(context)) }
 
-  Column {
+  Column(modifier.padding(8.dp)) {
     // Toggle switch for isCompact
     Row(
-        modifier = Modifier.fillMaxWidth().padding(4.dp),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End) {
-          Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.End) {
-                Text("Toggle View", Modifier.padding(end = 8.dp))
-                Switch(
-                    checked = isCompact,
-                    onCheckedChange = {
-                      isCompact = it
-                      preferencesService.saveIsCompact(context, isCompact)
-                    })
-              }
+          Text("Toggle View", Modifier.padding(end = 8.dp))
+          Switch(
+              checked = isCompact,
+              onCheckedChange = {
+                isCompact = it
+                preferencesService.saveIsCompact(context, isCompact)
+              })
         }
 
-    ArrangedColumn {
-      LazyColumn(modifier = Modifier.weight(1f)) {
-        items(items = dices, key = { item -> item.name }) { template ->
+    ArrangedColumn(Modifier.weight(1f)) {
+      LazyColumn {
+        items(items = items, key = getKey) { item ->
           val dismissState = rememberDismissState()
           var openDialog by remember { mutableStateOf(false) }
 
@@ -107,7 +107,7 @@ fun TemplateSelectionScreen(
                 confirmButton = {
                   Button(
                       onClick = {
-                        onRemoveDice(template)
+                        onRemove(item)
                         openDialog = false
                       }) {
                         Text("Confirm")
@@ -118,12 +118,11 @@ fun TemplateSelectionScreen(
 
           SwipeToDismissBox(
               state = dismissState,
-              modifier = Modifier.padding(vertical = 4.dp),
               directions = setOf(DismissDirection.EndToStart),
+              modifier = Modifier.padding(top = 8.dp),
               backgroundContent = {
                 Box(
                     Modifier.fillMaxSize()
-                        .padding(8.dp)
                         .background(
                             shape =
                                 RoundedCornerShape(
@@ -139,39 +138,40 @@ fun TemplateSelectionScreen(
               content = {
                 Box(
                     modifier =
-                        Modifier.clickable { onSelectTemplate(template) }
+                        Modifier.clickable { onSelect(item) }
                             .fillMaxWidth()
-                            .padding(8.dp)) {
-                      DiceCard(template, isCompact)
+                            .background(
+                                shape = RoundedCornerShape(16.dp), // TODO reuse for background
+                                color = MaterialTheme.colorScheme.background)) {
+                      view(item, isCompact, Modifier.fillMaxSize())
                     }
               })
         }
       }
-
-      Row(
-          verticalAlignment = Alignment.CenterVertically,
-          modifier = Modifier.wrapContentSize().padding(vertical = 16.dp)) {
-            // Input field for numbers
-            var number by remember { mutableStateOf<String?>("6") }
-            OutlinedTextField(
-                value = number.toString(),
-                onValueChange = { newValue ->
-                  number =
-                      newValue.takeIf {
-                        it.isDigitsOnly() && (it.isNotEmpty() && it.toInt() <= 100 || it.isEmpty())
-                      } ?: number
-                },
-                label = { Text("New Dice Faces Count") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.wrapContentSize(),
-                isError = number.isNullOrEmpty())
-            // Continue button
-            ContinueButton(
-                onClick = { onCreateNewDice(number?.toInt() ?: 0) }, // TODO Better handling?
-                text = "+",
-                enabled = !number.isNullOrEmpty())
-          }
     }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.wrapContentSize().padding(top = 8.dp)) {
+          // Input field for numbers
+          var number by remember { mutableStateOf<String?>("6") }
+          OutlinedTextField(
+              value = number.toString(),
+              onValueChange = { newValue ->
+                number =
+                    newValue.takeIf {
+                      it.isDigitsOnly() && (it.isNotEmpty() && it.toInt() <= 100 || it.isEmpty())
+                    } ?: number
+              },
+              label = { Text("Count") },
+              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+              modifier = Modifier.wrapContentSize(),
+              isError = number.isNullOrEmpty())
+          // Continue button
+          ContinueButton(
+              onClick = { onCreateItem(number?.toInt() ?: 0) }, // TODO Better handling?
+              text = "+",
+              enabled = !number.isNullOrEmpty())
+        }
   }
 }
 
@@ -179,8 +179,28 @@ fun TemplateSelectionScreen(
 @Composable
 private fun Preview() {
   DynamicDicePrototypeTheme {
-    TemplateSelectionScreen(dices = getDices(4), onSelectTemplate = {}, onRemoveDice = {}) {
-      //
-    }
+    ItemListScreen(
+        items = listOf(Dice(name = "test"), Dice(name = "test2"), Dice(name = "test3")),
+        onSelect = {},
+        onRemove = {},
+        getKey = { it.name },
+        onCreateItem = {}) { item, isCompact, modifier ->
+          DiceCard(dice = item, isCompact = isCompact, modifier)
+        }
+  }
+}
+
+@Preview
+@Composable
+private fun Preview2() {
+  DynamicDicePrototypeTheme {
+    ItemListScreen(
+        items = listOf("group", "group2"),
+        onSelect = {},
+        onRemove = {},
+        onCreateItem = {},
+        getKey = { it }) { item, isCompact, modifier ->
+          DiceGroupItem(item = item, isCompact = isCompact, modifier = modifier)
+        }
   }
 }
