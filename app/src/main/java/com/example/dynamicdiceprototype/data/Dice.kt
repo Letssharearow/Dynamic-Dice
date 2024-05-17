@@ -3,6 +3,7 @@ package com.example.dynamicdiceprototype.data
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.example.dynamicdiceprototype.DTO.DiceDTO
+import com.example.dynamicdiceprototype.utils.randomItemByWeight
 import kotlin.random.Random
 
 data class Dice(
@@ -22,10 +23,12 @@ data class Dice(
     current = if (faces.isEmpty()) null else faces.random()
   }
 
-  fun roll(): Dice =
-      this.copy(
-          current = if (faces.isEmpty()) null else faces.random(),
-          rotation = ((Random.nextFloat() * (15) + 5) * if (rotation > 0) -1 else 1))
+  fun roll(): Dice {
+
+    return (this.copy(
+        current = if (faces.isEmpty()) null else faces.randomItemByWeight(),
+        rotation = ((Random.nextFloat() * (15) + 5) * if (rotation > 0) -1 else 1)))
+  }
 }
 
 enum class DiceState {

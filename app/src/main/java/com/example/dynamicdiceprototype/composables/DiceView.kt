@@ -74,7 +74,7 @@ fun DiceView(
               spacing = spacing.coerceAtMost(24.dp),
               color = dice.backgroundColor)
           NumberCircle(
-              text = "${dice.faces.size}",
+              text = "${dice.faces.sumOf { it.weight }}",
               fontSize = 24.sp,
               modifier =
                   Modifier.align(Alignment.BottomEnd).absoluteOffset(x = spacing, y = spacing))
