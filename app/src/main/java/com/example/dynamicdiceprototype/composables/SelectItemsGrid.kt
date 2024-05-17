@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.common.ContinueButton
 import com.example.dynamicdiceprototype.data.Dice
@@ -61,11 +62,11 @@ fun <T> SelectItemsGrid(
                 }
               }) {
             val selectedItem = selectedItems[getId(item)]
-            selectedItem?.let {
-              Text(text = getCount(it).toString(), modifier = Modifier.align(Alignment.TopStart))
-            }
 
             view(item, Modifier, maxWidthDp)
+            selectedItem?.let {
+                NumberCircle(text = getCount(it).toString(), fontSize = 24.sp, modifier = Modifier.align(Alignment.TopStart))
+            }
             Box(
                 Modifier.align(Alignment.BottomCenter)
                     .fillMaxWidth()
