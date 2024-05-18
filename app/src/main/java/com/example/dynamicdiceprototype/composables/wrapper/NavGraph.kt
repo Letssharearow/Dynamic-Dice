@@ -16,6 +16,8 @@ import com.example.dynamicdiceprototype.composables.screens.DiceGroupCreationScr
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupsScreen
 import com.example.dynamicdiceprototype.composables.screens.TestScreen
 import com.example.dynamicdiceprototype.composables.screens.UploadImageScreen
+import com.example.dynamicdiceprototype.data.AlterBoxProperties
+import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferencesService
@@ -66,7 +68,24 @@ fun NavGraph(navController: NavHostController) {
               Log.e(TAG, "One Dice is probably not found in the global dices ${e.message}")
             }
           },
-          onRemoveGroup = { viewModel.removeGroup(it) },
+          menuActions =
+              listOf(
+                  MenuItem(
+                      text = "Edit dice group",
+                      callBack = { viewModel.editGroup(it) },
+                  ),
+                  MenuItem(
+                      text = "Duplicate dice group",
+                      callBack = { viewModel.duplicateGroup(it) },
+                  ),
+                  MenuItem(
+                      text = "Delete dice group",
+                      callBack = { viewModel.removeGroup(it) },
+                      alert =
+                          AlterBoxProperties(
+                              "Cofirm Deletion",
+                              "Pressing Confirm will Remove the Group entirely, there is no undoing")),
+              ),
           onCreateNewGroup = {})
     }
     composable(route = Screen.CreateDiceGroup.route) {

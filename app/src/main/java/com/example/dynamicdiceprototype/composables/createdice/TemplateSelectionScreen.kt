@@ -1,32 +1,27 @@
 package com.example.dynamicdiceprototype.composables.createdice
 
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.dynamicdiceprototype.composables.ItemListScreen
 import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.PreferenceView
 import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TemplateSelectionScreen(
     dices: List<Dice>,
     onSelectTemplate: (dice: Dice) -> Unit,
-    onRemoveDice: (dice: Dice) -> Unit,
+    menuActions: List<MenuItem<Dice>>,
     onCreateNewDice: (number: Int) -> Unit
 ) {
   ItemListScreen(
       items = dices,
       onSelect = onSelectTemplate,
-      onRemove = onRemoveDice,
+      menuActions = menuActions,
       getKey = { it.name },
       preferenceView = PreferenceView.Dice,
-      menuActions = listOf(),
       onCreateItem = onCreateNewDice) { item, isCompact, modifier ->
         DiceCard(item, isCompact, modifier)
       }
@@ -36,7 +31,7 @@ fun TemplateSelectionScreen(
 @Composable
 private fun Preview() {
   DynamicDicePrototypeTheme {
-    TemplateSelectionScreen(dices = getDices(4), onSelectTemplate = {}, onRemoveDice = {}) {
+    TemplateSelectionScreen(dices = getDices(4), onSelectTemplate = {}, menuActions = listOf()) {
       //
     }
   }

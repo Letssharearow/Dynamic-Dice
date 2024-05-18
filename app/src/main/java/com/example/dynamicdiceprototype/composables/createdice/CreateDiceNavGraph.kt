@@ -12,6 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.Screen
+import com.example.dynamicdiceprototype.data.AlterBoxProperties
+import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
 
 @Composable
@@ -30,7 +32,23 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
             diceViewModel.createNewDice(it)
             navController.navigate(Screen.SelectFaces.route)
           },
-          onRemoveDice = { diceViewModel.removeDice(it) })
+          menuActions =
+              listOf(
+                  MenuItem(
+                      text = "Edit dice",
+                      callBack = { diceViewModel.removeDice(it) },
+                  ),
+                  MenuItem(
+                      text = "Duplicate dice",
+                      callBack = { diceViewModel.removeDice(it) },
+                  ),
+                  MenuItem(
+                      text = "Delete dice",
+                      callBack = { diceViewModel.removeDice(it) },
+                      AlterBoxProperties(
+                          description =
+                              "Pressing Confirm will Delete the Dice entirely and globally, there is no undoing (yet)")),
+              )) // TODO implement undoing feature, haha
     }
     composable(route = Screen.SelectFaces.route) {
       SelectFacesScreen(

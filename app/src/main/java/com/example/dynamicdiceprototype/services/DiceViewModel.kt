@@ -96,7 +96,8 @@ object DiceViewModel : ViewModel() {
   }
 
   fun saveDice() {
-    addDice(newDice)
+    addDice(newDice) // TODO consider using events to set and update local data instead of doing it
+    // locally and with firebase to avoid data inconsistencies
   }
   // end create dice
 
@@ -222,6 +223,14 @@ object DiceViewModel : ViewModel() {
   fun removeGroup(it: String) {
     diceGroups.remove(it)
     saveUser()
+  }
+
+  fun editGroup(groupId: String) {
+    TODO("Not yet implemented")
+  }
+
+  fun duplicateGroup(gorupId: String) {
+    TODO("Not yet implemented")
   }
 }
 

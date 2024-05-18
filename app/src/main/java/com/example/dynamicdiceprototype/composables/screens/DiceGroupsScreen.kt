@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.composables.ItemListScreen
+import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.PreferenceView
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
@@ -27,14 +28,13 @@ import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 fun DiceGroupsScreen(
     groups: List<String>,
     onSelectGroup: (groupId: String) -> Unit,
-    onRemoveGroup: (groupId: String) -> Unit,
+    menuActions: List<MenuItem<String>>,
     onCreateNewGroup: (number: Int) -> Unit
 ) {
   ItemListScreen(
       items = groups,
       onSelect = onSelectGroup,
-      onRemove = onRemoveGroup,
-      menuActions = listOf(),
+      menuActions = menuActions,
       onCreateItem = onCreateNewGroup,
       getKey = { it },
       preferenceView = PreferenceView.Group) { item, isCompact, modifier ->
@@ -87,7 +87,8 @@ private fun DiceGroupsScreenPreview() {
                 "WürfelSpielX",
                 "Long Name for a Dice Group, Wow this is soo long"),
         onSelectGroup = {},
+        menuActions = listOf(),
         onCreateNewGroup = {},
-        onRemoveGroup = {})
+    )
   }
 }

@@ -10,30 +10,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +40,7 @@ import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.common.ContinueButton
 import com.example.dynamicdiceprototype.composables.createdice.DiceCard
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupItem
+import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.PreferenceView
@@ -56,21 +48,37 @@ import com.example.dynamicdiceprototype.services.PreferencesService
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
-fun PopupMenu(
-    items: List<MenuItem>,
+fun <T> PupMenuWithAlert(
+    actionItem: T,
+    items: List<MenuItem<T>>,
     showMenu: Boolean,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+
+  var alertProps by remember { mutableStateOf<Pair<(T) -> Unit, AlterBoxProperties>?>(null) }
+
   DropdownMenu(expanded = showMenu, onDismissRequest = { onDismiss() }, modifier = modifier) {
     items.forEach { item ->
       DropdownMenuItem(
           text = { Text(text = item.text) },
           onClick = {
             onDismiss()
-            item.callBack
+            if (item.alert != null) {
+              alertProps = Pair(item.callBack, item.alert)
+            } else {
+              item.callBack(actionItem)
+            }
           })
     }
+  }
+  alertProps?.let {
+    AlertDialog(
+        onDismissRequest = { alertProps = null },
+        title = { Text(it.second.header) },
+        text = { Text(it.second.description) },
+        confirmButton = { Button(onClick = { it.first(actionItem) }) { Text("Confirm") } },
+        dismissButton = { Button(onClick = { alertProps = null }) { Text("Cancel") } })
   }
 }
 
@@ -79,8 +87,7 @@ fun PopupMenu(
 fun <T> ItemListScreen(
     items: List<T>,
     onSelect: (item: T) -> Unit,
-    onRemove: (item: T) -> Unit,
-    menuActions: List<MenuItem>,
+    menuActions: List<MenuItem<T>>,
     getKey: (item: T) -> String,
     onCreateItem: (amount: Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -112,78 +119,26 @@ fun <T> ItemListScreen(
     ArrangedColumn(Modifier.weight(1f)) {
       LazyColumn {
         items(items = items, key = getKey) { item ->
-          val dismissState = rememberDismissState()
-          var openDialog by remember { mutableStateOf(false) }
           var showMenu by remember { mutableStateOf(false) }
+          Box(
+              modifier =
+                  Modifier.combinedClickable(
+                          onClick = { onSelect(item) }, onLongClick = { showMenu = true })
+                      .fillMaxWidth()
+                      .background(
+                          shape = RoundedCornerShape(16.dp), // TODO reuse for background
+                          color = MaterialTheme.colorScheme.background)) {
+                view(item, isCompact, Modifier.fillMaxSize())
 
-          LaunchedEffect(dismissState.currentValue) {
-            if (dismissState.currentValue == DismissValue.DismissedToStart) {
-              openDialog = true
-            }
-          }
-
-          LaunchedEffect(openDialog) {
-            if (!openDialog) {
-              dismissState.reset()
-            }
-          }
-
-          if (openDialog) {
-            AlertDialog(
-                onDismissRequest = { openDialog = false },
-                title = { Text("Confirm Deletion") },
-                text = { Text("Are you sure you want to delete this item?") },
-                confirmButton = {
-                  Button(
-                      onClick = {
-                        onRemove(item)
-                        openDialog = false
-                      }) {
-                        Text("Confirm")
-                      }
-                },
-                dismissButton = { Button(onClick = { openDialog = false }) { Text("Cancel") } })
-          }
-
-          SwipeToDismissBox(
-              state = dismissState,
-              directions = setOf(DismissDirection.EndToStart),
-              modifier = Modifier.padding(top = 8.dp),
-              backgroundContent = {
-                Box(
-                    Modifier.fillMaxSize()
-                        .background(
-                            shape =
-                                RoundedCornerShape(
-                                    16.dp), // TODO make variable to have the same shape for
-                            // DiceCard?
-                            color = MaterialTheme.colorScheme.errorContainer)) {
-                      Icon(
-                          imageVector = Icons.Filled.Delete,
-                          contentDescription = "Delete",
-                          Modifier.align(Alignment.CenterEnd).padding(end = 16.dp).size(80.dp))
-                    }
-              },
-              content = {
-                Box(
-                    modifier =
-                        Modifier.combinedClickable(
-                                onClick = { onSelect(item) }, onLongClick = { showMenu = true })
-                            .fillMaxWidth()
-                            .background(
-                                shape = RoundedCornerShape(16.dp), // TODO reuse for background
-                                color = MaterialTheme.colorScheme.background)) {
-                      view(item, isCompact, Modifier.fillMaxSize())
-
-                      Box(Modifier.align(Alignment.BottomEnd)) {
-                        PopupMenu(
-                            items = menuActions,
-                            showMenu = showMenu,
-                            onDismiss = { showMenu = false },
-                        )
-                      }
-                    }
-              })
+                Box(Modifier.align(Alignment.BottomEnd)) {
+                  PupMenuWithAlert(
+                      actionItem = item,
+                      items = menuActions,
+                      showMenu = showMenu,
+                      onDismiss = { showMenu = false },
+                  )
+                }
+              }
         }
       }
     }
@@ -220,7 +175,6 @@ private fun Preview() {
     ItemListScreen(
         items = listOf(Dice(name = "test"), Dice(name = "test2"), Dice(name = "test3")),
         onSelect = {},
-        onRemove = {},
         menuActions = listOf(),
         getKey = { it.name },
         onCreateItem = {}) { item, isCompact, modifier ->
@@ -236,7 +190,6 @@ private fun Preview2() {
     ItemListScreen(
         items = listOf("group", "group2"),
         onSelect = {},
-        onRemove = {},
         menuActions = listOf(),
         onCreateItem = {},
         getKey = { it }) { item, isCompact, modifier ->
