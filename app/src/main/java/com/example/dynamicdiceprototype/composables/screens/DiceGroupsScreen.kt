@@ -1,7 +1,6 @@
 package com.example.dynamicdiceprototype.composables.screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -21,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.composables.ItemListScreen
+import com.example.dynamicdiceprototype.services.PreferenceView
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
@@ -34,9 +34,10 @@ fun DiceGroupsScreen(
       items = groups,
       onSelect = onSelectGroup,
       onRemove = onRemoveGroup,
+      menuActions = listOf(),
       onCreateItem = onCreateNewGroup,
       getKey = { it },
-      ) { item, isCompact, modifier ->
+      preferenceView = PreferenceView.Group) { item, isCompact, modifier ->
         DiceGroupItem(item = item, isCompact = isCompact, modifier = modifier)
       }
 }
@@ -47,35 +48,31 @@ fun DiceGroupItem(
     modifier: Modifier = Modifier,
     isCompact: Boolean = true,
 ) {
-    Surface(
-        shadowElevation = 8.dp,
-        color = MaterialTheme.colorScheme.secondary,
-        modifier =
-        modifier
-            .border(
-                BorderStroke(2.dp, MaterialTheme.colorScheme.secondary),
-                RoundedCornerShape(16.dp)
-            )
-            .clip(RoundedCornerShape(16.dp))) {
+  Surface(
+      shadowElevation = 8.dp,
+      color = MaterialTheme.colorScheme.secondary,
+      modifier =
+          modifier
+              .border(
+                  BorderStroke(2.dp, MaterialTheme.colorScheme.secondary),
+                  RoundedCornerShape(16.dp))
+              .clip(RoundedCornerShape(16.dp))) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier =
-            modifier
-                .height(if (isCompact) 35.dp else 70.dp).padding(8.dp)
-        ) {
-            Text(
-                text = item,
-                style =
-                if (isCompact) MaterialTheme.typography.titleMedium
-                else MaterialTheme.typography.titleLarge,
-                modifier = Modifier.weight(1f))
-            Icon(
-                painter = painterResource(id = R.drawable.pouch),
-                contentDescription = "Pouch",
-            )
-        }
-    }
+            modifier = modifier.height(if (isCompact) 35.dp else 70.dp).padding(8.dp)) {
+              Text(
+                  text = item,
+                  style =
+                      if (isCompact) MaterialTheme.typography.titleMedium
+                      else MaterialTheme.typography.titleLarge,
+                  modifier = Modifier.weight(1f))
+              Icon(
+                  painter = painterResource(id = R.drawable.pouch),
+                  contentDescription = "Pouch",
+              )
+            }
+      }
 }
 
 @Preview(showSystemUi = true)

@@ -1,7 +1,8 @@
 package com.example.dynamicdiceprototype.composables
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,24 +50,49 @@ import com.example.dynamicdiceprototype.composables.common.ContinueButton
 import com.example.dynamicdiceprototype.composables.createdice.DiceCard
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupItem
 import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.MenuItem
+import com.example.dynamicdiceprototype.services.PreferenceView
 import com.example.dynamicdiceprototype.services.PreferencesService
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PopupMenu(
+    items: List<MenuItem>,
+    showMenu: Boolean,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+  DropdownMenu(expanded = showMenu, onDismissRequest = { onDismiss() }, modifier = modifier) {
+    items.forEach { item ->
+      DropdownMenuItem(
+          text = { Text(text = item.text) },
+          onClick = {
+            onDismiss()
+            item.callBack
+          })
+    }
+  }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun <T> ItemListScreen(
     items: List<T>,
     onSelect: (item: T) -> Unit,
     onRemove: (item: T) -> Unit,
+    menuActions: List<MenuItem>,
     getKey: (item: T) -> String,
     onCreateItem: (amount: Int) -> Unit,
     modifier: Modifier = Modifier,
+    preferenceView: PreferenceView = PreferenceView.Dice,
     view: @Composable (item: T, isCompact: Boolean, modifier: Modifier) -> Unit,
 ) {
 
   val preferencesService: PreferencesService = PreferencesService
   val context = LocalContext.current
-  var isCompact by remember { mutableStateOf(preferencesService.loadIsCompact(context)) }
+  var isCompact by remember {
+    mutableStateOf(preferencesService.loadIsCompact(context, preferenceView))
+  }
 
   Column(modifier.padding(8.dp)) {
     // Toggle switch for isCompact
@@ -77,7 +105,7 @@ fun <T> ItemListScreen(
               checked = isCompact,
               onCheckedChange = {
                 isCompact = it
-                preferencesService.saveIsCompact(context, isCompact)
+                preferencesService.saveIsCompact(context, isCompact, preferenceView)
               })
         }
 
@@ -86,6 +114,7 @@ fun <T> ItemListScreen(
         items(items = items, key = getKey) { item ->
           val dismissState = rememberDismissState()
           var openDialog by remember { mutableStateOf(false) }
+          var showMenu by remember { mutableStateOf(false) }
 
           LaunchedEffect(dismissState.currentValue) {
             if (dismissState.currentValue == DismissValue.DismissedToStart) {
@@ -138,12 +167,21 @@ fun <T> ItemListScreen(
               content = {
                 Box(
                     modifier =
-                        Modifier.clickable { onSelect(item) }
+                        Modifier.combinedClickable(
+                                onClick = { onSelect(item) }, onLongClick = { showMenu = true })
                             .fillMaxWidth()
                             .background(
                                 shape = RoundedCornerShape(16.dp), // TODO reuse for background
                                 color = MaterialTheme.colorScheme.background)) {
                       view(item, isCompact, Modifier.fillMaxSize())
+
+                      Box(Modifier.align(Alignment.BottomEnd)) {
+                        PopupMenu(
+                            items = menuActions,
+                            showMenu = showMenu,
+                            onDismiss = { showMenu = false },
+                        )
+                      }
                     }
               })
         }
@@ -183,6 +221,7 @@ private fun Preview() {
         items = listOf(Dice(name = "test"), Dice(name = "test2"), Dice(name = "test3")),
         onSelect = {},
         onRemove = {},
+        menuActions = listOf(),
         getKey = { it.name },
         onCreateItem = {}) { item, isCompact, modifier ->
           DiceCard(dice = item, isCompact = isCompact, modifier)
@@ -198,6 +237,7 @@ private fun Preview2() {
         items = listOf("group", "group2"),
         onSelect = {},
         onRemove = {},
+        menuActions = listOf(),
         onCreateItem = {},
         getKey = { it }) { item, isCompact, modifier ->
           DiceGroupItem(item = item, isCompact = isCompact, modifier = modifier)
