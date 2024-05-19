@@ -8,6 +8,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.Screen
 import com.example.dynamicdiceprototype.composables.common.AlertBox
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
@@ -33,32 +34,43 @@ fun NavGraphBuilder.diceGraph(diceViewModel: DiceViewModel, navController: NavHo
                   MenuItem(
                       text = "Edit dice",
                       callBack = {
-                        diceViewModel.editDice(it)
-                        navController.navigate(DicesScreen.EditDice.route)
+                        try {
+                          diceViewModel.editDice(it)
+                          navController.navigate(DicesScreen.EditDice.route)
+                        } catch (e: PermittedActionException) {
+                          diceViewModel.toastMessageText = e.message
+                        }
                       },
                   ),
                   MenuItem(
                       text = "Duplicate dice",
-                      callBack = {
-                        diceViewModel.duplicateDice(it)
-                        navController.navigate(DicesScreen.EditDice.route)
-                      },
+                      callBack = { diceViewModel.duplicateDice(it) },
                   ),
                   MenuItem(
                       text = "Delete dice",
-                      callBack = { diceViewModel.removeDice(it) },
-                      AlterBoxProperties(
-                          description =
-                              "Pressing Confirm will Delete the Dice and remove all occurences in any dice Group")),
+                      callBack = {
+                        try {
+                          diceViewModel.removeDice(it)
+                        } catch (e: PermittedActionException) {
+                          diceViewModel.toastMessageText = e.message
+                        }
+                      },
+                      alert =
+                          AlterBoxProperties(
+                              description =
+                                  "Pressing Confirm will Delete the Dice and remove all occurences in any dice Group")),
               )) // TODO implement undoing feature, haha
     }
     composable(route = DicesScreen.SelectFaces.route) {
+      if (diceViewModel.imageMap.isEmpty()) {
+        diceViewModel.loadAllImages()
+      }
       SelectFacesScreen(
           faces = diceViewModel.imageMap.values.toList(),
           size = diceViewModel.facesSize,
           initialValue =
-              diceViewModel.diceInEdit.faces.associate {
-                Pair(it.contentDescription, it)
+              diceViewModel.diceInEdit.faces.associateBy {
+                it.contentDescription
               }) { // TODO Consider using same datatype (map probably) for everything)
             navController.navigate(DicesScreen.EditDice.route)
             diceViewModel.setSelectedFaces(it.values)

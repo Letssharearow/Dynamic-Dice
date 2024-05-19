@@ -36,6 +36,9 @@ fun NavGraph(navController: NavHostController) {
             Toast.LENGTH_LONG)
         .show()
   }
+  if (viewModel.toastMessageText != null) {
+    Toast.makeText(context, viewModel.toastMessageText, Toast.LENGTH_LONG).show()
+  }
 
   LifecycleAwareComponent { viewModel.saveUser() }
   NavHost(navController, startDestination = Screen.MainScreen.route) {

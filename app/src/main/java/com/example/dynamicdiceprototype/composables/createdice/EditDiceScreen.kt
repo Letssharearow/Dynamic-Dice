@@ -88,7 +88,7 @@ fun EditDiceScreen(
           modifier = Modifier.fillMaxHeight(0.4F))
     }
     Row(horizontalArrangement = Arrangement.SpaceAround) {
-      ContinueButton(onClick = { onEdit(name, color) }, text = "Edit")
+      ContinueButton(onClick = { onEdit(name, color) }, text = "Edit Faces")
       ContinueButton(onClick = { onSaveDice(name, color) }, text = "Save Dice")
     }
   }

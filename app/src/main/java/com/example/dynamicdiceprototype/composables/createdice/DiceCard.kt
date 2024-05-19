@@ -69,7 +69,8 @@ private fun CompactDiceCard(name: String, facesSum: Int) {
             color = Color.Black,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.fillMaxWidth(0.66F))
+            modifier = Modifier.fillMaxWidth(0.66F)
+   )
 
         NumberCircle(facesSum.toString())
       }

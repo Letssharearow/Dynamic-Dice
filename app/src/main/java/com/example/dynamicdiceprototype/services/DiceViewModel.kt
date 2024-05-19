@@ -14,6 +14,7 @@ import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.DTO.toDice
 import com.example.dynamicdiceprototype.Exceptions.DiceGroupNotFoundException
 import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
+import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
@@ -45,6 +46,8 @@ object DiceViewModel : ViewModel() {
   var userConfigIsNull: Boolean = false
   var dices = mutableStateMapOf<String, Dice>()
   var lastDiceGroup by mutableStateOf("Red flag or Green flag")
+
+  var toastMessageText by mutableStateOf<String?>(null)
 
   init {
     loadUserConfig()
@@ -102,6 +105,7 @@ object DiceViewModel : ViewModel() {
   private fun addDice(dice: Dice) {
     dices[dice.name] = dice
     firebase.uploadDice(dice.name, dice.toDiceGetDTO())
+    saveUser()
   }
 
   fun saveDice() {
@@ -113,16 +117,29 @@ object DiceViewModel : ViewModel() {
 
   // Dice Menu Actions
 
-  fun removeDiceFromGroups(name: String) {}
+  fun removeKeyFromInnerMaps(
+      diceGroups: MutableMap<String, Map<String, Int>>,
+      keyToRemove: String
+  ) {
+    diceGroups.keys.forEach { groupKey ->
+      diceGroups[groupKey] = diceGroups[groupKey]?.filterKeys { it != keyToRemove } ?: emptyMap()
+    }
+  }
+
+  val nonMutableDices = listOf("6er")
 
   fun removeDice(dice: Dice) {
+    if (nonMutableDices.contains(dice.name))
+        throw PermittedActionException("Can not make changes to Dice: ${dice.name}")
     dices.remove(dice.name)
-    removeDiceFromGroups(dice.name)
+    removeKeyFromInnerMaps(diceGroups, dice.name)
     saveUser()
   }
 
-  fun editDice(it: Dice) {
-    diceInEdit = it
+  fun editDice(dice: Dice) {
+    if (nonMutableDices.contains(dice.name))
+        throw PermittedActionException("Can not make changes to Dice: ${dice.name}")
+    diceInEdit = dice
     isDiceEditMode = true
   }
 
