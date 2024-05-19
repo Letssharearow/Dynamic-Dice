@@ -29,7 +29,7 @@ fun DiceGroupsScreen(
     groups: List<String>,
     onSelectGroup: (groupId: String) -> Unit,
     menuActions: List<MenuItem<String>>,
-    onCreateNewGroup: (number: Int) -> Unit
+    onCreateNewGroup: () -> Unit
 ) {
   ItemListScreen(
       items = groups,

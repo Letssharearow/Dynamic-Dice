@@ -38,7 +38,7 @@ object DiceViewModel : ViewModel() {
 
   // create Dice Group
   var groupInEdit by mutableStateOf<Pair<String, Map<String, Pair<Dice, Int>>>?>(null)
-  var groupSize by mutableStateOf<Int>(4)
+  var groupSize by mutableStateOf<Int>(6)
   var isGroupEditMode by mutableStateOf<Boolean>(false)
 
   // User Config
@@ -61,10 +61,9 @@ object DiceViewModel : ViewModel() {
     return uniqueName
   }
 
-  fun createNewGroup(size: Int) {
+  fun createNewGroup() {
     groupInEdit = null
     isGroupEditMode = false
-    groupSize = size
   }
 
   // Dice
@@ -88,8 +87,7 @@ object DiceViewModel : ViewModel() {
     diceInEdit.name = name
   }
 
-  fun createNewDice(number: Int) {
-    facesSize = number
+  fun createNewDice() {
     diceInEdit = Dice(name = "Change Later")
     isDiceEditMode = false
   }

@@ -14,7 +14,7 @@ fun TemplateSelectionScreen(
     dices: List<Dice>,
     onSelectTemplate: (dice: Dice) -> Unit,
     menuActions: List<MenuItem<Dice>>,
-    onCreateNewDice: (number: Int) -> Unit
+    onCreateNewDice: () -> Unit
 ) {
   ItemListScreen(
       items = dices,

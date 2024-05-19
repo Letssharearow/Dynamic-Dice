@@ -41,7 +41,6 @@ fun DiceCard(dice: Dice, isCompact: Boolean, modifier: Modifier = Modifier) {
   val facesSum = dice.faces.sumOf { it.weight }
 
   Surface(
-      shadowElevation = 8.dp,
       color = dice.backgroundColor,
       modifier =
           modifier
@@ -69,8 +68,7 @@ private fun CompactDiceCard(name: String, facesSum: Int) {
             color = Color.Black,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.fillMaxWidth(0.66F)
-   )
+            modifier = Modifier.fillMaxWidth(0.66F))
 
         NumberCircle(facesSum.toString())
       }
@@ -78,19 +76,17 @@ private fun CompactDiceCard(name: String, facesSum: Int) {
 
 @Composable
 private fun DetailedDiceCard(dice: Dice, facesSum: Int) {
-  Row(
-      verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.padding(8.dp).background(dice.backgroundColor)) {
-        Text(
-            text = dice.name,
-            style = MaterialTheme.typography.displayMedium,
-            color = Color.Black,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.fillMaxWidth(0.66F))
-        Spacer(modifier = Modifier.width(8.dp))
-        DicePreview(dice, facesSum, Modifier.fillMaxWidth().aspectRatio(1f))
-      }
+  Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(8.dp)) {
+    Text(
+        text = dice.name,
+        style = MaterialTheme.typography.displayMedium,
+        color = Color.Black,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.fillMaxWidth(0.66F))
+    Spacer(modifier = Modifier.width(8.dp))
+    DicePreview(dice, facesSum, Modifier.fillMaxWidth().aspectRatio(1f))
+  }
 }
 
 @Composable
@@ -105,16 +101,14 @@ fun DicePreview(dice: Dice, facesSum: Int, modifier: Modifier = Modifier) {
             items = dice.faces.let { if (it.size >= 10) it.subList(0, 10) else it },
             minSize = 10f,
         ) { face, maxWidthDp ->
-          Box(
-              contentAlignment = Alignment.Center,
-              modifier = androidx.compose.ui.Modifier.size(maxWidthDp)) {
-                FaceView(
-                    face,
-                    showWeight = false,
-                    spacing = maxWidthDp.div(10),
-                    color = dice.backgroundColor,
-                    modifier = Modifier.padding(maxWidthDp.div(20)))
-              }
+          Box(contentAlignment = Alignment.Center, modifier = Modifier.size(maxWidthDp)) {
+            FaceView(
+                face,
+                showWeight = false,
+                spacing = maxWidthDp.div(10),
+                color = dice.backgroundColor,
+                modifier = Modifier.padding(maxWidthDp.div(20)))
+          }
         }
         if (facesSum > 2) {
           CircleOverlay("$facesSum")

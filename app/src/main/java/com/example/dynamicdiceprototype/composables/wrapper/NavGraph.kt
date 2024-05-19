@@ -95,7 +95,7 @@ fun NavGraph(navController: NavHostController) {
                               "Pressing Confirm will Remove the Group entirely, there is no undoing")),
               ),
           onCreateNewGroup = {
-            viewModel.createNewGroup(it)
+            viewModel.createNewGroup()
             navController.navigate(Screen.CreateDiceGroup.route)
           })
     }

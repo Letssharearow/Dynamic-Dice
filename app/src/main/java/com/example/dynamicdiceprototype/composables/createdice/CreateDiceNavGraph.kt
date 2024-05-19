@@ -26,7 +26,7 @@ fun NavGraphBuilder.diceGraph(diceViewModel: DiceViewModel, navController: NavHo
             navController.navigate(Screen.MainScreen.route)
           },
           onCreateNewDice = {
-            diceViewModel.createNewDice(it)
+            diceViewModel.createNewDice()
             navController.navigate(DicesScreen.SelectFaces.route)
           },
           menuActions =
