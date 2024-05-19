@@ -33,10 +33,12 @@ import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 fun DiceGroupCreationScreen(
     dices: List<Pair<Dice, Int>>,
     onCreateDiceGroup: (name: String, dices: Map<String, Pair<Dice, Int>>) -> Unit,
+    isEdit: Boolean,
     groupSize: Int = 4,
-    initialValue: Map<String, Pair<Dice, Int>> = mapOf(),
+    initialValue: Map<String, Pair<Dice, Int>>? = mapOf(),
+    initialName: String = "Change Later",
 ) {
-  var name by remember { mutableStateOf("Change Later") }
+  var name by remember { mutableStateOf(initialName) }
   var number by remember { mutableStateOf<String?>("$groupSize") }
   ArrangedColumn {
     Row(
@@ -46,7 +48,8 @@ fun DiceGroupCreationScreen(
               text = name,
               onValueChange = { name = it },
               label = "Dice Name",
-              Modifier.padding(8.dp).fillMaxWidth(0.5F))
+              isReadOnly = isEdit,
+              modifier = Modifier.padding(8.dp).fillMaxWidth(0.5F))
 
           OutlinedTextField(
               value = number.toString(),
@@ -67,7 +70,7 @@ fun DiceGroupCreationScreen(
         selectables = dices,
         size = number?.takeIf { it.isDigitsOnly() && it.isNotEmpty() }?.toInt() ?: 0,
         onSaveSelection = { onCreateDiceGroup(name, it) },
-        initialValue = initialValue,
+        initialValue = initialValue ?: mapOf(),
         getCount = { it.second },
         getId = { it.first.name },
         copy = { diceAndCount, count -> Pair(diceAndCount.first, count) }) {
@@ -91,6 +94,7 @@ fun DiceroupsScreenPreview() {
         dices = dices.map { Pair(it, 0) },
         onCreateDiceGroup = { string, map -> },
         groupSize = 20,
+        isEdit = false,
         initialValue = mapOf("checked" to Pair(first = Dice(), second = 3)))
   }
 }

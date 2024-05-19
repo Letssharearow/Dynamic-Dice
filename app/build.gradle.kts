@@ -59,7 +59,7 @@ dependencies {
   implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
   //  implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
   //  implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
-  implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+  implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
   implementation("com.google.firebase:firebase-analytics")
   // Declare the dependency for the Cloud Firestore library
   // When using the BoM, you don't specify versions in Firebase library dependencies

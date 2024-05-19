@@ -12,6 +12,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.dynamicdiceprototype.DTO.ImageSetDTO
 import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.DTO.toDice
+import com.example.dynamicdiceprototype.Exceptions.DiceGroupNotFoundException
+import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
@@ -30,8 +32,16 @@ object DiceViewModel : ViewModel() {
   var collectFlows by mutableStateOf(0)
 
   // create Dice
-  var newDice by mutableStateOf<Dice>(Dice(name = "Change Later"))
-  var facesSize by mutableStateOf<Int>(20)
+  var diceInEdit by mutableStateOf<Dice>(Dice()) // TODO make nullable
+  var facesSize by mutableStateOf<Int>(6)
+  var isDiceEditMode by mutableStateOf<Boolean>(false)
+
+  // create Dice Group
+  var groupInEdit by mutableStateOf<Pair<String, Map<String, Pair<Dice, Int>>>?>(null)
+  var groupSize by mutableStateOf<Int>(4)
+  var isGroupEditMode by mutableStateOf<Boolean>(false)
+
+  // User Config
   val diceGroups = mutableStateMapOf<String, Map<String, Int>>()
   var userConfigIsNull: Boolean = false
   var dices = mutableStateMapOf<String, Dice>()
@@ -44,15 +54,6 @@ object DiceViewModel : ViewModel() {
     firebase.uploadDice(dice.name, dice.toDiceGetDTO())
   }
 
-  fun mapDiceIdsToImages(images: Map<String, Face>) {
-    dices.forEach {
-      it.value.faces.map { face -> face.data = images[face.contentDescription]?.data }
-    }
-    currentDices.forEach {
-      it.faces.map { face -> face.data = images[face.contentDescription]?.data }
-    }
-  }
-
   // create Dice Flow
 
   fun copyDice(name: String): Dice {
@@ -60,13 +61,36 @@ object DiceViewModel : ViewModel() {
     if (diceState != null) {
       return copyIfNotExists(diceState.copy(name = name + "_copy"))
     }
-    return Dice(
-        faces = listOf()) // TODO Better handling of error, probably throw exception? Or return null
+    return Dice() // TODO Better handling of error, probably throw exception? Or return null
   }
 
   fun copyIfNotExists(dice: Dice): Dice {
     return if (dices.contains(dice.name)) copyIfNotExists(dice.copy(name = dice.name + "_copy"))
     else dice
+  }
+
+  // Copies a dice group if it exists and ensures the copy has a unique name
+  fun copyDiceGroup(name: String): Pair<String, Map<String, Int>> {
+    val state = diceGroups[name] ?: throw DiceGroupNotFoundException("Group not found: $name")
+    return copyDiceGroupIfNotExists(name.plus("_copy"), state.toMap())
+  }
+
+  // Helper function to recursively copy the dice group with a unique name
+  fun copyDiceGroupIfNotExists(
+      newName: String,
+      state: Map<String, Int>
+  ): Pair<String, Map<String, Int>> {
+    val uniqueName = generateUniqueName(newName)
+    return Pair(uniqueName, state)
+  }
+
+  // Generates a unique name for the dice group
+  fun generateUniqueName(baseName: String): String {
+    var uniqueName = baseName
+    while (diceGroups.containsKey(uniqueName)) {
+      uniqueName += "_copy"
+    }
+    return uniqueName
   }
 
   fun removeDice(dice: Dice) {
@@ -75,28 +99,29 @@ object DiceViewModel : ViewModel() {
   }
 
   fun setStartDice(newDice: Dice) {
-    this.newDice = copyDice(newDice.name)
+    this.diceInEdit = copyDice(newDice.name)
   }
 
   fun setDiceName(name: String) {
-    newDice.name = name
+    diceInEdit.name = name
   }
 
   fun createNewDice(number: Int) {
     facesSize = number
-    newDice = Dice(name = "Change Later")
+    diceInEdit = Dice(name = "Change Later")
   }
 
   fun setSelectedFaces(values: Collection<Face>) {
-    newDice.faces = values.toList()
+    diceInEdit.faces = values.toList()
   }
 
   fun setColor(color: Color) {
-    newDice.backgroundColor = color
+    diceInEdit.backgroundColor = color
   }
 
   fun saveDice() {
-    addDice(newDice) // TODO consider using events to set and update local data instead of doing it
+    addDice(
+        diceInEdit) // TODO consider using events to set and update local data instead of doing it
     // locally and with firebase to avoid data inconsistencies
   }
   // end create dice
@@ -226,11 +251,30 @@ object DiceViewModel : ViewModel() {
   }
 
   fun editGroup(groupId: String) {
-    TODO("Not yet implemented")
+    isGroupEditMode = true
+    val group = diceGroups[groupId]
+    group?.let { group ->
+      val group2 =
+          mapOf(
+              *group
+                  .map {
+                    Pair(
+                        it.key,
+                        Pair(
+                            dices[it.key]
+                                ?: throw DiceNotFoundException(
+                                    "Dice with key: ${it.key} doesnt exist, create Dice to make this action"),
+                            it.value))
+                  }
+                  .toTypedArray()) // TODO improve dataStructure? And remove assert for better
+      // handling?
+      groupInEdit = Pair(groupId, group2)
+    }
   }
 
   fun duplicateGroup(gorupId: String) {
-    TODO("Not yet implemented")
+    val newDiceGroup = copyDiceGroup(gorupId)
+    diceGroups[newDiceGroup.first] = newDiceGroup.second
   }
 }
 

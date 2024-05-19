@@ -11,13 +11,15 @@ fun SingleLineInput(
     text: String,
     onValueChange: (text: String) -> Unit,
     label: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isReadOnly: Boolean = false,
 ) {
   OutlinedTextField(
       value = text,
       onValueChange = onValueChange,
       label = { Text(label) },
       singleLine = true,
+      readOnly = isReadOnly,
       modifier = modifier.fillMaxWidth(),
   )
 }

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.LifecycleAwareComponent
 import com.example.dynamicdiceprototype.Screen
 import com.example.dynamicdiceprototype.composables.LandingPage
@@ -72,7 +73,15 @@ fun NavGraph(navController: NavHostController) {
               listOf(
                   MenuItem(
                       text = "Edit dice group",
-                      callBack = { viewModel.editGroup(it) },
+                      callBack = {
+                        try {
+                          viewModel.editGroup(it)
+                          navController.navigate(Screen.CreateDiceGroup.route)
+                        } catch (e: DiceNotFoundException) {
+                          e.printStackTrace()
+                          Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+                        }
+                      },
                   ),
                   MenuItem(
                       text = "Duplicate dice group",
@@ -86,7 +95,12 @@ fun NavGraph(navController: NavHostController) {
                               "Cofirm Deletion",
                               "Pressing Confirm will Remove the Group entirely, there is no undoing")),
               ),
-          onCreateNewGroup = {})
+          onCreateNewGroup = {
+            viewModel.groupInEdit = null
+            viewModel.isGroupEditMode = false
+            viewModel.groupSize = it
+            navController.navigate(Screen.CreateDiceGroup.route)
+          })
     }
     composable(route = Screen.CreateDiceGroup.route) {
       DiceGroupCreationScreen(
@@ -95,7 +109,9 @@ fun NavGraph(navController: NavHostController) {
             viewModel.createDiceGroup(name, dices)
             navController.navigate(Screen.DiceGroups.route)
           },
-          groupSize = 4,
+          groupSize = viewModel.groupSize,
+          initialValue = viewModel.groupInEdit?.second,
+          isEdit = viewModel.isGroupEditMode,
       )
     }
   }
