@@ -10,9 +10,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.LifecycleAwareComponent
-import com.example.dynamicdiceprototype.Screen
 import com.example.dynamicdiceprototype.composables.LandingPage
-import com.example.dynamicdiceprototype.composables.createdice.CreateDiceNavGraph
+import com.example.dynamicdiceprototype.composables.createdice.diceGraph
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupCreationScreen
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupsScreen
 import com.example.dynamicdiceprototype.composables.screens.TestScreen
@@ -51,10 +50,7 @@ fun NavGraph(navController: NavHostController) {
           isLoading = viewModel.collectFlows <= 1,
           onRollClicked = { viewModel.rollDices() })
     }
-    composable(route = Screen.CreateDice.route) {
-      viewModel.loadAllImages()
-      CreateDiceNavGraph(viewModel)
-    }
+    diceGraph(viewModel, navController)
     composable(route = Screen.UploadImage.route) {
       UploadImageScreen(context) { bitmap, name -> viewModel.uploadImage(bitmap, name) }
     }
@@ -111,6 +107,28 @@ fun NavGraph(navController: NavHostController) {
           initialValue = viewModel.groupInEdit?.second,
           isEdit = viewModel.isGroupEditMode,
       )
+    }
+  }
+}
+
+private val createDiceRoute = "dice/create"
+
+sealed class Screen(val route: String) {
+
+  object MainScreen : Screen("home")
+
+  object TestScreen : Screen("Test")
+
+  object DiceGroups : Screen("dice_groups")
+
+  object CreateDiceGroup : Screen("dice_groups/create")
+
+  object UploadImage : Screen("upload")
+
+  fun withArgs(vararg args: String): String {
+    return buildString {
+      append(route)
+      args.forEach { append("/${it.replace(" ", "-").lowercase()}") }
     }
   }
 }

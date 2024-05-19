@@ -1,34 +1,32 @@
 package com.example.dynamicdiceprototype.composables.createdice
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.navigation.compose.NavHost
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import com.example.dynamicdiceprototype.Screen
 import com.example.dynamicdiceprototype.composables.common.AlertBox
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
 
-@Composable
-fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
-  val navController = rememberNavController()
-
-  NavHost(navController, startDestination = Screen.Templates.route) {
-    composable(route = Screen.Templates.route) {
+fun NavGraphBuilder.diceGraph(diceViewModel: DiceViewModel, navController: NavHostController) {
+  val test = ""
+  navigation(route = DicesScreen.Dices.route, startDestination = DicesScreen.DicesList.route) {
+    composable(route = DicesScreen.DicesList.route) {
       TemplateSelectionScreen(
           dices = diceViewModel.dices.values.toList(),
           onSelectTemplate = {
-            diceViewModel.setStartDice(it)
-            navController.navigate(Screen.EditTemplate.route)
+            diceViewModel.selectDice(it)
+            navController.navigate(Screen.MainScreen.route)
           },
           onCreateNewDice = {
             diceViewModel.createNewDice(it)
-            navController.navigate(Screen.SelectFaces.route)
+            navController.navigate(DicesScreen.SelectFaces.route)
           },
           menuActions =
               listOf(
@@ -36,14 +34,14 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
                       text = "Edit dice",
                       callBack = {
                         diceViewModel.editDice(it)
-                        navController.navigate(Screen.EditTemplate.route)
+                        navController.navigate(DicesScreen.EditDice.route)
                       },
                   ),
                   MenuItem(
                       text = "Duplicate dice",
                       callBack = {
                         diceViewModel.duplicateDice(it)
-                        navController.navigate(Screen.EditTemplate.route)
+                        navController.navigate(DicesScreen.EditDice.route)
                       },
                   ),
                   MenuItem(
@@ -51,10 +49,10 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
                       callBack = { diceViewModel.removeDice(it) },
                       AlterBoxProperties(
                           description =
-                              "Pressing Confirm will Delete the Dice entirely and globally, there is no undoing (yet)")),
+                              "Pressing Confirm will Delete the Dice and remove all occurences in any dice Group")),
               )) // TODO implement undoing feature, haha
     }
-    composable(route = Screen.SelectFaces.route) {
+    composable(route = DicesScreen.SelectFaces.route) {
       SelectFacesScreen(
           faces = diceViewModel.imageMap.values.toList(),
           size = diceViewModel.facesSize,
@@ -62,18 +60,18 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
               diceViewModel.diceInEdit.faces.associate {
                 Pair(it.contentDescription, it)
               }) { // TODO Consider using same datatype (map probably) for everything)
-            navController.navigate(Screen.EditTemplate.route)
+            navController.navigate(DicesScreen.EditDice.route)
             diceViewModel.setSelectedFaces(it.values)
           }
     }
-    composable(route = Screen.EditTemplate.route) {
+    composable(route = DicesScreen.EditDice.route) {
       var openDialog by remember { mutableStateOf(false) }
       EditDiceScreen(
           diceViewModel.diceInEdit,
           onEdit = { name, color ->
             diceViewModel.setDiceName(name)
             diceViewModel.setColor(color)
-            navController.navigate(Screen.SelectFaces.route)
+            navController.navigate(DicesScreen.SelectFaces.route)
           },
           isEditMode = diceViewModel.isDiceEditMode,
           onSaveDice = { name, color ->
@@ -83,7 +81,7 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
               openDialog = true
             } else {
               diceViewModel.saveDice()
-              navController.navigate(Screen.Templates.route)
+              navController.navigate(DicesScreen.DicesList.route)
             }
           })
       AlertBox(
@@ -93,8 +91,21 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
           conConfirm = {
             openDialog = false
             diceViewModel.saveDice()
-            navController.navigate(Screen.Templates.route)
+            navController.navigate(DicesScreen.DicesList.route)
           })
     }
   }
+}
+
+private const val createDiceRoute = "dices"
+
+sealed class DicesScreen(val route: String) {
+
+  object Dices : DicesScreen(createDiceRoute)
+
+  object DicesList : DicesScreen("$createDiceRoute/templates")
+
+  object SelectFaces : DicesScreen("$createDiceRoute/faces")
+
+  object EditDice : DicesScreen("$createDiceRoute/templates/edit")
 }

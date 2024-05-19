@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.Screen
+import com.example.dynamicdiceprototype.composables.createdice.DicesScreen
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -26,7 +27,7 @@ fun Menu(drawerState: DrawerState, scope: CoroutineScope) {
       listOf(
           Pair("Test Screen", Screen.TestScreen.route),
           Pair("Main Screen", Screen.MainScreen.route),
-          Pair("Dices", Screen.CreateDice.route),
+          Pair("Dices", DicesScreen.Dices.route),
           Pair("Dice Groups", Screen.DiceGroups.route),
           Pair("Upload Image", Screen.UploadImage.route),
       )

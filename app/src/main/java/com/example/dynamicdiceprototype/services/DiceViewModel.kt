@@ -46,59 +46,39 @@ object DiceViewModel : ViewModel() {
   var dices = mutableStateMapOf<String, Dice>()
   var lastDiceGroup by mutableStateOf("Red flag or Green flag")
 
-  fun getErrorMessage() = firebase.errorMessage
-
-  fun addDice(dice: Dice) {
-    dices[dice.name] = dice
-    firebase.uploadDice(dice.name, dice.toDiceGetDTO())
+  init {
+    loadUserConfig()
   }
 
-  // create Dice Flow
-
-  fun copyDice(name: String): Dice {
-    val diceState = dices[name]
-    if (diceState != null) {
-      return copyIfNotExists(diceState.copy(name = name + "_copy"))
-    }
-    return Dice() // TODO Better handling of error, probably throw exception? Or return null
-  }
-
-  fun copyIfNotExists(dice: Dice): Dice {
-    return if (dices.contains(dice.name)) copyIfNotExists(dice.copy(name = dice.name + "_copy"))
-    else dice
-  }
-
-  // Copies a dice group if it exists and ensures the copy has a unique name
-  fun copyDiceGroup(name: String): Pair<String, Map<String, Int>> {
-    val state = diceGroups[name] ?: throw DiceGroupNotFoundException("Group not found: $name")
-    return copyDiceGroupIfNotExists(name.plus("_copy"), state.toMap())
-  }
-
-  // Helper function to recursively copy the dice group with a unique name
-  fun copyDiceGroupIfNotExists(
-      newName: String,
-      state: Map<String, Int>
-  ): Pair<String, Map<String, Int>> {
-    val uniqueName = generateUniqueName(newName)
-    return Pair(uniqueName, state)
-  }
-
-  // Generates a unique name for the dice group
-  fun generateUniqueName(baseName: String): String {
+  private fun generateUniqueName(baseName: String, keys: List<String>): String {
     var uniqueName = baseName
-    while (diceGroups.containsKey(uniqueName)) {
+    while (keys.contains(uniqueName)) {
       uniqueName += "_copy"
     }
     return uniqueName
   }
 
-  fun removeDice(dice: Dice) {
-    dices.remove(dice.name)
-    saveUser()
+  fun createNewGroup(size: Int) {
+    groupInEdit = null
+    isGroupEditMode = false
+    groupSize = size
   }
 
-  fun setStartDice(newDice: Dice) {
-    this.diceInEdit = copyDice(newDice.name)
+  // Dice
+
+  // create Dice Flow
+
+  private fun copyDice(name: String): Dice? {
+    val diceState = dices[name]
+    if (diceState != null) {
+      return getDiceWithUniqueName(diceState)
+    }
+    return null
+  }
+
+  private fun getDiceWithUniqueName(dice: Dice): Dice {
+    val diceName = generateUniqueName(dice.name, dices.keys.toList())
+    return dice.copy(name = diceName)
   }
 
   fun setDiceName(name: String) {
@@ -119,6 +99,11 @@ object DiceViewModel : ViewModel() {
     diceInEdit.backgroundColor = color
   }
 
+  private fun addDice(dice: Dice) {
+    dices[dice.name] = dice
+    firebase.uploadDice(dice.name, dice.toDiceGetDTO())
+  }
+
   fun saveDice() {
     addDice(
         diceInEdit) // TODO consider using events to set and update local data instead of doing it
@@ -126,16 +111,106 @@ object DiceViewModel : ViewModel() {
   }
   // end create dice
 
+  // Dice Menu Actions
+
+  fun removeDiceFromGroups(name: String) {}
+
+  fun removeDice(dice: Dice) {
+    dices.remove(dice.name)
+    removeDiceFromGroups(dice.name)
+    saveUser()
+  }
+
+  fun editDice(it: Dice) {
+    diceInEdit = it
+    isDiceEditMode = true
+  }
+
+  fun duplicateDice(it: Dice) {
+    val newDice =
+        copyDice(it.name)
+            ?: throw DiceNotFoundException(
+                "Dice with name ${it.name} couldn't be copied because no dice with this name exists")
+    addDice(newDice)
+  }
+
+  // Dice Menu Actions end
+
+  fun selectDice(dice: Dice) {
+    currentDices = listOf(dice)
+  }
+
+  // Dice end
+
+  // Dice Group
+  // create Dice Group
   fun createDiceGroup(name: String, dices: Map<String, Pair<Dice, Int>>) {
     diceGroups[name] = mapOf(*dices.map { Pair(it.key, it.value.second) }.toTypedArray())
     saveUser()
   }
 
-  init {
-    loadUserConfig()
+  fun copyDiceGroup(name: String): Pair<String, Map<String, Int>> {
+    val state = diceGroups[name] ?: throw DiceGroupNotFoundException("Group not found: $name")
+    return copyDiceGroupIfNotExists(name.plus("_copy"), state.toMap())
   }
 
-  // Function to update a single dice
+  fun copyDiceGroupIfNotExists(
+      newName: String,
+      state: Map<String, Int>
+  ): Pair<String, Map<String, Int>> {
+    val uniqueName = generateUniqueName(newName, diceGroups.keys.toList())
+    return Pair(uniqueName, state)
+  }
+  // create Dice Group end
+  // group Menu Actions
+  fun removeGroup(it: String) {
+    diceGroups.remove(it)
+    saveUser()
+  }
+
+  fun editGroup(groupId: String) {
+    isGroupEditMode = true
+    val group = diceGroups[groupId]
+    group?.let { group ->
+      val group2 =
+          mapOf(
+              *group
+                  .map {
+                    Pair(
+                        it.key,
+                        Pair(
+                            dices[it.key]
+                                ?: throw DiceNotFoundException(
+                                    "Dice with key: ${it.key} doesnt exist, create Dice to make this action"),
+                            it.value))
+                  }
+                  .toTypedArray()) // TODO improve dataStructure? And remove assert for better
+      // handling?
+      groupInEdit = Pair(groupId, group2)
+    }
+  }
+
+  fun duplicateGroup(gorupId: String) {
+    val newDiceGroup = copyDiceGroup(gorupId)
+    diceGroups[newDiceGroup.first] = newDiceGroup.second
+  }
+  // group Menu Actions end
+  fun selectDiceGroup(groupId: String) {
+    lastDiceGroup = groupId
+    val newDicesState = mutableListOf<Dice>()
+    diceGroups[groupId]?.forEach { (diceId, count) ->
+      val diceToAdd = dices[diceId]
+      diceToAdd?.let {
+        for (i in 1..count) {
+          newDicesState.add(diceToAdd.copy(rotation = Random.nextFloat() * i))
+        }
+      } // TODO better handling for null Dice
+    }
+    currentDices = newDicesState
+  }
+  // Dice Group end
+
+  // Main Screen actions
   fun lockDice(dice: Dice) {
     currentDices =
         // use Map function to trigger recomposition
@@ -160,6 +235,11 @@ object DiceViewModel : ViewModel() {
           }
         }
   }
+
+  // Main Screen actions end
+
+  // Firebase Access
+  fun getErrorMessage() = firebase.errorMessage
 
   private fun loadUserConfig() {
     viewModelScope.launch {
@@ -209,25 +289,10 @@ object DiceViewModel : ViewModel() {
   }
 
   fun loadAllImages() {
-    //    if (imageMap.isNotEmpty()) return
     viewModelScope.launch {
       val images = firebase.loadAllImages()
       imageMap = images
     }
-  }
-
-  fun selectDiceGroup(groupId: String) {
-    lastDiceGroup = groupId
-    val newDicesState = mutableListOf<Dice>()
-    diceGroups[groupId]?.forEach { (diceId, count) ->
-      val diceToAdd = dices[diceId]
-      diceToAdd?.let {
-        for (i in 1..count) {
-          newDicesState.add(diceToAdd.copy(rotation = Random.nextFloat() * i))
-        }
-      } // TODO better handling for null Dice
-    }
-    currentDices = newDicesState
   }
 
   fun uploadImage(bitmap: Bitmap, name: String) {
@@ -244,52 +309,6 @@ object DiceViewModel : ViewModel() {
           USER, UserDTO(dices = dices.map { it.key }, diceGroups = diceGroups))
     }
   }
+  // Firebase Access end
 
-  fun removeGroup(it: String) {
-    diceGroups.remove(it)
-    saveUser()
-  }
-
-  fun editGroup(groupId: String) {
-    isGroupEditMode = true
-    val group = diceGroups[groupId]
-    group?.let { group ->
-      val group2 =
-          mapOf(
-              *group
-                  .map {
-                    Pair(
-                        it.key,
-                        Pair(
-                            dices[it.key]
-                                ?: throw DiceNotFoundException(
-                                    "Dice with key: ${it.key} doesnt exist, create Dice to make this action"),
-                            it.value))
-                  }
-                  .toTypedArray()) // TODO improve dataStructure? And remove assert for better
-      // handling?
-      groupInEdit = Pair(groupId, group2)
-    }
-  }
-
-  fun duplicateGroup(gorupId: String) {
-    val newDiceGroup = copyDiceGroup(gorupId)
-    diceGroups[newDiceGroup.first] = newDiceGroup.second
-  }
-
-  fun editDice(it: Dice) {
-    diceInEdit = it
-    isDiceEditMode = true
-  }
-
-  fun duplicateDice(it: Dice) {
-    val newDice = copyDice(it.name)
-    addDice(newDice)
-  }
-
-  fun createNewGroup(size: Int) {
-    groupInEdit = null
-    isGroupEditMode = false
-    groupSize = size
-  }
 }
