@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -66,7 +65,6 @@ fun DiceView(
                   scaleX = scale
                   scaleY = scale
                 }
-                .shadow(spacing, RoundedCornerShape(spacing), clip = false)
                 .clickable { onDiceClick(dice) }) {
           FaceView(
               face = dice.current,

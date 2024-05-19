@@ -12,7 +12,7 @@ data class Dice(
     var current: Face? = null,
     var state: DiceState = DiceState.UNLOCKED,
     var rotation: Float = ((Random.nextFloat() * (15) + 5) * if (Random.nextBoolean()) -1 else 1),
-    var backgroundColor: Color = Color(0xFFCCCCCC)
+    var backgroundColor: Color = Color(0x80A0A0A0)
 ) {
 
   init {
