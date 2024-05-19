@@ -125,6 +125,7 @@ fun <T> ItemListScreen(
                   Modifier.combinedClickable(
                           onClick = { onSelect(item) }, onLongClick = { showMenu = true })
                       .fillMaxWidth()
+                      .padding(bottom = 8.dp)
                       .background(
                           shape = RoundedCornerShape(16.dp), // TODO reuse for background
                           color = MaterialTheme.colorScheme.background)) {

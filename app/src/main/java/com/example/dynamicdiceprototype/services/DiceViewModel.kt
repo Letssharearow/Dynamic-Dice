@@ -14,7 +14,6 @@ import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.DTO.toDice
 import com.example.dynamicdiceprototype.Exceptions.DiceGroupNotFoundException
 import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
-import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
@@ -109,6 +108,7 @@ object DiceViewModel : ViewModel() {
   fun createNewDice(number: Int) {
     facesSize = number
     diceInEdit = Dice(name = "Change Later")
+    isDiceEditMode = false
   }
 
   fun setSelectedFaces(values: Collection<Face>) {
@@ -276,30 +276,20 @@ object DiceViewModel : ViewModel() {
     val newDiceGroup = copyDiceGroup(gorupId)
     diceGroups[newDiceGroup.first] = newDiceGroup.second
   }
-}
 
-fun getFaces(n: Int): List<Face> {
-  val list = mutableListOf<Face>()
-  for (i in 1..n) {
-    list.add(Face(contentDescription = "${R.drawable.six_transparent}"))
+  fun editDice(it: Dice) {
+    diceInEdit = it
+    isDiceEditMode = true
   }
-  return list
-}
 
-fun getDices(n: Int = 5): List<Dice> {
-  val list = mutableListOf<Dice>()
-  for (i in 1..n) {
-    list.add(
-        Dice(
-            name = "6er",
-            faces =
-                listOf(
-                    Face(contentDescription = "${R.drawable.one_transparent}"),
-                    Face(contentDescription = "${R.drawable.two_transparent}"),
-                    Face(contentDescription = "${R.drawable.three_transparent}"),
-                    Face(contentDescription = "${R.drawable.four_transparent}"),
-                    Face(contentDescription = "${R.drawable.five_transparent}"),
-                    Face(contentDescription = "${R.drawable.six_transparent}"))))
+  fun duplicateDice(it: Dice) {
+    val newDice = copyDice(it.name)
+    addDice(newDice)
   }
-  return list
+
+  fun createNewGroup(size: Int) {
+    groupInEdit = null
+    isGroupEditMode = false
+    groupSize = size
+  }
 }

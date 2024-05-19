@@ -34,11 +34,17 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
               listOf(
                   MenuItem(
                       text = "Edit dice",
-                      callBack = { diceViewModel.removeDice(it) },
+                      callBack = {
+                        diceViewModel.editDice(it)
+                        navController.navigate(Screen.EditTemplate.route)
+                      },
                   ),
                   MenuItem(
                       text = "Duplicate dice",
-                      callBack = { diceViewModel.removeDice(it) },
+                      callBack = {
+                        diceViewModel.duplicateDice(it)
+                        navController.navigate(Screen.EditTemplate.route)
+                      },
                   ),
                   MenuItem(
                       text = "Delete dice",
@@ -69,10 +75,11 @@ fun CreateDiceNavGraph(diceViewModel: DiceViewModel) {
             diceViewModel.setColor(color)
             navController.navigate(Screen.SelectFaces.route)
           },
+          isEditMode = diceViewModel.isDiceEditMode,
           onSaveDice = { name, color ->
             diceViewModel.setDiceName(name)
             diceViewModel.setColor(color)
-            if (diceViewModel.dices.contains(name)) {
+            if (!diceViewModel.isDiceEditMode && diceViewModel.dices.contains(name)) {
               openDialog = true
             } else {
               diceViewModel.saveDice()
