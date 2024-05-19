@@ -1,7 +1,6 @@
 package com.example.dynamicdiceprototype.composables
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,14 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -103,18 +100,12 @@ fun <T> ItemListScreen(
 
   Column(modifier.padding(8.dp)) {
     // Toggle switch for isCompact
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.End) {
-          Text("Toggle View", Modifier.padding(end = 8.dp))
-          Switch(
-              checked = isCompact,
-              onCheckedChange = {
-                isCompact = it
-                preferencesService.saveIsCompact(context, isCompact, preferenceView)
-              })
-        }
+    ItemListTogglSwitch(
+        checked = isCompact,
+        onChecked = {
+          isCompact = it
+          preferencesService.saveIsCompact(context, isCompact, preferenceView)
+        })
 
     ArrangedColumn(Modifier.weight(1f)) {
       LazyColumn {
@@ -125,10 +116,7 @@ fun <T> ItemListScreen(
                   Modifier.combinedClickable(
                           onClick = { onSelect(item) }, onLongClick = { showMenu = true })
                       .fillMaxWidth()
-                      .padding(bottom = 8.dp)
-                      .background(
-                          shape = RoundedCornerShape(16.dp), // TODO reuse for background
-                          color = MaterialTheme.colorScheme.background)) {
+                      .padding(bottom = 8.dp)) {
                 view(item, isCompact, Modifier.fillMaxSize())
 
                 Box(Modifier.align(Alignment.BottomEnd)) {
@@ -143,30 +131,46 @@ fun <T> ItemListScreen(
         }
       }
     }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.wrapContentSize().padding(top = 8.dp)) {
-          // Input field for numbers
-          var number by remember { mutableStateOf<String?>("6") }
-          OutlinedTextField(
-              value = number.toString(),
-              onValueChange = { newValue ->
-                number =
-                    newValue.takeIf {
-                      it.isDigitsOnly() && (it.isNotEmpty() && it.toInt() <= 100 || it.isEmpty())
-                    } ?: number
-              },
-              label = { Text("Count") },
-              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-              modifier = Modifier.wrapContentSize(),
-              isError = number.isNullOrEmpty())
-          // Continue button
-          ContinueButton(
-              onClick = { onCreateItem(number?.toInt() ?: 0) }, // TODO Better handling?
-              text = "+",
-              enabled = !number.isNullOrEmpty())
-        }
+    CreateNewItemButton { onCreateItem(it) }
   }
+}
+
+@Composable
+fun CreateNewItemButton(onClick: (Int) -> Unit) {
+  Row(
+      verticalAlignment = Alignment.CenterVertically,
+      modifier = Modifier.wrapContentSize().padding(top = 8.dp)) {
+        // Input field for numbers
+        var number by remember { mutableStateOf<String?>("6") }
+        OutlinedTextField(
+            value = number.toString(),
+            onValueChange = { newValue ->
+              number =
+                  newValue.takeIf {
+                    it.isDigitsOnly() && (it.isNotEmpty() && it.toInt() <= 100 || it.isEmpty())
+                  } ?: number
+            },
+            label = { Text("Count") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.wrapContentSize(),
+            isError = number.isNullOrEmpty())
+        // Continue button
+        ContinueButton(
+            onClick = { onClick(number?.toInt() ?: 0) }, // TODO Better handling?
+            text = "+",
+            enabled = !number.isNullOrEmpty())
+      }
+}
+
+@Composable
+fun ItemListTogglSwitch(checked: Boolean, onChecked: (Boolean) -> Unit) {
+  Row(
+      modifier = Modifier.fillMaxWidth(),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.End) {
+        Text("Toggle View", Modifier.padding(end = 8.dp))
+        Switch(checked = checked, onCheckedChange = onChecked)
+      }
 }
 
 @Preview
