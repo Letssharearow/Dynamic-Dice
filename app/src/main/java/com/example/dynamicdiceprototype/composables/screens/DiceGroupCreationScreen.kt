@@ -68,7 +68,7 @@ fun DiceGroupCreationScreen(
 
     SelectItemsGrid(
         selectables = dices,
-        size = number?.takeIf { it.isDigitsOnly() && it.isNotEmpty() }?.toInt() ?: 0,
+        initialSize = number?.takeIf { it.isDigitsOnly() && it.isNotEmpty() }?.toInt() ?: 0,
         onSaveSelection = { onCreateDiceGroup(name, it) },
         initialValue = initialValue ?: mapOf(),
         getCount = { it.second },

@@ -1,6 +1,7 @@
 package com.example.dynamicdiceprototype.composables
 
 import OneScreenGrid
+import android.os.SystemClock
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -14,8 +15,11 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,13 +38,14 @@ import kotlin.math.ceil
 @Composable
 fun <T> SelectItemsGrid(
     selectables: List<T>,
-    initialValue: Map<String, T> = mapOf(),
-    size: Int,
     onSaveSelection: (Map<String, T>) -> Unit,
     getCount: (T) -> Int,
     getId: (T) -> String,
     copy: (item: T, count: Int) -> T,
     modifier: Modifier = Modifier,
+    initialSize: Int = 10,
+    maxSize: Int = 100,
+    initialValue: Map<String, T> = mapOf(),
     view: @Composable (item: T, modifier: Modifier, size: Dp) -> Unit,
 ) {
 
@@ -50,6 +55,7 @@ fun <T> SelectItemsGrid(
   ArrangedColumn {
     OneScreenGrid(items = selectables, minSize = 400f, modifier.weight(1f)) { item, maxWidthDp
       -> // TODO hardcoded minSize, maybe as parameter?
+      var mutableSize by remember { mutableIntStateOf(initialSize) }
       Box(
           contentAlignment = Alignment.Center,
           modifier =
@@ -65,7 +71,10 @@ fun <T> SelectItemsGrid(
 
             view(item, Modifier, maxWidthDp)
             selectedItem?.let {
-                NumberCircle(text = getCount(it).toString(), fontSize = 24.sp, modifier = Modifier.align(Alignment.TopStart))
+              NumberCircle(
+                  text = getCount(it).toString(),
+                  fontSize = 24.sp,
+                  modifier = Modifier.align(Alignment.TopStart))
             }
             Box(
                 Modifier.align(Alignment.BottomCenter)
@@ -75,13 +84,26 @@ fun <T> SelectItemsGrid(
                     .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.66f))
                     .padding(8.dp)) {
                   selectedItem?.let {
+                    var lastTimeClicked by remember { mutableLongStateOf(0L) }
+
                     Slider(
                         value = getCount(it).toFloat(),
                         onValueChange = { value ->
                           selectedItems[getId(item)] = copy(it, ceil(value).toInt())
+                          val now = SystemClock.uptimeMillis()
+                          if (now - lastTimeClicked > 2000) {
+                            mutableSize =
+                                when {
+                                  getCount(it) == mutableSize ->
+                                      (mutableSize * 2).coerceAtMost(maxSize)
+                                  getCount(it) < initialSize -> initialSize
+                                  else -> mutableSize
+                                }
+                          }
+                          lastTimeClicked = now
                         },
-                        valueRange = 1f..size.toFloat().coerceAtLeast(1f),
-                        steps = (size - 1).coerceAtLeast(1))
+                        valueRange = 1f..mutableSize.toFloat().coerceAtLeast(1f),
+                        steps = (mutableSize - 1).coerceAtLeast(1))
                   }
                       ?: Text(
                           text = getId(item),
@@ -92,7 +114,7 @@ fun <T> SelectItemsGrid(
     }
     ContinueButton(
         onClick = { onSaveSelection(selectedItems) },
-        text = "Save Selection  : (${selectedItems.values.sumOf {getCount(it)}} / $size)")
+        text = "Save Selection  : (${selectedItems.values.sumOf {getCount(it)}} / $initialSize)")
   }
 }
 
@@ -138,7 +160,7 @@ private fun SelectItemsGridPreview() {
                 DiceInGroup(Dice(faces = listOf()), count = 2),
                 DiceInGroup(Dice(faces = listOf()), count = 2),
             ),
-        size = 2,
+        initialSize = 2,
         onSaveSelection = {},
         initialValue =
             mutableMapOf(

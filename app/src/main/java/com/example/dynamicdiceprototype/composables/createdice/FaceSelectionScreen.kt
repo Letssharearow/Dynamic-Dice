@@ -19,7 +19,7 @@ fun SelectFacesScreen(
 ) {
   SelectItemsGrid<Face>(
       selectables = faces,
-      size = size,
+      initialSize = size,
       initialValue = initialValue,
       onSaveSelection = { map -> onFacesSelectionClick(map) },
       getCount = { face -> face.weight },
