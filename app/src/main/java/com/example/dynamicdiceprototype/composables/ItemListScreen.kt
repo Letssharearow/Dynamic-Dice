@@ -42,7 +42,7 @@ fun <T> ItemListScreen(
     onSelect: (item: T) -> Unit,
     menuActions: List<MenuItem<T>>,
     getKey: (item: T) -> String,
-    onCreateItem: () -> Unit,
+    onCreateItem: (() -> Unit)?,
     modifier: Modifier = Modifier,
     preferenceView: PreferenceView = PreferenceView.Dice,
     view: @Composable (item: T, isCompact: Boolean, modifier: Modifier) -> Unit,
@@ -87,13 +87,13 @@ fun <T> ItemListScreen(
         }
       }
     }
-    CreateNewItemButton { onCreateItem() }
+    onCreateItem?.let { CreateNewItemButton { it() } }
   }
 }
 
 @Composable
 fun CreateNewItemButton(onClick: () -> Unit) {
-  Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+  Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
     ContinueButton(
         onClick = onClick, // TODO Better handling?
         text = "Create New +",

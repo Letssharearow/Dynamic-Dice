@@ -6,10 +6,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,9 +27,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.composables.common.PupMenuWithAlert
+import com.example.dynamicdiceprototype.composables.createdice.DiceCard
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.PreferenceView
 import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import com.example.dynamicdiceprototype.utils.MAIN_SCREEN_DICE_MIN_SIZE
@@ -37,6 +43,7 @@ fun DicesView(dices: List<Dice>, modifier: Modifier = Modifier) {
   val viewModel: DiceViewModel? = if (inPreviewMode) null else viewModel()
   OneScreenGrid<Dice>(dices, minSize = MAIN_SCREEN_DICE_MIN_SIZE, modifier) { dice, maxSize ->
     var showMenu by remember { mutableStateOf(false) }
+    var showAddDiceDialog by remember { mutableStateOf(false) }
 
     Box(
         contentAlignment = Alignment.Center,
@@ -58,15 +65,51 @@ fun DicesView(dices: List<Dice>, modifier: Modifier = Modifier) {
                         //                      MenuItem(text = "Lock", callBack =
                         // {viewModel.lockSingleDice(it)}),
                         MenuItem(
-                            text = "Duplicate", callBack = { viewModel?.duplicateCurrentDice(it) }),
-                        //                      MenuItem(text = "Add Dice", callBack =
-                        // {viewModel.addDiceToCurrentDices(it)}),
+                            text = "Duplicate",
+                            callBack = { viewModel?.duplicateToCurrentDices(it) }),
+                        MenuItem(text = "Add Dice", callBack = { showAddDiceDialog = true }),
                     ),
                 showMenu = showMenu,
                 onDismiss = { showMenu = false },
             )
           }
         }
+    ItemSelectionDialog(
+        showDialog = showAddDiceDialog,
+        itemList = viewModel?.currentDices ?: listOf(),
+        onDismiss = { showAddDiceDialog = false },
+        onItemSelected = {
+          viewModel?.duplicateToCurrentDices(it)
+          showAddDiceDialog = false
+        })
+  }
+}
+
+@Composable
+fun ItemSelectionDialog(
+    showDialog: Boolean,
+    itemList: List<Dice>,
+    onDismiss: () -> Unit,
+    onItemSelected: (Dice) -> Unit
+) {
+  if (showDialog) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Select an Item") },
+        text = {
+          ItemListScreen(
+              items = itemList,
+              onSelect = onItemSelected,
+              getKey = { it.name },
+              menuActions = listOf(),
+              preferenceView = PreferenceView.MainScreenAlertBox,
+              onCreateItem = null,
+          ) { item, isCompact, modifier ->
+            DiceCard(item, isCompact, modifier)
+          }
+        },
+        confirmButton = { Button(onClick = onDismiss) { Text("Close") } },
+        modifier = Modifier.fillMaxHeight(0.9f))
   }
 }
 

@@ -216,7 +216,7 @@ object DiceViewModel : ViewModel() {
 
   // Main Screen actions
 
-  fun duplicateCurrentDice(it: Dice) {
+  fun duplicateToCurrentDices(it: Dice) {
     val mutableCurrentDices = currentDices.toMutableList()
     mutableCurrentDices.add(getDiceWithUniqueName(it, currentDices.map { it.name }))
     currentDices = mutableCurrentDices

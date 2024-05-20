@@ -9,7 +9,8 @@ enum class Preferences {
 
 enum class PreferenceView {
   Dice,
-  Group
+  Group,
+  MainScreenAlertBox
 }
 
 object PreferencesService {
