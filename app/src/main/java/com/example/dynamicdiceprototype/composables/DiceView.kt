@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
@@ -51,7 +50,6 @@ fun DiceView(
     dice: Dice,
     size: Dp,
     modifier: Modifier = Modifier,
-    onDiceClick: (dice: Dice) -> Unit = {},
     showWeight: Boolean = false,
 ) {
   val spacing = size.div(10)
@@ -60,12 +58,11 @@ fun DiceView(
     Box(
         modifier =
             Modifier.graphicsLayer {
-                  rotationZ = dice.rotation
-                  val scale = 1 / 1.4f // rotating the button increases width and height
-                  scaleX = scale
-                  scaleY = scale
-                }
-                .clickable { onDiceClick(dice) }) {
+              rotationZ = dice.rotation
+              val scale = 1 / 1.4f // rotating the button increases width and height
+              scaleX = scale
+              scaleY = scale
+            }) {
           FaceView(
               face = dice.current,
               showWeight = showWeight,
@@ -148,7 +145,7 @@ private fun Preview() {
 
   DynamicDicePrototypeTheme {
     //    FaceView(face = Face(weight = 20), showWeight = true, spacing = 36.dp, color = Color.Cyan)
-    DiceView(dice = Dice(faces = getFaces(5)), onDiceClick = {}, size = 300.dp)
+    DiceView(dice = Dice(faces = getFaces(5)), size = 300.dp)
   }
 }
 

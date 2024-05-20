@@ -11,10 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -30,49 +26,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.common.ContinueButton
+import com.example.dynamicdiceprototype.composables.common.PupMenuWithAlert
 import com.example.dynamicdiceprototype.composables.createdice.DiceCard
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupItem
-import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.PreferenceView
 import com.example.dynamicdiceprototype.services.PreferencesService
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
-
-@Composable
-fun <T> PupMenuWithAlert(
-    actionItem: T,
-    items: List<MenuItem<T>>,
-    showMenu: Boolean,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-
-  var alertProps by remember { mutableStateOf<Pair<(T) -> Unit, AlterBoxProperties>?>(null) }
-
-  DropdownMenu(expanded = showMenu, onDismissRequest = { onDismiss() }, modifier = modifier) {
-    items.forEach { item ->
-      DropdownMenuItem(
-          text = { Text(text = item.text) },
-          onClick = {
-            onDismiss()
-            if (item.alert != null) {
-              alertProps = Pair(item.callBack, item.alert)
-            } else {
-              item.callBack(actionItem)
-            }
-          })
-    }
-  }
-  alertProps?.let {
-    AlertDialog(
-        onDismissRequest = { alertProps = null },
-        title = { Text(it.second.header) },
-        text = { Text(it.second.description) },
-        confirmButton = { Button(onClick = { it.first(actionItem) }) { Text("Confirm") } },
-        dismissButton = { Button(onClick = { alertProps = null }) { Text("Cancel") } })
-  }
-}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable

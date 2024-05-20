@@ -70,16 +70,8 @@ object DiceViewModel : ViewModel() {
 
   // create Dice Flow
 
-  private fun copyDice(name: String): Dice? {
-    val diceState = dices[name]
-    if (diceState != null) {
-      return getDiceWithUniqueName(diceState)
-    }
-    return null
-  }
-
-  private fun getDiceWithUniqueName(dice: Dice): Dice {
-    val diceName = generateUniqueName(dice.name, dices.keys.toList())
+  private fun getDiceWithUniqueName(dice: Dice, names: List<String>): Dice {
+    val diceName = generateUniqueName(dice.name, names)
     return dice.copy(name = diceName)
   }
 
@@ -142,10 +134,7 @@ object DiceViewModel : ViewModel() {
   }
 
   fun duplicateDice(it: Dice) {
-    val newDice =
-        copyDice(it.name)
-            ?: throw DiceNotFoundException(
-                "Dice with name ${it.name} couldn't be copied because no dice with this name exists")
+    val newDice = getDiceWithUniqueName(it, dices.keys.toList())
     addDice(newDice)
   }
 
@@ -226,6 +215,13 @@ object DiceViewModel : ViewModel() {
   // Dice Group end
 
   // Main Screen actions
+
+  fun duplicateCurrentDice(it: Dice) {
+    val mutableCurrentDices = currentDices.toMutableList()
+    mutableCurrentDices.add(getDiceWithUniqueName(it, currentDices.map { it.name }))
+    currentDices = mutableCurrentDices
+  }
+
   fun lockDice(dice: Dice) {
     currentDices =
         // use Map function to trigger recomposition
@@ -324,6 +320,7 @@ object DiceViewModel : ViewModel() {
           USER, UserDTO(dices = dices.map { it.key }, diceGroups = diceGroups))
     }
   }
+
   // Firebase Access end
 
 }
