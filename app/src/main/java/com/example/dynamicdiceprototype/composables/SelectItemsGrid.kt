@@ -52,6 +52,7 @@ fun <T> SelectItemsGrid(
   val selectedItems = remember {
     mutableStateMapOf<String, T>(*initialValue.map { Pair(it.key, it.value) }.toTypedArray())
   }
+  val sumOfSelection = selectedItems.values.sumOf { getCount(it) }
   ArrangedColumn {
     OneScreenGrid(items = selectables, minSize = 400f, modifier.weight(1f)) { item, maxWidthDp
       -> // TODO hardcoded minSize, maybe as parameter?
@@ -95,7 +96,8 @@ fun <T> SelectItemsGrid(
                             mutableSize =
                                 when {
                                   getCount(it) == mutableSize ->
-                                      (mutableSize * 2).coerceAtMost(maxSize)
+                                      (mutableSize * 2).coerceAtMost(
+                                          maxSize - (sumOfSelection - mutableSize))
                                   getCount(it) < initialSize -> initialSize
                                   else -> mutableSize
                                 }
@@ -114,7 +116,7 @@ fun <T> SelectItemsGrid(
     }
     ContinueButton(
         onClick = { onSaveSelection(selectedItems) },
-        text = "Save Selection  : (${selectedItems.values.sumOf {getCount(it)}} / $initialSize)")
+        text = "Save Selection  : ($sumOfSelection / $initialSize)")
   }
 }
 

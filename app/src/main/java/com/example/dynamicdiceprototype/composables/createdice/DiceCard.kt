@@ -32,9 +32,10 @@ import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.FaceView
 import com.example.dynamicdiceprototype.composables.NumberCircle
 import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.getDices
-import com.example.dynamicdiceprototype.services.getFaces
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import com.example.dynamicdiceprototype.utils.MAX_FACES_IN_DICE_PREV
 
 @Composable
 fun DiceCard(dice: Dice, isCompact: Boolean, modifier: Modifier = Modifier) {
@@ -97,8 +98,18 @@ fun DicePreview(dice: Dice, facesSum: Int, modifier: Modifier = Modifier) {
           .aspectRatio(1f)
           .border(BorderStroke(2.dp, Color.Gray), RoundedCornerShape(16.dp))
           .clip(RoundedCornerShape(16.dp))) {
+        var items =
+            dice.faces.flatMap { face ->
+              val list = mutableListOf<Face>()
+              repeat(face.weight) { list.add(face) }
+              list
+            }
+        items =
+            items.let {
+              if (it.size >= MAX_FACES_IN_DICE_PREV) it.subList(0, MAX_FACES_IN_DICE_PREV) else it
+            }
         OneScreenGrid(
-            items = dice.faces.let { if (it.size >= 10) it.subList(0, 10) else it },
+            items = items,
             minSize = 10f,
         ) { face, maxWidthDp ->
           Box(contentAlignment = Alignment.Center, modifier = Modifier.size(maxWidthDp)) {
@@ -143,7 +154,15 @@ class previewProvider : PreviewParameterProvider<Int> {
 @Composable
 fun DiceCardPeview(@PreviewParameter(previewProvider::class) facesCount: Int) {
   DynamicDicePrototypeTheme {
-    DiceCard(getDices(1).first().copy(faces = getFaces(facesCount)), false)
+    DiceCard(
+        getDices(1)
+            .first()
+            .copy(
+                faces =
+                    listOf(
+                        Face(contentDescription = "1", weight = 1),
+                        Face(contentDescription = "11", weight = 3))),
+        false)
   }
 }
 
