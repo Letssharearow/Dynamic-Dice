@@ -3,6 +3,7 @@ package com.example.dynamicdiceprototype.composables.wrapper
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -27,6 +28,7 @@ import com.example.dynamicdiceprototype.services.TAG
 fun NavGraph(navController: NavHostController) {
   val preferencesService: PreferencesService = PreferencesService
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
+  val headerViewModel: HeaderViewModel = viewModel<HeaderViewModel>()
   val context = LocalContext.current
   viewModel.lastDiceGroup = preferencesService.loadLastBundle(context)
   if (viewModel.getErrorMessage() != null) {
@@ -44,16 +46,18 @@ fun NavGraph(navController: NavHostController) {
   NavHost(navController, startDestination = Screen.MainScreen.route) {
     composable(route = Screen.TestScreen.route) { TestScreen() }
     composable(route = Screen.MainScreen.route) {
-      val headerViewModel = viewModel<HeaderViewModel>()
-      PreferencesService.saveLastBundle(context = context, viewModel.lastDiceGroup)
-      headerViewModel.changeHeaderText(viewModel.lastDiceGroup)
+      remember {
+        PreferencesService.saveLastBundle(context = context, viewModel.lastDiceGroup)
+        headerViewModel.changeHeaderText(viewModel.lastDiceGroup)
+        true
+      }
       LandingPage(
           dices = viewModel.currentDices,
           name = viewModel.lastDiceGroup,
           isLoading = viewModel.collectFlows <= 1,
           onRollClicked = { viewModel.rollDices() })
     }
-    diceGraph(viewModel, navController)
+    diceGraph(viewModel, navController, headerViewModel)
     composable(route = Screen.UploadImage.route) {
       UploadImageScreen(context) { bitmap, name -> viewModel.uploadImage(bitmap, name) }
     }
@@ -64,6 +68,7 @@ fun NavGraph(navController: NavHostController) {
             try {
               viewModel.selectDiceGroup(groupId)
               navController.navigate(Screen.MainScreen.route)
+              headerViewModel.changeHeaderText(groupId)
             } catch (e: NullPointerException) {
               Log.e(TAG, "One Dice is probably not found in the global dices ${e.message}")
             }
@@ -76,6 +81,7 @@ fun NavGraph(navController: NavHostController) {
                         try {
                           viewModel.editGroup(it)
                           navController.navigate(Screen.CreateDiceGroup.route)
+                          headerViewModel.changeHeaderText(it)
                         } catch (e: DiceNotFoundException) {
                           e.printStackTrace()
                           Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
@@ -97,6 +103,7 @@ fun NavGraph(navController: NavHostController) {
           onCreateNewGroup = {
             viewModel.createNewGroup()
             navController.navigate(Screen.CreateDiceGroup.route)
+            headerViewModel.changeHeaderText("Create New Group")
           })
     }
     composable(route = Screen.CreateDiceGroup.route) {

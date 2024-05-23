@@ -2,6 +2,7 @@ package com.example.dynamicdiceprototype.composables.createdice
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.dynamicdiceprototype.composables.FaceView
@@ -15,6 +16,7 @@ fun SelectFacesScreen(
     faces: List<Face>,
     initialValue: Map<String, Face>,
     size: Int,
+    color: Color = Color.Gray,
     onFacesSelectionClick: (Map<String, Face>) -> Unit
 ) {
   SelectItemsGrid<Face>(
@@ -26,7 +28,11 @@ fun SelectFacesScreen(
       getCount = { face -> face.weight },
       copy = { face, count -> face.copy(weight = count) },
       getId = { face -> face.contentDescription }) { face, modifier, maxWidthDp ->
-        FaceView(face = face, spacing = maxWidthDp.div(10), modifier = modifier.fillMaxSize())
+        FaceView(
+            face = face,
+            spacing = maxWidthDp.div(10),
+            modifier = modifier.fillMaxSize(),
+            color = color)
       }
 }
 

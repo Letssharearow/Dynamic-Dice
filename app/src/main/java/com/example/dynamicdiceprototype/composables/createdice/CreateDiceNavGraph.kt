@@ -14,8 +14,13 @@ import com.example.dynamicdiceprototype.composables.common.AlertBox
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.HeaderViewModel
 
-fun NavGraphBuilder.diceGraph(diceViewModel: DiceViewModel, navController: NavHostController) {
+fun NavGraphBuilder.diceGraph(
+    diceViewModel: DiceViewModel,
+    navController: NavHostController,
+    headerViewModel: HeaderViewModel
+) {
   val test = ""
   navigation(route = DicesScreen.Dices.route, startDestination = DicesScreen.DicesList.route) {
     composable(route = DicesScreen.DicesList.route) {
@@ -24,10 +29,12 @@ fun NavGraphBuilder.diceGraph(diceViewModel: DiceViewModel, navController: NavHo
           onSelectTemplate = {
             diceViewModel.selectDice(it)
             navController.navigate(Screen.MainScreen.route)
+            headerViewModel.changeHeaderText(it.name)
           },
           onCreateNewDice = {
             diceViewModel.createNewDice()
             navController.navigate(DicesScreen.SelectFaces.route)
+            headerViewModel.changeHeaderText("Select faces of Dice")
           },
           menuActions =
               listOf(
@@ -68,12 +75,14 @@ fun NavGraphBuilder.diceGraph(diceViewModel: DiceViewModel, navController: NavHo
       SelectFacesScreen(
           faces = diceViewModel.imageMap.values.toList(),
           size = diceViewModel.facesSize,
+          color = diceViewModel.diceInEdit.backgroundColor,
           initialValue =
               diceViewModel.diceInEdit.faces.associateBy {
                 it.contentDescription
               }) { // TODO Consider using same datatype (map probably) for everything)
             navController.navigate(DicesScreen.EditDice.route)
             diceViewModel.setSelectedFaces(it.values)
+            headerViewModel.changeHeaderText("Make Final changes")
           }
     }
     composable(route = DicesScreen.EditDice.route) {
