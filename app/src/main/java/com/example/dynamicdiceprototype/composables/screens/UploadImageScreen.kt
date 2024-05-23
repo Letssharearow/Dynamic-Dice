@@ -23,11 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.composables.SingleLineInput
+import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import java.io.InputStream
 
 @Composable
-fun UploadImageScreen(context: Context, onImageSelected: (Bitmap, String) -> Unit) {
+fun UploadImageScreen(context: Context, onImageSelected: (ImageDTO) -> Unit) {
   var imageName by remember { mutableStateOf("Proof of Concept") }
   var bitmap by remember { mutableStateOf<Bitmap?>(null) }
   val imagePickerLauncher =
@@ -60,7 +62,12 @@ fun UploadImageScreen(context: Context, onImageSelected: (Bitmap, String) -> Uni
         Button(
             onClick = {
               if (imageName.isNotEmpty()) {
-                bitmap?.let { onImageSelected(it, imageName) }
+                bitmap?.let {
+                  onImageSelected(
+                      ImageDTO(
+                          contentDescription = imageName,
+                          base64String = FirebaseDataStore.bitmapToBase64(it)))
+                }
               }
             },
             Modifier.padding(vertical = 8.dp)) {

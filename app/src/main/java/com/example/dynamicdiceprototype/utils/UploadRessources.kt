@@ -5,14 +5,15 @@ import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.example.dynamicdiceprototype.DTO.DiceDTO
-import com.example.dynamicdiceprototype.DTO.ImageSetDTO
+import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.DTO.UserDTO
+import com.example.dynamicdiceprototype.ImageCreator
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.USER
 
 fun uploadImages(res: Resources) {
-  val firbase = FirebaseDataStore()
+  val firebase = FirebaseDataStore()
   data class ImageModelSetDTO(val image: Int, val name: String)
   val images =
       arrayOf<ImageModelSetDTO>(
@@ -34,7 +35,42 @@ fun uploadImages(res: Resources) {
       )
   images.forEach {
     var bitmap = BitmapFactory.decodeResource(res, it.image)
-    firbase.uploadBitmap("${it.image}", ImageSetDTO(contentDescription = it.name, image = bitmap))
+    firebase.uploadImageDTO(
+        ImageDTO(
+            contentDescription = it.name, base64String = FirebaseDataStore.bitmapToBase64(bitmap)))
+  }
+
+  val imageCreator = ImageCreator()
+
+  // Assuming you have a list of colors
+  val colors =
+      listOf(
+          Pair(Color.Red, "red"),
+          Pair(Color(0xFFFF7F00), "orange"), // Orange
+          Pair(Color.Yellow, "yellow"),
+          Pair(Color.Green, "green"),
+          Pair(Color.Blue, "blue"),
+          Pair(Color(0xFF4B0082), "indigo"), // Indigo
+          Pair(Color(0xFF8B00FF), "violet"), // Violet
+          // Additional colors
+          Pair(Color(0xFFFFC0CB), "pink"), // Pink
+          Pair(Color(0xFFFFD700), "gold"), // Gold
+          Pair(Color.Cyan, "cyan"),
+          Pair(Color(0xFFFFA500), "light orange"), // Light Orange
+          Pair(Color(0xFF800080), "purple"), // Purple
+          Pair(Color.Magenta, "magenta"),
+          Pair(Color(0xFFC0C0C0), "silver"), // Silver
+          Pair(Color.Gray, "gray"),
+          Pair(Color.Black, "black"),
+          Pair(Color.White, "white"))
+
+  for (color in colors) {
+    val namedColor = color.second
+    val bitmap = imageCreator.getBitmap(400, color.first.toArgb())
+    firebase.uploadImageDTO(
+        ImageDTO(
+            contentDescription = namedColor,
+            base64String = FirebaseDataStore.bitmapToBase64(bitmap)))
   }
 }
 

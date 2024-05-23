@@ -1,15 +1,13 @@
 package com.example.dynamicdiceprototype.services
 
-import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dynamicdiceprototype.DTO.ImageSetDTO
+import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.DTO.toDice
 import com.example.dynamicdiceprototype.Exceptions.DiceGroupNotFoundException
@@ -28,7 +26,7 @@ import kotlinx.coroutines.launch
 object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
-  var imageMap by mutableStateOf(mutableMapOf<String, Face>()) // TODO fix warning
+  var imageMap by mutableStateOf(mutableMapOf<String, ImageDTO>()) // TODO fix warning
   var collectFlows by mutableStateOf(0)
 
   // create Dice
@@ -103,6 +101,7 @@ object DiceViewModel : ViewModel() {
         diceInEdit) // TODO consider using events to set and update local data instead of doing it
     // locally and with firebase to avoid data inconsistencies
   }
+
   // end create dice
 
   // Dice Menu Actions
@@ -165,6 +164,7 @@ object DiceViewModel : ViewModel() {
     val uniqueName = generateUniqueName(newName, diceGroups.keys.toList())
     return Pair(uniqueName, state)
   }
+
   // create Dice Group end
   // group Menu Actions
   fun removeGroup(it: String) {
@@ -198,6 +198,7 @@ object DiceViewModel : ViewModel() {
     val newDiceGroup = copyDiceGroup(gorupId)
     diceGroups[newDiceGroup.first] = newDiceGroup.second
   }
+
   // group Menu Actions end
   fun selectDiceGroup(groupId: String) {
     lastDiceGroup = groupId
@@ -212,6 +213,7 @@ object DiceViewModel : ViewModel() {
     }
     currentDices = newDicesState
   }
+
   // Dice Group end
 
   // Main Screen actions
@@ -306,12 +308,9 @@ object DiceViewModel : ViewModel() {
     }
   }
 
-  fun uploadImage(bitmap: Bitmap, name: String) {
-    imageMap[name] =
-        Face(
-            contentDescription = name,
-            data = bitmap.asImageBitmap()) // TODO make sure upload was successful
-    firebase.uploadBitmap(name, ImageSetDTO(image = bitmap, contentDescription = name))
+  fun uploadImage(imageDTO: ImageDTO) {
+    imageMap[imageDTO.contentDescription] = imageDTO // TODO make sure upload was successful
+    firebase.uploadImageDTO(imageDTO)
   }
 
   fun saveUser() {

@@ -12,8 +12,10 @@ import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.Screen
 import com.example.dynamicdiceprototype.composables.common.AlertBox
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
+import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 
 fun NavGraphBuilder.diceGraph(
@@ -73,7 +75,12 @@ fun NavGraphBuilder.diceGraph(
         diceViewModel.loadAllImages()
       }
       SelectFacesScreen(
-          faces = diceViewModel.imageMap.values.toList(),
+          faces =
+              diceViewModel.imageMap.values.toList().map {
+                Face(
+                    data = FirebaseDataStore.base64ToBitmap(it.base64String),
+                    contentDescription = it.contentDescription)
+              },
           size = diceViewModel.facesSize,
           color = diceViewModel.diceInEdit.backgroundColor,
           initialValue =

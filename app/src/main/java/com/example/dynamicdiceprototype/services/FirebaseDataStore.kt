@@ -9,9 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.example.dynamicdiceprototype.DTO.DiceDTO
-import com.example.dynamicdiceprototype.DTO.ImageSetDTO
+import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.DTO.UserDTO
-import com.example.dynamicdiceprototype.data.Face
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.firestore
@@ -51,8 +50,8 @@ class FirebaseDataStore {
     //    GlobalScope.launch { loadAllDices() }
   }
 
-  suspend fun loadAllImages(): MutableMap<String, Face> {
-    val map = mutableMapOf<String, Face>()
+  suspend fun loadAllImages(): MutableMap<String, ImageDTO> {
+    val map = mutableMapOf<String, ImageDTO>()
     val collectionRef = db.collection(IMAGE_COLLECTION_NAME)
     val documents =
         collectionRef
@@ -65,11 +64,12 @@ class FirebaseDataStore {
             .await()
     for (document in documents) {
       val documentId = document.id
-      val documentData = document.data
-      Log.d(TAG, "Firebase fetching data: $documentId => $documentData")
-      val base64String = documentData[ImageProperty.IMAGE_BITMAP.name] as? String ?: continue
-      val name = documentData[ImageProperty.CONTENT_DESCRIPTION.name] as? String ?: continue
-      map[documentId] = Face(data = base64ToBitmap(base64String), contentDescription = name)
+      val imageDTO = document.toObject<ImageDTO>()
+      if (imageDTO != null) {
+        map[documentId] = imageDTO
+      } else {
+        Log.e(TAG, "Failed to convert document $documentId to ImageDTO")
+      }
     }
     Log.d(TAG, "Firebase all data fetched (keys): ${map.keys}")
     return map
@@ -97,13 +97,8 @@ class FirebaseDataStore {
     }
   }
 
-  fun uploadBitmap(key: String, image: ImageSetDTO) {
-    val dataMap =
-        hashMapOf(
-            ImageProperty.IMAGE_BITMAP.name to bitmapToBase64(image.image),
-            ImageProperty.CONTENT_DESCRIPTION.name to image.contentDescription)
-
-    setDocument(image.contentDescription, dataMap, IMAGE_COLLECTION_NAME)
+  fun uploadImageDTO(image: ImageDTO) {
+    setDocument(image.contentDescription, image, IMAGE_COLLECTION_NAME)
   }
 
   fun uploadDice(key: String, dice: DiceDTO) {

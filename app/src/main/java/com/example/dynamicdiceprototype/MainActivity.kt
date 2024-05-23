@@ -1,6 +1,5 @@
 package com.example.dynamicdiceprototype
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,17 +21,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.dynamicdiceprototype.DTO.ImageSetDTO
 import com.example.dynamicdiceprototype.composables.wrapper.Menu
-import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import com.example.dynamicdiceprototype.utils.uploadImages
@@ -58,49 +52,15 @@ class MainActivity : ComponentActivity() {
   }
 }
 
-fun uploadColors(context: Context) {
-  val firebase = FirebaseDataStore()
-  val imageCreator = ImageCreator()
-
-  // Assuming you have a list of colors
-  val colors =
-      listOf(
-          Pair(Color.Red, "red"),
-          Pair(Color(0xFFFF7F00), "orange"), // Orange
-          Pair(Color.Yellow, "yellow"),
-          Pair(Color.Green, "green"),
-          Pair(Color.Blue, "blue"),
-          Pair(Color(0xFF4B0082), "indigo"), // Indigo
-          Pair(Color(0xFF8B00FF), "violet"), // Violet
-          // Additional colors
-          Pair(Color(0xFFFFC0CB), "pink"), // Pink
-          Pair(Color(0xFFFFD700), "gold"), // Gold
-          Pair(Color.Cyan, "cyan"),
-          Pair(Color(0xFFFFA500), "light orange"), // Light Orange
-          Pair(Color(0xFF800080), "purple"), // Purple
-          Pair(Color.Magenta, "magenta"),
-          Pair(Color(0xFFC0C0C0), "silver"), // Silver
-          Pair(Color.Gray, "gray"),
-          Pair(Color.Black, "black"),
-          Pair(Color.White, "white"))
-
-  for (color in colors) {
-    val namedColor = color.second
-    val bitmap = imageCreator.getBitmap(400, color.first.toArgb())
-    firebase.uploadBitmap(
-        "${color.first.toArgb()}", ImageSetDTO(contentDescription = namedColor, image = bitmap))
-  }
-}
-
 @Composable
 fun MyApp() {
-  uploadColors(LocalContext.current)
   val scope = rememberCoroutineScope()
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   Column {
     AppBar({
       scope.launch { drawerState.apply { if (isClosed) open() else close() } }
-    }) { /* TODO Handle profile picture button click */}
+    }) { /* TODO Handle profile picture button click */
+    }
     Menu(drawerState = drawerState, scope = scope)
   }
 }
@@ -149,6 +109,6 @@ fun AppBar(onMenuClicked: () -> Unit, onProfileClicked: () -> Unit) {
 @Composable
 fun AppBarPreview() {
   DynamicDicePrototypeTheme {
-    AppBar({ /* Handle navigation icon click */}) { /* Handle profile picture button click */}
+    AppBar({ /* Handle navigation icon click */ }) { /* Handle profile picture button click */ }
   }
 }
