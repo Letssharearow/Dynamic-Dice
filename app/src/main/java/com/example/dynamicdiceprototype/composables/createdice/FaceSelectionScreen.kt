@@ -24,6 +24,7 @@ fun SelectFacesScreen(
       initialSize = size,
       initialValue = initialValue,
       maxSize = 500,
+      isFilterable = true,
       onSaveSelection = { map -> onFacesSelectionClick(map) },
       getCount = { face -> face.weight },
       copy = { face, count -> face.copy(weight = count) },

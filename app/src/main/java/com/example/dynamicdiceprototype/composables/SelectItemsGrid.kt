@@ -14,10 +14,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,16 +48,41 @@ fun <T> SelectItemsGrid(
     initialSize: Int = 10,
     maxSize: Int = 100,
     initialValue: Map<String, T> = mapOf(),
+    isFilterable: Boolean = false,
     view: @Composable (item: T, modifier: Modifier, size: Dp) -> Unit,
 ) {
+
+  var selectablesFiltered by remember { mutableStateOf(selectables) }
 
   val selectedItems = remember {
     mutableStateMapOf<String, T>(*initialValue.map { Pair(it.key, it.value) }.toTypedArray())
   }
+  var filter by remember { mutableStateOf("") }
   val sumOfSelection = selectedItems.values.sumOf { getCount(it) }
-  ArrangedColumn {
-    OneScreenGrid(items = selectables, minSize = 400f, modifier.weight(1f)) { item, maxWidthDp
-      -> // TODO hardcoded minSize, maybe as parameter?
+
+  LaunchedEffect(selectables, filter) {
+    selectablesFiltered =
+        selectables.filter { item ->
+          filter.isEmpty() || getId(item).contains(filter, ignoreCase = true)
+        }
+  }
+
+  ArrangedColumn(modifier = Modifier.padding(4.dp)) {
+    if (isFilterable) {
+      SingleLineInput(
+          text = filter,
+          onValueChange = { value ->
+            filter = value
+            selectablesFiltered =
+                selectables.filter { item ->
+                  filter.isEmpty() || getId(item).contains(filter, ignoreCase = true)
+                }
+          },
+          label = "Filter")
+    }
+    OneScreenGrid(items = selectablesFiltered, minSize = 400f, modifier.weight(1f)) {
+        item,
+        maxWidthDp -> // TODO hardcoded minSize, maybe as parameter?
       var mutableSize by remember { mutableIntStateOf(initialSize) }
       Box(
           contentAlignment = Alignment.Center,
