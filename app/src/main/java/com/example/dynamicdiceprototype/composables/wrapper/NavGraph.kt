@@ -59,7 +59,10 @@ fun NavGraph(navController: NavHostController) {
     }
     diceGraph(viewModel, navController, headerViewModel)
     composable(route = Screen.UploadImage.route) {
-      UploadImageScreen(context) { image -> viewModel.uploadImage(image) }
+      UploadImageScreen(context) { image ->
+        viewModel.uploadImage(image)
+        Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
+      }
     }
     composable(route = Screen.DiceGroups.route) {
       DiceGroupsScreen(
@@ -84,7 +87,8 @@ fun NavGraph(navController: NavHostController) {
                           headerViewModel.changeHeaderText(it)
                         } catch (e: DiceNotFoundException) {
                           e.printStackTrace()
-                          Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+                          Toast.makeText(context, e.message, Toast.LENGTH_LONG)
+                              .show() // TODO actually wait for Firebase success
                         }
                       },
                   ),
