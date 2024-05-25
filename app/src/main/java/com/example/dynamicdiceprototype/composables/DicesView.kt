@@ -76,7 +76,7 @@ fun DicesView(dices: List<Dice>, modifier: Modifier = Modifier) {
         }
     ItemSelectionDialog(
         showDialog = showAddDiceDialog,
-        itemList = viewModel?.currentDices ?: listOf(),
+        selectables = viewModel?.dices?.values?.toList() ?: listOf(),
         onDismiss = { showAddDiceDialog = false },
         onItemSelected = {
           viewModel?.duplicateToCurrentDices(it)
@@ -88,7 +88,7 @@ fun DicesView(dices: List<Dice>, modifier: Modifier = Modifier) {
 @Composable
 fun ItemSelectionDialog(
     showDialog: Boolean,
-    itemList: List<Dice>,
+    selectables: List<Dice>,
     onDismiss: () -> Unit,
     onItemSelected: (Dice) -> Unit
 ) {
@@ -98,7 +98,7 @@ fun ItemSelectionDialog(
         title = { Text(text = "Select an Item") },
         text = {
           ItemListScreen(
-              items = itemList,
+              items = selectables,
               onSelect = onItemSelected,
               getKey = { it.name },
               menuActions = listOf(),
