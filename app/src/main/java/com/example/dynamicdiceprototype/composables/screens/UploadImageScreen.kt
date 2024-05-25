@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -78,9 +79,16 @@ fun UploadImageScreen(context: Context, onImageSelected: (ImageDTO) -> Unit) {
             Image(
                 bitmap = it.asImageBitmap(),
                 contentDescription = imageName,
-                Modifier.clickable { imagePickerLauncher.launch("image/*") })
+                modifier =
+                    Modifier.size(200.dp) // Set the size of the image
+                        .clickable {
+                          imagePickerLauncher.launch("image/*")
+                        } // Launch image picker on click
+                        .padding(16.dp) // Optional padding for better appearance
+                )
           } ?: Button(onClick = { imagePickerLauncher.launch("image/*") }) { Text("+") }
         }
+
         Button(
             onClick = {
               if (imageName.isNotEmpty() && bitmap != null) {
