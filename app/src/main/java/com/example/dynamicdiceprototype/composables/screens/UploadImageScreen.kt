@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.DTO.ImageDTO
@@ -32,6 +33,10 @@ import java.io.InputStream
 fun UploadImageScreen(context: Context, onImageSelected: (ImageDTO) -> Unit) {
   var imageName by remember { mutableStateOf("Proof of Concept") }
   var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+  var tags by remember { mutableStateOf(listOf<String>()) }
+  var newTag by remember { mutableStateOf("") }
+  var uploadSuccess by remember { mutableStateOf(false) }
+
   val imagePickerLauncher =
       rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
@@ -39,6 +44,7 @@ fun UploadImageScreen(context: Context, onImageSelected: (ImageDTO) -> Unit) {
           val originalBitmap = BitmapFactory.decodeStream(inputStream)
           val reducedBitmap = reduceImageSize(originalBitmap, 200, 200)
           bitmap = reducedBitmap
+          uploadSuccess = false // Reset upload success on new image selection
         }
       }
 
@@ -51,6 +57,22 @@ fun UploadImageScreen(context: Context, onImageSelected: (ImageDTO) -> Unit) {
             onValueChange = { imageName = it },
             label = "Image Name",
             Modifier.padding(8.dp))
+        SingleLineInput(
+            text = newTag,
+            onValueChange = { newTag = it },
+            label = "New Tag",
+            Modifier.padding(8.dp))
+        Button(
+            onClick = {
+              if (tags.size < 3) {
+                tags = tags + newTag
+                newTag = ""
+              }
+            },
+            Modifier.padding(vertical = 8.dp)) {
+              Text("Add Tag")
+            }
+        Text("Tags: ${tags.joinToString(", ")}")
         Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)) {
           bitmap?.let {
             Image(
@@ -61,19 +83,21 @@ fun UploadImageScreen(context: Context, onImageSelected: (ImageDTO) -> Unit) {
         }
         Button(
             onClick = {
-              if (imageName.isNotEmpty()) {
-                bitmap?.let {
-                  onImageSelected(
-                      ImageDTO(
-                          contentDescription = imageName,
-                          base64String = FirebaseDataStore.bitmapToBase64(it),
-                          tags = listOf()))
-                }
+              if (imageName.isNotEmpty() && bitmap != null) {
+                onImageSelected(
+                    ImageDTO(
+                        contentDescription = imageName,
+                        base64String = FirebaseDataStore.bitmapToBase64(bitmap!!),
+                        tags = tags))
+                uploadSuccess = true
               }
             },
             Modifier.padding(vertical = 8.dp)) {
               Text("Upload Image")
             }
+        if (uploadSuccess) {
+          Text("Image uploaded successfully!", color = Color.Green)
+        }
       }
 }
 
