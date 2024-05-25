@@ -148,9 +148,9 @@ class FirebaseDataStore {
     }
   }
 
-  suspend fun getImageFromId(imageId: String): ImageBitmap? {
+  suspend fun getImageFromId(imageId: String): ImageDTO? {
     return fetchDocumentData(IMAGE_COLLECTION_NAME, imageId) { documentSnapshot ->
-      (documentSnapshot[ImageProperty.IMAGE_BITMAP.name] as? String)?.let { base64ToBitmap(it) }
+      documentSnapshot.toObject<ImageDTO>()
     }
   }
 

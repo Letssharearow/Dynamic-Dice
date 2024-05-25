@@ -66,7 +66,8 @@ fun UploadImageScreen(context: Context, onImageSelected: (ImageDTO) -> Unit) {
                   onImageSelected(
                       ImageDTO(
                           contentDescription = imageName,
-                          base64String = FirebaseDataStore.bitmapToBase64(it)))
+                          base64String = FirebaseDataStore.bitmapToBase64(it),
+                          tags = listOf()))
                 }
               }
             },

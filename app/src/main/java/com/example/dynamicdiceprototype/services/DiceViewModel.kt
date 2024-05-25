@@ -287,15 +287,17 @@ object DiceViewModel : ViewModel() {
   }
 
   private suspend fun loadImage(diceId: String, imageId: String) {
-    val bitmap = firebase.getImageFromId(imageId)
-    bitmap?.let { bitmapNotNull ->
+    val image = firebase.getImageFromId(imageId)
+    image?.let { imageNotNull ->
+      val bitmap = FirebaseDataStore.base64ToBitmap(imageNotNull.base64String)
       val diceToUpdate = dices[diceId]
       diceToUpdate?.let { dice ->
         dices[diceId] =
             dice.copy(
                 faces =
                     dice.faces.map {
-                      if (it.contentDescription == imageId) it.copy(data = bitmapNotNull) else it
+                      if (it.contentDescription == image.contentDescription) it.copy(data = bitmap)
+                      else it
                     })
       }
     }

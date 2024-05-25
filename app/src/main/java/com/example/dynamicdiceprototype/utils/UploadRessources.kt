@@ -32,6 +32,12 @@ fun uploadImages(res: Resources) {
           ImageModelSetDTO(image = R.drawable.four_transparent, name = "four_transparent"),
           ImageModelSetDTO(image = R.drawable.five_transparent, name = "five_transparent"),
           ImageModelSetDTO(image = R.drawable.six_transparent, name = "six_transparent"),
+          ImageModelSetDTO(image = R.drawable.wizard_blue, name = "wizard blue"),
+          ImageModelSetDTO(image = R.drawable.wizard_green, name = "wizard green"),
+          ImageModelSetDTO(image = R.drawable.wizard_red, name = "wizard red"),
+          ImageModelSetDTO(image = R.drawable.wizard_yellow, name = "wizard yellow"),
+          ImageModelSetDTO(image = R.drawable.wizard_narr, name = "wizard narr"),
+          ImageModelSetDTO(image = R.drawable.wizard_wizard, name = "wizard wizard"),
       )
   images.forEach {
     var bitmap = BitmapFactory.decodeResource(res, it.image)
