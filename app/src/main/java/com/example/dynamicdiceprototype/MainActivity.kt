@@ -29,7 +29,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.composables.wrapper.Menu
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
-import com.example.dynamicdiceprototype.utils.uploadImages
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -38,7 +37,7 @@ class MainActivity : ComponentActivity() {
     val res = resources
     //    uploadUser()
     //    uploadDices()
-    uploadImages(res)
+    //    uploadImages(res)
     //    val firebase = FirebaseDataStore()
 
     setContent {
