@@ -13,6 +13,7 @@ fun SingleLineInput(
     label: String,
     modifier: Modifier = Modifier,
     isReadOnly: Boolean = false,
+    isError: Boolean = false,
 ) {
   OutlinedTextField(
       value = text,
@@ -21,5 +22,6 @@ fun SingleLineInput(
       singleLine = true,
       readOnly = isReadOnly,
       modifier = modifier.fillMaxWidth(),
+      isError = isError,
   )
 }
