@@ -61,8 +61,8 @@ fun NavGraph(navController: NavHostController) {
     }
     diceGraph(viewModel, navController, headerViewModel)
     composable(route = Screen.UploadImage.route) {
-      UploadImageScreen(context) { image ->
-        viewModel.uploadImage(image)
+      UploadImageScreen(context) { images ->
+        viewModel.uploadImages(images)
         Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
       }
     }

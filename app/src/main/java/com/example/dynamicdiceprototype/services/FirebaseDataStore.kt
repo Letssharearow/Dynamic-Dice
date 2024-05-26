@@ -101,6 +101,12 @@ class FirebaseDataStore {
     setDocument(image.contentDescription, image, IMAGE_COLLECTION_NAME)
   }
 
+  fun uploadImageDTOs(images: List<ImageDTO>) {
+    for (image in images) {
+      uploadImageDTO(image = image)
+    }
+  }
+
   fun uploadDice(key: String, dice: DiceDTO) {
     setDocument(key, dice, DICES_COLLECTION_NAME)
   }

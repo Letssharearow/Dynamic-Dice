@@ -325,6 +325,13 @@ object DiceViewModel : ViewModel() {
     firebase.uploadImageDTO(imageDTO)
   }
 
+  fun uploadImages(images: List<ImageDTO>) {
+    val newImageMap = imageMap.toMutableMap()
+    images.forEach { newImageMap[it.contentDescription] = it }
+    imageMap = newImageMap
+    firebase.uploadImageDTOs(images)
+  }
+
   fun saveUser() {
     if (!userConfigIsNull && dices.isNotEmpty()) {
       firebase.uploadUserConfig(

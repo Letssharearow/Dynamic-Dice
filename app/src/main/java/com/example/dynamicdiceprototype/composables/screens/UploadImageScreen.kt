@@ -5,20 +5,20 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.OpenableColumns
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -36,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -48,61 +47,76 @@ import java.io.InputStream
 @Composable
 fun UploadImageScreen(
     context: Context,
-    onImageSelected: (ImageDTO) -> Unit,
+    onImagesSelected: (List<ImageDTO>) -> Unit = {}, // TODO add toast
 ) {
-  val (imageName, setImageName) = remember { mutableStateOf("") }
-  val (bitmap, setBitmap) = remember { mutableStateOf<Bitmap?>(null) }
-  val (tags, setTags) = remember { mutableStateOf(listOf<String>()) }
+  val (images, setImages) = remember { mutableStateOf<List<Pair<String, Bitmap>>>(emptyList()) }
+  val (commonTags, setCommonTags) = remember { mutableStateOf(listOf<String>()) }
   val (newTag, setNewTag) = remember { mutableStateOf("") }
 
   val imagePickerLauncher =
-      rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
-        uri?.let {
-          val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-          val originalBitmap = BitmapFactory.decodeStream(inputStream)
-          val reducedBitmap = reduceImageSize(originalBitmap, 200, 200)
-          setBitmap(reducedBitmap)
-          val fileNameFromUri = getFileNameFromUri(context, uri)
-          setImageName(fileNameFromUri.substringBeforeLast("."))
-        }
+      rememberLauncherForActivityResult(contract = ActivityResultContracts.GetMultipleContents()) {
+          uris ->
+        val selectedImages =
+            uris.mapNotNull { uri ->
+              val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+              val originalBitmap = BitmapFactory.decodeStream(inputStream)
+              val reducedBitmap = reduceImageSize(originalBitmap, 200, 200)
+              val fileName = getFileNameFromUri(context, uri).substringBeforeLast(".")
+              if (fileName.isNotEmpty()) {
+                fileName to reducedBitmap
+              } else {
+                null
+              }
+            } ?: emptyList()
+        setImages(selectedImages)
       }
 
   Column(
       verticalArrangement = Arrangement.Center,
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier.fillMaxSize()) {
-        if (bitmap != null) {
-          ImageNameInput(imageName, setImageName)
-          if (imageName.isNotEmpty()) {
-            TagInput(newTag, setNewTag, tags, setTags)
-          }
-          Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-            Image(
-                bitmap = bitmap.asImageBitmap(),
-                contentDescription = null,
-                modifier =
-                    Modifier.size(200.dp)
-                        .clickable { imagePickerLauncher.launch("image/*") }
-                        .padding(16.dp))
-            DisplayTags(tags, setTags)
-          }
-          UploadButton(
-              imageName,
-              bitmap,
-              tags,
-              onImageSelected,
-              {
-                setBitmap(null) // Reset the bitmap to null after successful upload
-                setImageName("") // Clear the image name
-                setTags(emptyList()) // Clear the tags
+        if (images.isNotEmpty()) {
+          TagInput(newTag, setNewTag, commonTags, setCommonTags)
+          DisplayTags(commonTags, setCommonTags)
+          LazyColumn(
+              modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                items(images) { (fileName, bitmap) ->
+                  Column(
+                      modifier =
+                          Modifier.padding(16.dp)
+                              .background(
+                                  MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                              .padding(16.dp)) {
+                        Text(fileName, style = MaterialTheme.typography.bodyLarge)
+                        Image(
+                            bitmap = bitmap.asImageBitmap(),
+                            contentDescription = null,
+                            modifier = Modifier.size(200.dp))
+                      }
+                }
+              }
+          Button(
+              onClick = {
+                val imageDTOs =
+                    images.map { (name, bitmap) ->
+                      ImageDTO(
+                          contentDescription = name,
+                          base64String = FirebaseDataStore.bitmapToBase64(bitmap),
+                          tags = commonTags)
+                    }
+                onImagesSelected(imageDTOs)
+                setImages(emptyList()) // Reset images after upload
+                setCommonTags(emptyList()) // Clear the common tag
               },
-          )
+              modifier = Modifier.padding(16.dp)) {
+                Text("Upload")
+              }
         } else {
           Button(
               onClick = { imagePickerLauncher.launch("image/*") },
-          ) {
-            Text("+")
-          }
+              modifier = Modifier.padding(16.dp)) {
+                Text("Select Images")
+              }
         }
       }
 }
@@ -144,6 +158,7 @@ fun TagInput(
         onValueChange = setNewTag,
         label = { Text("New Tag") },
         singleLine = true,
+        isError = tags.size == 3 && newTag.isNotEmpty(),
         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
         keyboardActions =
             KeyboardActions(
@@ -175,58 +190,6 @@ fun DisplayTags(tags: List<String>, setTags: (List<String>) -> Unit) {
             }
           }
     }
-  }
-}
-
-@Composable
-fun ImagePickerBox(
-    bitmap: Bitmap?,
-    imagePickerLauncher: ManagedActivityResultLauncher<String, Uri?>,
-    modifier: Modifier = Modifier
-) {
-  Box(contentAlignment = Alignment.Center, modifier = modifier) {
-    bitmap?.let {
-      Image(
-          bitmap = it.asImageBitmap(),
-          contentDescription = null,
-          modifier =
-              Modifier.size(200.dp)
-                  .clickable { imagePickerLauncher.launch("image/*") }
-                  .padding(16.dp))
-    } ?: Button(onClick = { imagePickerLauncher.launch("image/*") }) { Text("+") }
-  }
-}
-
-@Composable
-fun UploadButton(
-    imageName: String,
-    bitmap: Bitmap?,
-    tags: List<String>,
-    onImageSelected: (ImageDTO) -> Unit,
-    onUploadSuccess: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-  Button(
-      onClick = {
-        if (imageName.isNotEmpty() && bitmap != null) {
-          onImageSelected(
-              ImageDTO(
-                  contentDescription = imageName,
-                  base64String = FirebaseDataStore.bitmapToBase64(bitmap),
-                  tags = tags))
-          onUploadSuccess()
-        }
-      },
-      enabled = imageName.isNotEmpty(),
-      modifier = modifier.padding(vertical = 8.dp)) {
-        Text("Upload Image")
-      }
-}
-
-@Composable
-fun DisplayUploadSuccess(uploadSuccess: Boolean) {
-  if (uploadSuccess) {
-    Text("Image uploaded successfully!", color = Color.Green)
   }
 }
 
