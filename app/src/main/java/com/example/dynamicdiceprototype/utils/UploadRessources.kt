@@ -17,25 +17,25 @@ fun uploadImages(res: Resources) {
   data class ImageModelSetDTO(val image: Int, val name: String)
   val images =
       arrayOf<ImageModelSetDTO>(
-          ImageModelSetDTO(image = R.drawable.cameleon, name = "cameleon"),
-          ImageModelSetDTO(image = R.drawable.elephant, name = "elephant"),
-          ImageModelSetDTO(image = R.drawable.fish, name = "fish"),
-          ImageModelSetDTO(image = R.drawable.frog, name = "frog"),
-          ImageModelSetDTO(image = R.drawable.lion, name = "lion"),
-          ImageModelSetDTO(image = R.drawable.monkey, name = "monkey"),
-          ImageModelSetDTO(image = R.drawable.owl, name = "owl"),
-          ImageModelSetDTO(image = R.drawable.parrot, name = "parrot"),
-          ImageModelSetDTO(image = R.drawable.penguin, name = "penguin"),
-          ImageModelSetDTO(image = R.drawable.one_transparent, name = "one_transparent"),
-          ImageModelSetDTO(image = R.drawable.two_transparent, name = "two_transparent"),
-          ImageModelSetDTO(image = R.drawable.three_transparent, name = "three_transparent"),
-          ImageModelSetDTO(image = R.drawable.four_transparent, name = "four_transparent"),
-          ImageModelSetDTO(image = R.drawable.five_transparent, name = "five_transparent"),
-          ImageModelSetDTO(image = R.drawable.six_transparent, name = "six_transparent"),
-          ImageModelSetDTO(image = R.drawable.wizard_blue, name = "wizard blue"),
-          ImageModelSetDTO(image = R.drawable.wizard_green, name = "wizard green"),
-          ImageModelSetDTO(image = R.drawable.wizard_red, name = "wizard red"),
-          ImageModelSetDTO(image = R.drawable.wizard_yellow, name = "wizard yellow"),
+          ImageModelSetDTO(image = R.drawable.cameleon, name = "Cameleon"),
+          ImageModelSetDTO(image = R.drawable.elephant, name = "Elephant"),
+          ImageModelSetDTO(image = R.drawable.fish, name = "Fish"),
+          ImageModelSetDTO(image = R.drawable.frog, name = "Frog"),
+          ImageModelSetDTO(image = R.drawable.lion, name = "Lion"),
+          ImageModelSetDTO(image = R.drawable.monkey, name = "Monkey"),
+          ImageModelSetDTO(image = R.drawable.owl, name = "Owl"),
+          ImageModelSetDTO(image = R.drawable.parrot, name = "Parrot"),
+          ImageModelSetDTO(image = R.drawable.penguin, name = "Penguin"),
+          ImageModelSetDTO(image = R.drawable.one_transparent, name = "one"),
+          ImageModelSetDTO(image = R.drawable.two_transparent, name = "two"),
+          ImageModelSetDTO(image = R.drawable.three_transparent, name = "three"),
+          ImageModelSetDTO(image = R.drawable.four_transparent, name = "four"),
+          ImageModelSetDTO(image = R.drawable.five_transparent, name = "five"),
+          ImageModelSetDTO(image = R.drawable.six_transparent, name = "six"),
+          ImageModelSetDTO(image = R.drawable.wizard_blue, name = "Wizard blue"),
+          ImageModelSetDTO(image = R.drawable.wizard_green, name = "Wizard green"),
+          ImageModelSetDTO(image = R.drawable.wizard_red, name = "Wizard red"),
+          ImageModelSetDTO(image = R.drawable.wizard_yellow, name = "Wizard yellow"),
           ImageModelSetDTO(image = R.drawable.wizard_narr, name = "wizard narr"),
           ImageModelSetDTO(image = R.drawable.wizard_wizard, name = "wizard wizard"),
       )
@@ -51,24 +51,24 @@ fun uploadImages(res: Resources) {
   // Assuming you have a list of colors
   val colors =
       listOf(
-          Pair(Color.Red, "red"),
-          Pair(Color(0xFFFF7F00), "orange"), // Orange
-          Pair(Color.Yellow, "yellow"),
-          Pair(Color.Green, "green"),
-          Pair(Color.Blue, "blue"),
-          Pair(Color(0xFF4B0082), "indigo"), // Indigo
-          Pair(Color(0xFF8B00FF), "violet"), // Violet
+          Pair(Color.Red, "Red"),
+          Pair(Color(0xFFFF7F00), "Orange"), // Orange
+          Pair(Color.Yellow, "Yellow"),
+          Pair(Color.Green, "Green"),
+          Pair(Color.Blue, "Blue"),
+          Pair(Color(0xFF4B0082), "Indigo"), // Indigo
+          Pair(Color(0xFF8B00FF), "Violet"), // Violet
           // Additional colors
-          Pair(Color(0xFFFFC0CB), "pink"), // Pink
-          Pair(Color(0xFFFFD700), "gold"), // Gold
-          Pair(Color.Cyan, "cyan"),
-          Pair(Color(0xFFFFA500), "light orange"), // Light Orange
-          Pair(Color(0xFF800080), "purple"), // Purple
-          Pair(Color.Magenta, "magenta"),
-          Pair(Color(0xFFC0C0C0), "silver"), // Silver
-          Pair(Color.Gray, "gray"),
-          Pair(Color.Black, "black"),
-          Pair(Color.White, "white"))
+          Pair(Color(0xFFFFC0CB), "Pink"), // Pink
+          Pair(Color(0xFFFFD700), "Gold"), // Gold
+          Pair(Color.Cyan, "Cyan"),
+          Pair(Color(0xFFFFA500), "Light orange"), // Light Orange
+          Pair(Color(0xFF800080), "Purple"), // Purple
+          Pair(Color.Magenta, "Magenta"),
+          Pair(Color(0xFFC0C0C0), "Silver"), // Silver
+          Pair(Color.Gray, "Gray"),
+          Pair(Color.Black, "Black"),
+          Pair(Color.White, "White"))
 
   for (color in colors) {
     val namedColor = color.second

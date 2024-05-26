@@ -112,13 +112,12 @@ fun NavGraph(navController: NavHostController) {
     }
     composable(route = Screen.CreateDiceGroup.route) {
       DiceGroupCreationScreen(
-          dices = viewModel.dices.values.map { Pair(it, 0) },
+          dices = viewModel.dices.values.toList(),
           onCreateDiceGroup = { name, dices ->
             viewModel.createDiceGroup(name, dices)
             navController.navigate(Screen.DiceGroups.route)
           },
           groupSize = viewModel.groupSize,
-          initialValue = viewModel.groupInEdit?.second,
           isEdit = viewModel.isGroupEditMode,
       )
     }

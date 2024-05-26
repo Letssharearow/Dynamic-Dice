@@ -8,14 +8,13 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.Screen
 import com.example.dynamicdiceprototype.composables.common.AlertBox
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
-import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
-import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 
 fun NavGraphBuilder.diceGraph(
@@ -75,22 +74,17 @@ fun NavGraphBuilder.diceGraph(
         diceViewModel.loadAllImages()
       }
       SelectFacesScreen(
-          faces =
-              diceViewModel.imageMap.values.toList().map {
-                Face(
-                    data = FirebaseDataStore.base64ToBitmap(it.base64String),
-                    contentDescription = it.contentDescription)
-              },
-          size = diceViewModel.facesSize,
+          faces = diceViewModel.imageMap.values.filter { it.contentDescription != "image" },
           color = diceViewModel.diceInEdit.backgroundColor,
           initialValue =
-              diceViewModel.diceInEdit.faces.associateBy {
-                it.contentDescription
-              }) { // TODO Consider using same datatype (map probably) for everything)
+              diceViewModel.diceInEdit.faces.associateBy(
+                  { diceViewModel.imageMap[it.contentDescription] ?: ImageDTO() }, { it.weight }),
+          onFacesSelectionClick = { // TODO Consider using same datatype (map probably) for
+            // everything)
             navController.navigate(DicesScreen.EditDice.route)
-            diceViewModel.setSelectedFaces(it.values)
+            diceViewModel.setSelectedFaces(it)
             headerViewModel.changeHeaderText("Make Final changes")
-          }
+          })
     }
     composable(route = DicesScreen.EditDice.route) {
       var openDialog by remember { mutableStateOf(false) }

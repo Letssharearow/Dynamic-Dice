@@ -31,11 +31,11 @@ import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
 fun DiceGroupCreationScreen(
-    dices: List<Pair<Dice, Int>>,
+    dices: List<Dice>,
     onCreateDiceGroup: (name: String, dices: Map<String, Pair<Dice, Int>>) -> Unit,
     isEdit: Boolean,
     groupSize: Int = 4,
-    initialValue: Map<String, Pair<Dice, Int>>? = mapOf(),
+    initialValue: Map<Dice, Int>? = mapOf(),
     initialName: String = "Change Later",
 ) {
   var name by remember { mutableStateOf(initialName) }
@@ -66,21 +66,14 @@ fun DiceGroupCreationScreen(
               isError = number.isNullOrEmpty())
         }
 
-    SelectItemsGrid(
+    SelectItemsGrid<Dice>(
         selectables = dices,
+        onSaveSelection = {},
+        getId = { it.name },
         initialSize = number?.takeIf { it.isDigitsOnly() && it.isNotEmpty() }?.toInt() ?: 0,
-        onSaveSelection = { onCreateDiceGroup(name, it) },
-        initialValue = initialValue ?: mapOf(),
-        getCount = { it.second },
-        getId = { it.first.name },
-        copy = { diceAndCount, count -> Pair(diceAndCount.first, count) }) {
-            diceAndCount,
-            modifier,
-            maxWidth ->
+        initialValue = initialValue ?: mapOf()) { dice, modifier, maxWidth ->
           DicePreview(
-              dice = diceAndCount.first,
-              facesSum = diceAndCount.first.faces.sumOf { it.weight },
-              Modifier.size(maxWidth))
+              dice = dice, facesSum = dice.faces.sumOf { it.weight }, Modifier.size(maxWidth))
         }
   }
 }
@@ -91,10 +84,10 @@ fun DiceroupsScreenPreview() {
   DynamicDicePrototypeTheme {
     val dices = listOf(Dice("checked"), Dice("Name"), Dice("Name"))
     DiceGroupCreationScreen(
-        dices = dices.map { Pair(it, 0) },
+        dices = dices,
         onCreateDiceGroup = { string, map -> },
         groupSize = 20,
         isEdit = false,
-        initialValue = mapOf("checked" to Pair(first = Dice(), second = 3)))
+        initialValue = mapOf(Dice("checked") to 3))
   }
 }

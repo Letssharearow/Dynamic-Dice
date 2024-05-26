@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
-  var imageMap by mutableStateOf(mutableMapOf<String, ImageDTO>()) // TODO fix warning
+  var imageMap by mutableStateOf(mapOf<String, ImageDTO>())
   var collectFlows by mutableStateOf(0)
 
   // create Dice
@@ -82,8 +82,15 @@ object DiceViewModel : ViewModel() {
     isDiceEditMode = false
   }
 
-  fun setSelectedFaces(values: Collection<Face>) {
-    diceInEdit.faces = values.toList()
+  fun setSelectedFaces(values: Map<ImageDTO, Int>) {
+    diceInEdit.faces =
+        values.map { entry ->
+          Face(
+              data = FirebaseDataStore.base64ToBitmap(entry.key.base64String),
+              weight = entry.value,
+              contentDescription =
+                  entry.key.contentDescription) // TODO mapper from Face -> ImageDTO and vice versa
+        }
   }
 
   fun setColor(color: Color) {
@@ -311,7 +318,9 @@ object DiceViewModel : ViewModel() {
   }
 
   fun uploadImage(imageDTO: ImageDTO) {
-    imageMap[imageDTO.contentDescription] = imageDTO // TODO make sure upload was successful
+    val newImageMap = imageMap.toMutableMap()
+    newImageMap[imageDTO.contentDescription] = imageDTO // TODO make sure upload was successful
+    imageMap = newImageMap
     firebase.uploadImageDTO(imageDTO)
   }
 

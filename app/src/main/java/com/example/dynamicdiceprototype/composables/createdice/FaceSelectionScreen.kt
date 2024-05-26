@@ -5,32 +5,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.composables.FaceView
 import com.example.dynamicdiceprototype.composables.SelectItemsGrid
 import com.example.dynamicdiceprototype.data.Face
-import com.example.dynamicdiceprototype.services.getFaces
+import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
 fun SelectFacesScreen(
-    faces: List<Face>,
-    initialValue: Map<String, Face>,
-    size: Int,
+    faces: List<ImageDTO>,
+    initialValue: Map<ImageDTO, Int>,
     color: Color = Color.Gray,
-    onFacesSelectionClick: (Map<String, Face>) -> Unit
+    onFacesSelectionClick: (Map<ImageDTO, Int>) -> Unit
 ) {
-  SelectItemsGrid<Face>(
+  SelectItemsGrid<ImageDTO>(
       selectables = faces,
-      initialSize = size,
+      onSaveSelection = onFacesSelectionClick,
+      getId = { face -> face.contentDescription },
+      maxSize = 20,
       initialValue = initialValue,
-      maxSize = 500,
-      isFilterable = true,
-      onSaveSelection = { map -> onFacesSelectionClick(map) },
-      getCount = { face -> face.weight },
-      copy = { face, count -> face.copy(weight = count) },
-      getId = { face -> face.contentDescription }) { face, modifier, maxWidthDp ->
+      applyFilter = { image, filter ->
+        image.contentDescription.contains(filter) || image.tags.find { it.contains(filter) } != null
+      }) { item, modifier, maxWidthDp ->
         FaceView(
-            face = face,
+            face =
+                Face(
+                    contentDescription = item.contentDescription,
+                    data = FirebaseDataStore.base64ToBitmap(item.base64String)),
             spacing = maxWidthDp.div(10),
             modifier = modifier.fillMaxSize(),
             color = color)
@@ -41,6 +43,6 @@ fun SelectFacesScreen(
 @Composable
 private fun SelectFacesScreenPreview() {
   DynamicDicePrototypeTheme {
-    SelectFacesScreen(faces = getFaces(30), size = 6, initialValue = mapOf()) {}
+    SelectFacesScreen(faces = listOf(ImageDTO()), initialValue = mapOf()) {}
   }
 }

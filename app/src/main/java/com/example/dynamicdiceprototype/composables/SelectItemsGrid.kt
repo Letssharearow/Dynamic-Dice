@@ -1,7 +1,6 @@
 package com.example.dynamicdiceprototype.composables
 
 import OneScreenGrid
-import android.os.SystemClock
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -17,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,74 +31,68 @@ import androidx.compose.ui.unit.sp
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.common.ContinueButton
 import com.example.dynamicdiceprototype.data.Dice
-import com.example.dynamicdiceprototype.data.DiceInGroup
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
-import kotlin.math.ceil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun <T> SelectItemsGrid(
     selectables: List<T>,
-    onSaveSelection: (Map<String, T>) -> Unit,
-    getCount: (T) -> Int,
+    onSaveSelection: (Map<T, Int>) -> Unit,
     getId: (T) -> String,
-    copy: (item: T, count: Int) -> T,
     modifier: Modifier = Modifier,
     initialSize: Int = 10,
     maxSize: Int = 100,
-    initialValue: Map<String, T> = mapOf(),
-    isFilterable: Boolean = false,
+    applyFilter: ((T, String) -> Boolean)? = null,
+    initialValue: Map<T, Int> = mapOf(),
     view: @Composable (item: T, modifier: Modifier, size: Dp) -> Unit,
 ) {
 
   var selectablesFiltered by remember { mutableStateOf(selectables) }
 
   val selectedItems = remember {
-    mutableStateMapOf<String, T>(*initialValue.map { Pair(it.key, it.value) }.toTypedArray())
+    mutableStateMapOf<T, Int>(*initialValue.map { Pair(it.key, it.value) }.toTypedArray())
   }
   var filter by remember { mutableStateOf("") }
-  val sumOfSelection = selectedItems.values.sumOf { getCount(it) }
+  val sumOfSelection = selectedItems.values.sumOf { it }
 
-  LaunchedEffect(selectables, filter) {
+  LaunchedEffect(applyFilter, selectables) {
     selectablesFiltered =
-        selectables.filter { item ->
-          filter.isEmpty() || getId(item).contains(filter, ignoreCase = true)
-        }
+        if (applyFilter != null) selectables.filter { applyFilter(it, filter) } else selectables
   }
 
   ArrangedColumn(modifier = Modifier.padding(4.dp)) {
-    if (isFilterable) {
+    applyFilter?.let { callBack ->
       SingleLineInput(
           text = filter,
           onValueChange = { value ->
             filter = value
-            selectablesFiltered =
-                selectables.filter { item ->
-                  filter.isEmpty() || getId(item).contains(filter, ignoreCase = true)
-                }
+            selectablesFiltered = selectables.filter { callBack(it, filter) }
           },
           label = "Filter")
     }
     OneScreenGrid(items = selectablesFiltered, minSize = 400f, modifier.weight(1f)) {
         item,
         maxWidthDp -> // TODO hardcoded minSize, maybe as parameter?
-      var mutableSize by remember { mutableIntStateOf(initialSize) }
       Box(
           contentAlignment = Alignment.Center,
           modifier =
               Modifier.fillMaxWidth().padding(8.dp).clickable {
-                val selectedItem = selectedItems[getId(item)]
+                val selectedItem = selectedItems[item]
                 if (selectedItem == null) {
-                  selectedItems[getId(item)] = copy(item, 1)
+                  if (sumOfSelection < maxSize) selectedItems[item] = 1
                 } else {
-                  selectedItems.remove(getId(item))
+                  selectedItems.remove(item)
                 }
               }) {
-            val selectedItem = selectedItems[getId(item)]
+            val selectedItem = selectedItems[item]
 
             view(item, Modifier, maxWidthDp)
             selectedItem?.let {
               NumberCircle(
-                  text = getCount(it).toString(),
+                  text = selectedItem.toString(),
                   fontSize = 24.sp,
                   modifier = Modifier.align(Alignment.TopStart))
             }
@@ -112,24 +104,36 @@ fun <T> SelectItemsGrid(
                     .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.66f))
                     .padding(8.dp)) {
                   selectedItem?.let {
-                    var lastTimeClicked by remember { mutableLongStateOf(0L) }
+                    var debounceJob by remember { mutableStateOf<Job?>(null) }
+                    var mutableSize by remember {
+                      mutableIntStateOf(initialSize.coerceAtMost(maxSize - sumOfSelection + it))
+                    }
 
                     Slider(
-                        value = getCount(it).toFloat(),
+                        value = it.toFloat(),
                         onValueChange = { value ->
-                          selectedItems[getId(item)] = copy(it, ceil(value).toInt())
-                          val now = SystemClock.uptimeMillis()
-                          if (now - lastTimeClicked > 2000) {
-                            mutableSize =
-                                when {
-                                  getCount(it) == mutableSize ->
-                                      (mutableSize * 2).coerceAtMost(
-                                          maxSize - (sumOfSelection - mutableSize))
-                                  getCount(it) < initialSize -> initialSize
-                                  else -> mutableSize
+                          val selectedCurrentItem = selectedItems[item]
+                          selectedCurrentItem?.let { currentCount ->
+                            val newCount = value.toInt()
+                            val newSum = sumOfSelection - currentCount + newCount
+                            if (newSum <= maxSize) {
+                              selectedItems[item] = newCount
+                            }
+                            debounceJob?.cancel()
+                            debounceJob =
+                                GlobalScope.launch {
+                                  delay(1000)
+                                  mutableSize =
+                                      when {
+                                        newCount == mutableSize -> {
+                                          (mutableSize * 2).coerceAtMost(
+                                              maxSize - sumOfSelection + currentCount)
+                                        }
+                                        newCount < initialSize -> initialSize
+                                        else -> mutableSize
+                                      }
                                 }
                           }
-                          lastTimeClicked = now
                         },
                         valueRange = 1f..mutableSize.toFloat().coerceAtLeast(1f),
                         steps = (mutableSize - 1).coerceAtLeast(1))
@@ -142,8 +146,7 @@ fun <T> SelectItemsGrid(
           }
     }
     ContinueButton(
-        onClick = { onSaveSelection(selectedItems) },
-        text = "Save Selection  : ($sumOfSelection / $initialSize)")
+        onClick = { onSaveSelection(selectedItems) }, text = "Save Selection  : ($sumOfSelection)")
   }
 }
 
@@ -151,54 +154,13 @@ fun <T> SelectItemsGrid(
 @Composable
 private fun SelectItemsGridPreview() {
   DynamicDicePrototypeTheme {
-    SelectItemsGrid<DiceInGroup>(
-        selectables =
-            listOf(
-                DiceInGroup(Dice(name = "testDiceCheck", faces = listOf()), count = 2),
-                DiceInGroup(Dice(name = "testDiceCheckAndName", faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-                DiceInGroup(Dice(faces = listOf()), count = 2),
-            ),
-        initialSize = 2,
+    SelectItemsGrid<Dice>(
+        selectables = listOf(Dice(name = "testDiceCheck", faces = listOf())),
         onSaveSelection = {},
-        initialValue =
-            mutableMapOf(
-                "testDiceCheck" to DiceInGroup(Dice(), 2),
-                "testDiceCheckAndName" to DiceInGroup(Dice(), 0)),
-        getCount = { diceWithCount -> diceWithCount.count },
-        copy = { diceWithCount, count -> diceWithCount.copy(count = count) },
-        getId = { diceWithCount -> diceWithCount.dice.name }) { item, modifier, maxWidthDp ->
-          DiceView(dice = item.dice, size = maxWidthDp, modifier = modifier.fillMaxSize())
+        getId = { dice -> dice.name },
+        initialSize = 2,
+        initialValue = mutableMapOf(Dice() to 4)) { item, modifier, maxWidthDp ->
+          DiceView(dice = item, size = maxWidthDp, modifier = modifier.fillMaxSize())
         }
   }
 }
