@@ -23,7 +23,7 @@ fun SelectFacesScreen(
       selectables = faces,
       onSaveSelection = onFacesSelectionClick,
       getId = { face -> face.contentDescription },
-      maxSize = 20,
+      maxSize = 500,
       initialValue = initialValue,
       applyFilter = { image, filter ->
         image.contentDescription.contains(filter) || image.tags.find { it.contains(filter) } != null

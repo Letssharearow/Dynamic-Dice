@@ -26,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.FaceView
-import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.getFaces
 import com.example.dynamicdiceprototype.services.mockImages
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
@@ -36,6 +35,11 @@ import kotlin.math.sin
 
 @Composable
 fun TestScreen() {
+  SettingsScreen()
+}
+
+@Composable
+fun AdaptableMultiShapeObject() {
   var size by remember { mutableIntStateOf(6) }
   Column {
     MultiShapedObject(size, 200.dp)
@@ -62,13 +66,10 @@ fun MultiShapedObject(numSides: Int, size: Dp, color: Color = Color.Blue) {
         close()
       }
 
-      val faces = mockImages()
+  val faces = mockImages()
   Box(Modifier.size(size), contentAlignment = Alignment.Center) {
     Canvas(modifier = Modifier.size(size)) { drawPath(path, color) }
-  Box(Modifier.size(size.div(2))) {
-    FaceView(
-        face = faces["five_transparent"], spacing = 2.dp)
-  }
+    Box(Modifier.size(size.div(2))) { FaceView(face = faces["five_transparent"], spacing = 2.dp) }
   }
 }
 

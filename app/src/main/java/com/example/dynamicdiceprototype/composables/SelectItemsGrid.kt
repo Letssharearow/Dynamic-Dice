@@ -14,6 +14,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -23,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -31,6 +33,8 @@ import androidx.compose.ui.unit.sp
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.common.ContinueButton
 import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.services.PreferenceKey
+import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -49,6 +53,19 @@ fun <T> SelectItemsGrid(
     initialValue: Map<T, Int> = mapOf(),
     view: @Composable (item: T, modifier: Modifier, size: Dp) -> Unit,
 ) {
+  val context = LocalContext.current
+  val preferenceManager = PreferenceManager(context)
+  val initialSizeUpdated =
+      preferenceManager
+          .getPreferenceFlow<Int>(PreferenceKey.InitialSize)
+          .collectAsState(initial = initialSize)
+          .value
+  val maxSizeUpdated =
+      preferenceManager
+          .getPreferenceFlow<Int>(PreferenceKey.MaxSize)
+          .collectAsState(initial = maxSize)
+          .value
+
   var selectablesFiltered by remember { mutableStateOf(selectables) }
   val selectedItems = remember {
     mutableStateMapOf(*initialValue.map { it.toPair() }.toTypedArray())
@@ -73,7 +90,7 @@ fun <T> SelectItemsGrid(
               Modifier.fillMaxWidth().padding(8.dp).clickable {
                 val selectedItem = selectedItems[item]
                 if (selectedItem == null) {
-                  if (sumOfSelection < maxSize) selectedItems[item] = 1
+                  if (sumOfSelection < maxSizeUpdated) selectedItems[item] = 1
                 } else {
                   selectedItems.remove(item)
                 }
@@ -97,7 +114,8 @@ fun <T> SelectItemsGrid(
                   selectedItem?.let {
                     var debounceJob by remember { mutableStateOf<Job?>(null) }
                     var mutableSize by remember {
-                      mutableIntStateOf(initialSize.coerceAtMost(maxSize - sumOfSelection + it))
+                      mutableIntStateOf(
+                          initialSizeUpdated.coerceAtMost(maxSizeUpdated - sumOfSelection + it))
                     }
 
                     Slider(
@@ -107,7 +125,7 @@ fun <T> SelectItemsGrid(
                           selectedCurrentItem?.let { currentCount ->
                             val newCount = value.toInt()
                             val newSum = sumOfSelection - currentCount + newCount
-                            if (newSum <= maxSize) {
+                            if (newSum <= maxSizeUpdated) {
                               selectedItems[item] = newCount
                             }
                             debounceJob?.cancel()
@@ -118,9 +136,9 @@ fun <T> SelectItemsGrid(
                                       when {
                                         newCount == mutableSize -> {
                                           (mutableSize * 2).coerceAtMost(
-                                              maxSize - sumOfSelection + currentCount)
+                                              maxSizeUpdated - sumOfSelection + currentCount)
                                         }
-                                        newCount < initialSize -> initialSize
+                                        newCount < initialSizeUpdated -> initialSizeUpdated
                                         else -> mutableSize
                                       }
                                 }
