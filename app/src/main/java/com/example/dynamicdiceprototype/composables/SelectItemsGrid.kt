@@ -49,30 +49,21 @@ fun <T> SelectItemsGrid(
     initialValue: Map<T, Int> = mapOf(),
     view: @Composable (item: T, modifier: Modifier, size: Dp) -> Unit,
 ) {
-
   var selectablesFiltered by remember { mutableStateOf(selectables) }
-
   val selectedItems = remember {
-    mutableStateMapOf<T, Int>(*initialValue.map { Pair(it.key, it.value) }.toTypedArray())
+    mutableStateMapOf(*initialValue.map { it.toPair() }.toTypedArray())
   }
   var filter by remember { mutableStateOf("") }
-  val sumOfSelection = selectedItems.values.sumOf { it }
+  val sumOfSelection = selectedItems.values.sum()
 
-  LaunchedEffect(applyFilter, selectables) {
+  LaunchedEffect(applyFilter, selectables, filter) {
     selectablesFiltered =
         if (applyFilter != null) selectables.filter { applyFilter(it, filter) } else selectables
   }
 
-  ArrangedColumn(modifier = Modifier.padding(4.dp)) {
-    applyFilter?.let { callBack ->
-      SingleLineInput(
-          text = filter,
-          onValueChange = { value ->
-            filter = value
-            selectablesFiltered = selectables.filter { callBack(it, filter) }
-          },
-          label = "Filter")
-    }
+  ArrangedColumn(modifier = modifier.padding(4.dp)) {
+    FilterInput(applyFilter, filter) { newFilter -> filter = newFilter }
+
     OneScreenGrid(items = selectablesFiltered, minSize = 400f, modifier.weight(1f)) {
         item,
         maxWidthDp -> // TODO hardcoded minSize, maybe as parameter?
@@ -147,6 +138,17 @@ fun <T> SelectItemsGrid(
     }
     ContinueButton(
         onClick = { onSaveSelection(selectedItems) }, text = "Save Selection  : ($sumOfSelection)")
+  }
+}
+
+@Composable
+private fun <T> FilterInput(
+    applyFilter: ((T, String) -> Boolean)?,
+    filter: String,
+    onFilterChange: (String) -> Unit
+) {
+  applyFilter?.let { _ ->
+    SingleLineInput(text = filter, onValueChange = onFilterChange, label = "Filter")
   }
 }
 
