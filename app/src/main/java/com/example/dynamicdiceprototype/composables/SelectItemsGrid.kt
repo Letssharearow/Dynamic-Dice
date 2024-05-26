@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -53,16 +52,12 @@ fun <T> SelectItemsGrid(
     initialValue: Map<T, Int> = mapOf(),
     view: @Composable (item: T, modifier: Modifier, size: Dp) -> Unit,
 ) {
-  val context = LocalContext.current
-  val preferenceManager = PreferenceManager(context)
   val initialSizeUpdated =
-      preferenceManager
-          .getPreferenceFlow<Int>(PreferenceKey.InitialSize)
+      PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionInitialSize)
           .collectAsState(initial = initialSize)
           .value
   val maxSizeUpdated =
-      preferenceManager
-          .getPreferenceFlow<Int>(PreferenceKey.MaxSize)
+      PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionMaxSize)
           .collectAsState(initial = maxSize)
           .value
 

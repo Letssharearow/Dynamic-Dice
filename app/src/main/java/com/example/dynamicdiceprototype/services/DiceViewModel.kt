@@ -273,7 +273,8 @@ object DiceViewModel : ViewModel() {
             }
         tasks.awaitAll()
         collectFlows++
-        collectFlows++
+        collectFlows++ // TODO resolve this weird double ++ colelction behaviour, probably use some
+        // event subscription
         selectDiceGroup(lastDiceGroup)
       } else {
         userConfigIsNull = true

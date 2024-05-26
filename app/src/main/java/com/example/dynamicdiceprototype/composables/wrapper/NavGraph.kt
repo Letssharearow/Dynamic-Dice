@@ -21,16 +21,18 @@ import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.HeaderViewModel
-import com.example.dynamicdiceprototype.services.PreferencesService
+import com.example.dynamicdiceprototype.services.PreferenceKey
+import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.services.TAG
 
 @Composable
 fun NavGraph(navController: NavHostController) {
-  val preferencesService: PreferencesService = PreferencesService
   val viewModel: DiceViewModel = viewModel<DiceViewModel>()
   val headerViewModel: HeaderViewModel = viewModel<HeaderViewModel>()
   val context = LocalContext.current
-  viewModel.lastDiceGroup = preferencesService.loadLastBundle(context)
+  val savedGroup = PreferenceManager.loadData<String>(PreferenceKey.LastDiceGroup)
+  viewModel.lastDiceGroup = savedGroup
+
   if (viewModel.getErrorMessage() != null) {
     Toast.makeText(
             context,
@@ -47,7 +49,7 @@ fun NavGraph(navController: NavHostController) {
     composable(route = Screen.TestScreen.route) { TestScreen() }
     composable(route = Screen.MainScreen.route) {
       remember {
-        PreferencesService.saveLastBundle(context = context, viewModel.lastDiceGroup)
+        PreferenceManager.saveData(PreferenceKey.LastDiceGroup, viewModel.lastDiceGroup)
         headerViewModel.changeHeaderText(viewModel.lastDiceGroup)
         true
       }

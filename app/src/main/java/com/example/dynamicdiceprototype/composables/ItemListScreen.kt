@@ -15,13 +15,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
@@ -31,8 +31,8 @@ import com.example.dynamicdiceprototype.composables.createdice.DiceCard
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupItem
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.MenuItem
-import com.example.dynamicdiceprototype.services.PreferenceView
-import com.example.dynamicdiceprototype.services.PreferencesService
+import com.example.dynamicdiceprototype.services.PreferenceKey
+import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -44,24 +44,19 @@ fun <T> ItemListScreen(
     getKey: (item: T) -> String,
     onCreateItem: (() -> Unit)?,
     modifier: Modifier = Modifier,
-    preferenceView: PreferenceView = PreferenceView.Dice,
+    preferenceView: PreferenceKey = PreferenceKey.IsDicesViewCompact,
     view: @Composable (item: T, isCompact: Boolean, modifier: Modifier) -> Unit,
 ) {
 
-  val preferencesService: PreferencesService = PreferencesService
-  val context = LocalContext.current
-  var isCompact by remember {
-    mutableStateOf(preferencesService.loadIsCompact(context, preferenceView))
-  }
+  val isCompact =
+      PreferenceManager.getPreferenceFlow<Boolean>(preferenceView)
+          .collectAsState(initial = preferenceView.defaultValue as Boolean)
+          .value
 
   Column(modifier.padding(8.dp)) {
     // Toggle switch for isCompact
     ItemListTogglSwitch(
-        checked = isCompact,
-        onChecked = {
-          isCompact = it
-          preferencesService.saveIsCompact(context, isCompact, preferenceView)
-        })
+        checked = isCompact, onChecked = { PreferenceManager.saveData(preferenceView, !isCompact) })
 
     ArrangedColumn(Modifier.weight(1f)) {
       LazyColumn {

@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,34 +26,28 @@ import com.example.dynamicdiceprototype.services.PreferenceManager
 
 @Composable
 fun SettingsScreen() {
-  val context = LocalContext.current
-  val preferenceManager = remember { PreferenceManager(context) }
   val preferences = PreferenceKey.entries.toTypedArray()
-  val headerText = preferenceManager.getPreferenceFlow<String>(PreferenceKey.SettingsHeader).collectAsState(
-    initial = "Settings"
-  ).value
+  val headerText =
+      PreferenceManager.getPreferenceFlow<String>( PreferenceKey.SettingsHeader)
+          .collectAsState(initial = "Settings")
+          .value
 
   Column(
       modifier =
-      Modifier
-        .fillMaxSize()
-        .padding(16.dp)
-        .background(MaterialTheme.colorScheme.background)) {
+          Modifier.fillMaxSize().padding(16.dp).background(MaterialTheme.colorScheme.background)) {
         Text(
             text = headerText,
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier
-              .padding(bottom = 16.dp)
-              .align(Alignment.CenterHorizontally))
+            modifier = Modifier.padding(bottom = 16.dp).align(Alignment.CenterHorizontally))
 
         preferences.forEach { preference ->
-          val valueFlow = preferenceManager.getPreferenceFlow<Any>(preference)
+          val valueFlow = PreferenceManager.getPreferenceFlow<Any>( preference)
           val valueState = valueFlow.collectAsState(initial = preference.defaultValue)
 
           PreferenceItem(
               preference = preference,
               value = valueState.value,
-              onValueChange = { newValue -> preferenceManager.saveData(preference, newValue) })
+              onValueChange = { newValue -> PreferenceManager.saveData( preference, newValue) })
         }
       }
 }
@@ -83,11 +76,10 @@ fun PreferenceItem(preference: PreferenceKey, value: Any, onValueChange: (Any) -
 fun PreferenceSwitch(preference: PreferenceKey, value: Boolean, onValueChange: (Boolean) -> Unit) {
   Row(
       modifier =
-      Modifier
-        .fillMaxWidth()
-        .padding(vertical = 8.dp)
-        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-        .padding(16.dp),
+          Modifier.fillMaxWidth()
+              .padding(vertical = 8.dp)
+              .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+              .padding(16.dp),
       verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = preference.name,
@@ -111,11 +103,10 @@ fun PreferenceTextField(
 ) {
   Row(
       modifier =
-      Modifier
-        .fillMaxWidth()
-        .padding(vertical = 8.dp)
-        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-        .padding(16.dp),
+          Modifier.fillMaxWidth()
+              .padding(vertical = 8.dp)
+              .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+              .padding(16.dp),
       verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = preference.name,
@@ -135,8 +126,7 @@ fun PreferenceTextField(
                   KeyboardOptions.Default
                 },
             modifier =
-            Modifier
-              .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-              .padding(horizontal = 8.dp))
+                Modifier.background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                    .padding(horizontal = 8.dp))
       }
 }

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.composables.ItemListScreen
 import com.example.dynamicdiceprototype.data.MenuItem
-import com.example.dynamicdiceprototype.services.PreferenceView
+import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
@@ -37,7 +37,7 @@ fun DiceGroupsScreen(
       menuActions = menuActions,
       onCreateItem = onCreateNewGroup,
       getKey = { it },
-      preferenceView = PreferenceView.Group) { item, isCompact, modifier ->
+      preferenceView = PreferenceKey.IsDicesGroupViewCompact) { item, isCompact, modifier ->
         DiceGroupItem(item = item, isCompact = isCompact, modifier = modifier)
       }
 }

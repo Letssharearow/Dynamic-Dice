@@ -31,7 +31,7 @@ import com.example.dynamicdiceprototype.composables.createdice.DiceCard
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
-import com.example.dynamicdiceprototype.services.PreferenceView
+import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import com.example.dynamicdiceprototype.utils.MAIN_SCREEN_DICE_MIN_SIZE
@@ -102,7 +102,7 @@ fun ItemSelectionDialog(
               onSelect = onItemSelected,
               getKey = { it.name },
               menuActions = listOf(),
-              preferenceView = PreferenceView.MainScreenAlertBox,
+              preferenceView = PreferenceKey.IsAddDiceCompact,
               onCreateItem = null,
           ) { item, isCompact, modifier ->
             DiceCard(item, isCompact, modifier)

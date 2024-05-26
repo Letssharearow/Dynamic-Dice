@@ -6,32 +6,33 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-enum class Preferences {
-  IS_COMPACT,
-  LAST_GROUP,
-  MAX_SIZE,
-}
-
-enum class PreferenceView {
-  Dice,
-  Group,
-  MainScreenAlertBox
-}
-
 enum class PreferenceKey(val defaultValue: Any) {
-  MaxSize(100),
-  InitialSize(15),
+  ItemSelectionMaxSize(100),
+  ItemSelectionInitialSize(15),
   SettingsHeader("Settings"),
-  IsCompact(true),
+  LastDiceGroup("Kniffel"),
+  IsAddDiceCompact(true),
+  IsDicesViewCompact(true),
+  IsDicesGroupViewCompact(true),
 }
 
-class PreferenceManager(private val context: Context) {
+object PreferenceManager {
 
-  private val sharedPreferences: SharedPreferences by lazy {
-    context.getSharedPreferences("com.dynamic-dice.app", Context.MODE_PRIVATE)
+  private lateinit var appContext: Context
+
+  fun init(context: Context) {
+    appContext = context.applicationContext
+  }
+
+  private fun getSharedPreferences(): SharedPreferences {
+    check(::appContext.isInitialized) {
+      "PreferenceManager is not initialized. Call init() with context first."
+    }
+    return appContext.getSharedPreferences("com.dynamic-dice.app", Context.MODE_PRIVATE)
   }
 
   fun <T> saveData(key: PreferenceKey, newValue: T) {
+    val sharedPreferences = getSharedPreferences()
     with(sharedPreferences.edit()) {
       when (newValue) {
         is Int -> putInt(key.name, newValue)
@@ -43,16 +44,19 @@ class PreferenceManager(private val context: Context) {
     }
   }
 
+  @Suppress("UNCHECKED_CAST")
   fun <T> loadData(key: PreferenceKey): T {
+    val sharedPreferences = getSharedPreferences()
     return when (key.defaultValue) {
-      is Int -> sharedPreferences.getInt(key.name, key.defaultValue) as T
-      is String -> sharedPreferences.getString(key.name, key.defaultValue) as T
-      is Boolean -> sharedPreferences.getBoolean(key.name, key.defaultValue) as T
+      is Int -> sharedPreferences.getInt(key.name, key.defaultValue as Int) as T
+      is String -> sharedPreferences.getString(key.name, key.defaultValue as String) as T
+      is Boolean -> sharedPreferences.getBoolean(key.name, key.defaultValue as Boolean) as T
       else -> throw IllegalArgumentException("Unsupported type")
     }
   }
 
   fun <T> getPreferenceFlow(key: PreferenceKey): Flow<T> {
+    val sharedPreferences = getSharedPreferences()
     return sharedPreferences.flowOf(key)
   }
 
@@ -67,58 +71,6 @@ class PreferenceManager(private val context: Context) {
       registerOnSharedPreferenceChangeListener(listener)
       trySend(loadData(key))
       awaitClose { unregisterOnSharedPreferenceChangeListener(listener) }
-    }
-  }
-}
-
-object PreferencesService {
-
-  private fun getSharedPreferences(context: Context): SharedPreferences {
-    return context.getSharedPreferences("com.dynamic-dice.app", Context.MODE_PRIVATE)
-  }
-
-  fun saveData(context: Context, integer: Int) {
-    val sharedPreferences = getSharedPreferences(context)
-    with(sharedPreferences.edit()) {
-      putInt("DARK_THEME_ENABLED", integer)
-      apply()
-    }
-  }
-
-  fun loadData(context: Context): Int {
-    val sharedPreferences = getSharedPreferences(context)
-    return sharedPreferences.getInt("DARK_THEME_ENABLED", 0) // false is the default value
-  }
-
-  fun loadIsCompact(
-      context: Context,
-      view: PreferenceView,
-  ): Boolean {
-    val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-    return sharedPreferences.getBoolean(Preferences.IS_COMPACT.name.plus(view.name), false)
-  }
-
-  fun saveIsCompact(context: Context, isCompact: Boolean, view: PreferenceView) {
-    val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-    with(sharedPreferences.edit()) {
-      putBoolean(Preferences.IS_COMPACT.name.plus(view.name), isCompact)
-      apply()
-    }
-  }
-
-  fun loadLastBundle(context: Context): String {
-    val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-    return sharedPreferences.getString(
-        Preferences.LAST_GROUP.name,
-        "Kniffel")!! /*TODO resolve assert, this getString function doesnt return null, so why do I
-                     need the assert?*/
-  }
-
-  fun saveLastBundle(context: Context, lastGroup: String) {
-    val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-    with(sharedPreferences.edit()) {
-      putString(Preferences.LAST_GROUP.name, lastGroup)
-      apply()
     }
   }
 }

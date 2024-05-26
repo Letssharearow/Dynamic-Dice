@@ -5,7 +5,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.dynamicdiceprototype.composables.ItemListScreen
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.MenuItem
-import com.example.dynamicdiceprototype.services.PreferenceView
+import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
@@ -21,7 +21,7 @@ fun TemplateSelectionScreen(
       onSelect = onSelectTemplate,
       menuActions = menuActions,
       getKey = { it.name },
-      preferenceView = PreferenceView.Dice,
+      preferenceView = PreferenceKey.IsDicesViewCompact,
       onCreateItem = onCreateNewDice) { item, isCompact, modifier ->
         DiceCard(item, isCompact, modifier)
       }
