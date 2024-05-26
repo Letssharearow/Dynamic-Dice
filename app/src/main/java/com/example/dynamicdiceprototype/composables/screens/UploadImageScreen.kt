@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,7 +48,7 @@ import java.io.InputStream
 @Composable
 fun UploadImageScreen(
     context: Context,
-    onImageSelected: (ImageDTO) -> Unit = {}, // TODO add toast
+    onImageSelected: (ImageDTO) -> Unit,
 ) {
   val (imageName, setImageName) = remember { mutableStateOf("") }
   val (bitmap, setBitmap) = remember { mutableStateOf<Bitmap?>(null) }
@@ -61,6 +62,8 @@ fun UploadImageScreen(
           val originalBitmap = BitmapFactory.decodeStream(inputStream)
           val reducedBitmap = reduceImageSize(originalBitmap, 200, 200)
           setBitmap(reducedBitmap)
+          val fileNameFromUri = getFileNameFromUri(context, uri)
+          setImageName(fileNameFromUri.substringBeforeLast("."))
         }
       }
 
@@ -102,6 +105,20 @@ fun UploadImageScreen(
           }
         }
       }
+}
+
+fun getFileNameFromUri(context: Context, uri: Uri): String {
+  var fileName = ""
+  val cursor = context.contentResolver.query(uri, null, null, null, null)
+  cursor?.use {
+    if (it.moveToFirst()) {
+      val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+      if (nameIndex != -1) {
+        fileName = it.getString(nameIndex)
+      }
+    }
+  }
+  return fileName
 }
 
 @Composable
