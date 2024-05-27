@@ -30,7 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +42,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.DTO.ImageBitmapDTO
 import com.example.dynamicdiceprototype.DTO.ImageDTO
-import com.example.dynamicdiceprototype.composables.SingleLineInput
+import com.example.dynamicdiceprototype.composables.SingleLineTextInput
 import java.io.InputStream
 
 @Composable
@@ -101,8 +100,8 @@ fun UploadImageScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()) {
                               if (isEditMode) {
-                                TextField(
-                                    value = imageDTO.contentDescription,
+                                SingleLineTextInput(
+                                    text = imageDTO.contentDescription,
                                     onValueChange = { value ->
                                       setImages(
                                           images.map {
@@ -111,7 +110,7 @@ fun UploadImageScreen(
                                             else it
                                           })
                                     },
-                                    singleLine = true,
+                                    label = "Name",
                                     modifier = Modifier.weight(1f))
                               } else {
                                 Text(text = imageDTO.contentDescription)
@@ -163,7 +162,7 @@ fun getFileNameFromUri(context: Context, uri: Uri): String {
 
 @Composable
 fun ImageNameInput(imageName: String, setImageName: (String) -> Unit) {
-  SingleLineInput(
+  SingleLineTextInput(
       text = imageName,
       onValueChange = setImageName,
       label = "Image Name",

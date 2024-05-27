@@ -161,7 +161,7 @@ private fun <T> FilterInput(
     onFilterChange: (String) -> Unit
 ) {
   applyFilter?.let { _ ->
-    SingleLineInput(text = filter, onValueChange = onFilterChange, label = "Filter")
+    SingleLineTextInput(text = filter, onValueChange = onFilterChange, label = "Filter")
   }
 }
 

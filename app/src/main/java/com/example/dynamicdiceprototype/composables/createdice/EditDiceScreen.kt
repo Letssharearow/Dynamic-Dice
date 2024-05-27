@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.FaceView
-import com.example.dynamicdiceprototype.composables.SingleLineInput
+import com.example.dynamicdiceprototype.composables.SingleLineTextInput
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.common.ColorPicker
 import com.example.dynamicdiceprototype.composables.common.ContinueButton
@@ -48,7 +48,7 @@ fun EditDiceScreen(
                   IntrinsicSize
                       .Max)) { // TODO fix: if the name is too long the height of this row changes
             Box {
-              SingleLineInput(
+              SingleLineTextInput(
                   text = name,
                   onValueChange = { name = it },
                   label = "Dice Name",

@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.example.dynamicdiceprototype.composables.SelectItemsGrid
-import com.example.dynamicdiceprototype.composables.SingleLineInput
+import com.example.dynamicdiceprototype.composables.SingleLineTextInput
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.createdice.DicePreview
 import com.example.dynamicdiceprototype.data.Dice
@@ -44,7 +44,7 @@ fun DiceGroupCreationScreen(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max)) {
-          SingleLineInput(
+          SingleLineTextInput(
               text = name,
               onValueChange = { name = it },
               label = "Dice Name",
