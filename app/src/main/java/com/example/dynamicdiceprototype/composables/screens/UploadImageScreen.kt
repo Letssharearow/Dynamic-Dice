@@ -23,12 +23,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,17 +41,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.example.dynamicdiceprototype.DTO.ImageBitmapDTO
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.composables.SingleLineInput
-import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import java.io.InputStream
 
 @Composable
 fun UploadImageScreen(
     context: Context,
-    onImagesSelected: (List<ImageDTO>) -> Unit = {}, // TODO add toast
+    onImagesSelected: (List<ImageDTO>) -> Unit = {},
 ) {
-  val (images, setImages) = remember { mutableStateOf<List<Pair<String, Bitmap>>>(emptyList()) }
+  val (images, setImages) = remember { mutableStateOf<List<ImageBitmapDTO>>(emptyList()) }
   val (commonTags, setCommonTags) = remember { mutableStateOf(listOf<String>()) }
   val (newTag, setNewTag) = remember { mutableStateOf("") }
 
@@ -63,7 +65,7 @@ fun UploadImageScreen(
               val reducedBitmap = reduceImageSize(originalBitmap, 200, 200)
               val fileName = getFileNameFromUri(context, uri).substringBeforeLast(".")
               if (fileName.isNotEmpty()) {
-                fileName to reducedBitmap
+                ImageBitmapDTO(contentDescription = fileName, bitmap = reducedBitmap)
               } else {
                 null
               }
@@ -76,20 +78,50 @@ fun UploadImageScreen(
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier.fillMaxSize()) {
         if (images.isNotEmpty()) {
-          TagInput(newTag, setNewTag, commonTags, setCommonTags)
+          TagInput(
+              newTag,
+              setNewTag,
+              commonTags,
+              setTags = { tags ->
+                setCommonTags(tags)
+                setImages(images.map { it.copy(tags = tags) })
+              })
           DisplayTags(commonTags, setCommonTags)
           LazyColumn(
               modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                items(images) { (fileName, bitmap) ->
+                items(images) { imageDTO ->
+                  var isEditMode by remember { mutableStateOf<Boolean>(false) }
                   Column(
                       modifier =
                           Modifier.padding(16.dp)
                               .background(
                                   MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                               .padding(16.dp)) {
-                        Text(fileName, style = MaterialTheme.typography.bodyLarge)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()) {
+                              if (isEditMode) {
+                                TextField(
+                                    value = imageDTO.contentDescription,
+                                    onValueChange = { value ->
+                                      setImages(
+                                          images.map {
+                                            if (imageDTO == it)
+                                                imageDTO.copy(contentDescription = value)
+                                            else it
+                                          })
+                                    },
+                                    singleLine = true,
+                                    modifier = Modifier.weight(1f))
+                              } else {
+                                Text(text = imageDTO.contentDescription)
+                              }
+                              IconButton(onClick = { isEditMode = true }) {
+                                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+                              }
+                            }
                         Image(
-                            bitmap = bitmap.asImageBitmap(),
+                            bitmap = imageDTO.bitmap.asImageBitmap(),
                             contentDescription = null,
                             modifier = Modifier.size(200.dp))
                       }
@@ -97,13 +129,7 @@ fun UploadImageScreen(
               }
           Button(
               onClick = {
-                val imageDTOs =
-                    images.map { (name, bitmap) ->
-                      ImageDTO(
-                          contentDescription = name,
-                          base64String = FirebaseDataStore.bitmapToBase64(bitmap),
-                          tags = commonTags)
-                    }
+                val imageDTOs = images.map { imageDTO -> imageDTO.toImageDTO() }
                 onImagesSelected(imageDTOs)
                 setImages(emptyList()) // Reset images after upload
                 setCommonTags(emptyList()) // Clear the common tag
