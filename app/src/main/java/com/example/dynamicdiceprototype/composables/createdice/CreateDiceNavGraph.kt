@@ -25,6 +25,9 @@ fun NavGraphBuilder.diceGraph(
   val test = ""
   navigation(route = DicesScreen.Dices.route, startDestination = DicesScreen.DicesList.route) {
     composable(route = DicesScreen.DicesList.route) {
+      if (diceViewModel.imageMap.isEmpty()) {
+        diceViewModel.loadAllImages()
+      }
       TemplateSelectionScreen(
           dices = diceViewModel.dices.values.toList(),
           onSelectTemplate = {
@@ -70,9 +73,6 @@ fun NavGraphBuilder.diceGraph(
               )) // TODO implement undoing feature, haha
     }
     composable(route = DicesScreen.SelectFaces.route) {
-      if (diceViewModel.imageMap.isEmpty()) {
-        diceViewModel.loadAllImages()
-      }
       SelectFacesScreen(
           faces = diceViewModel.imageMap.values.filter { it.contentDescription != "image" },
           color = diceViewModel.diceInEdit.backgroundColor,
@@ -81,8 +81,8 @@ fun NavGraphBuilder.diceGraph(
                   { diceViewModel.imageMap[it.contentDescription] ?: ImageDTO() }, { it.weight }),
           onFacesSelectionClick = { // TODO Consider using same datatype (map probably) for
             // everything)
-            navController.navigate(DicesScreen.EditDice.route)
             diceViewModel.setSelectedFaces(it)
+            navController.navigate(DicesScreen.EditDice.route)
             headerViewModel.changeHeaderText("Make Final changes")
           })
     }

@@ -17,7 +17,7 @@ fun SingleLineTextInput(
     maxLength: Int = 50,
 ) {
   OutlinedTextField(
-      value = text.coerceAtMost(""),
+      value = text,
       onValueChange = { if (it.length <= maxLength) onValueChange(it) },
       label = { Text(label) },
       singleLine = true,
