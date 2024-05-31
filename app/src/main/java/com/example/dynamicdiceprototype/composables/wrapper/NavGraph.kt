@@ -84,7 +84,7 @@ fun NavGraph(navController: NavHostController) {
                       text = "Edit dice group",
                       callBack = {
                         try {
-                          viewModel.editGroup(it)
+                          viewModel.setGroupInEdit(it)
                           navController.navigate(Screen.CreateDiceGroup.route)
                           headerViewModel.changeHeaderText(it)
                         } catch (e: DiceNotFoundException) {
@@ -116,7 +116,7 @@ fun NavGraph(navController: NavHostController) {
       DiceGroupCreationScreen(
           dices = viewModel.dices.values.toList(),
           onCreateDiceGroup = { name, dices ->
-            viewModel.createDiceGroup(name, dices)
+            viewModel.setDicesForNewDiceGroup(name, dices)
             navController.navigate(Screen.DiceGroups.route)
           },
           groupSize = viewModel.groupSize,

@@ -9,6 +9,7 @@ import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.ImageCreator
 import com.example.dynamicdiceprototype.R
+import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.USER
 
@@ -124,8 +125,8 @@ fun uploadUser() {
 
   val diceGroups =
       mapOf(
-          "Kniffel" to mapOf("6er" to 5),
-          "animals count" to mapOf("6er" to 1, "animals" to 5),
+          "Kniffel" to DiceGroup(dices = mapOf("6er" to 5)),
+          "animals count" to DiceGroup(dices = mapOf("6er" to 1, "animals" to 5)),
       )
   val dices = listOf("random", "6er", "animals")
 

@@ -11,9 +11,9 @@ import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.DTO.toDice
 import com.example.dynamicdiceprototype.Exceptions.DiceGroupNotFoundException
-import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.generateUniqueID
@@ -36,12 +36,12 @@ object DiceViewModel : ViewModel() {
   var isDiceEditMode by mutableStateOf<Boolean>(false)
 
   // create Dice Group
-  var groupInEdit by mutableStateOf<Pair<String, Map<String, Pair<Dice, Int>>>?>(null)
+  var groupInEdit by mutableStateOf<Pair<String, DiceGroup>?>(null)
   var groupSize by mutableStateOf<Int>(6)
   var isGroupEditMode by mutableStateOf<Boolean>(false)
 
   // User Config
-  val diceGroups = mutableStateMapOf<String, Map<String, Int>>()
+  val diceGroups = mutableStateMapOf<String, DiceGroup>()
   var userConfigIsNull: Boolean = false
   var dices = mutableStateMapOf<String, Dice>()
   var lastDiceGroup by mutableStateOf("Red flag or Green flag")
@@ -115,12 +115,12 @@ object DiceViewModel : ViewModel() {
 
   // Dice Menu Actions
 
-  fun removeKeyFromInnerMaps(
-      diceGroups: MutableMap<String, Map<String, Int>>,
-      keyToRemove: String
-  ) {
+  fun removeKeyFromInnerMaps(diceGroups: MutableMap<String, DiceGroup>, keyToRemove: String) {
     diceGroups.keys.forEach { groupKey ->
-      diceGroups[groupKey] = diceGroups[groupKey]?.filterKeys { it != keyToRemove } ?: emptyMap()
+      diceGroups[groupKey] =
+          DiceGroup(
+              dices = diceGroups[groupKey]?.dices?.filterKeys { it != keyToRemove } ?: emptyMap(),
+              states = diceGroups[groupKey]?.states ?: emptyList())
     }
   }
 
@@ -156,20 +156,17 @@ object DiceViewModel : ViewModel() {
 
   // Dice Group
   // create Dice Group
-  fun createDiceGroup(name: String, dices: Map<Dice, Int>) {
-    diceGroups[name] = mapOf(*dices.map { Pair(it.key.id, it.value) }.toTypedArray())
+  fun setDicesForNewDiceGroup(name: String, dices: Map<Dice, Int>) {
+    diceGroups[name] = DiceGroup(mapOf(*dices.map { Pair(it.key.id, it.value) }.toTypedArray()))
     saveUser()
   }
 
-  fun copyDiceGroup(name: String): Pair<String, Map<String, Int>> {
+  fun copyDiceGroup(name: String): Pair<String, DiceGroup> {
     val state = diceGroups[name] ?: throw DiceGroupNotFoundException("Group not found: $name")
-    return copyDiceGroupIfNotExists(name.plus("_copy"), state.toMap())
+    return copyDiceGroupIfNotExists(name.plus("_copy"), state)
   }
 
-  fun copyDiceGroupIfNotExists(
-      newName: String,
-      state: Map<String, Int>
-  ): Pair<String, Map<String, Int>> {
+  fun copyDiceGroupIfNotExists(newName: String, state: DiceGroup): Pair<String, DiceGroup> {
     val uniqueName = generateUniqueName(newName, diceGroups.keys.toList())
     return Pair(uniqueName, state)
   }
@@ -181,26 +178,10 @@ object DiceViewModel : ViewModel() {
     saveUser()
   }
 
-  fun editGroup(groupId: String) {
+  fun setGroupInEdit(groupId: String) {
     isGroupEditMode = true
     val group = diceGroups[groupId]
-    group?.let { group ->
-      val group2 =
-          mapOf(
-              *group
-                  .map {
-                    Pair(
-                        it.key,
-                        Pair(
-                            dices[it.key]
-                                ?: throw DiceNotFoundException(
-                                    "Dice with key: ${it.key} doesnt exist, create Dice to make this action"),
-                            it.value))
-                  }
-                  .toTypedArray()) // TODO improve dataStructure? And remove assert for better
-      // handling?
-      groupInEdit = Pair(groupId, group2)
-    }
+    group?.let { group -> groupInEdit = Pair(groupId, group.copy(states = listOf())) }
   }
 
   fun duplicateGroup(gorupId: String) {
@@ -212,7 +193,7 @@ object DiceViewModel : ViewModel() {
   fun selectDiceGroup(groupId: String) {
     lastDiceGroup = groupId
     val newDicesState = mutableListOf<Dice>()
-    diceGroups[groupId]?.forEach { (diceId, count) ->
+    diceGroups[groupId]?.dices?.forEach { (diceId, count) ->
       val diceToAdd = dices[diceId]
       diceToAdd?.let {
         for (i in 1..count) {
