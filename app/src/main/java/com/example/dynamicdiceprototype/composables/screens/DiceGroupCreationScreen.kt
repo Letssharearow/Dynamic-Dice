@@ -32,7 +32,7 @@ import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 @Composable
 fun DiceGroupCreationScreen(
     dices: List<Dice>,
-    onCreateDiceGroup: (name: String, dices: Map<String, Pair<Dice, Int>>) -> Unit,
+    onCreateDiceGroup: (name: String, dices: Map<Dice, Int>) -> Unit,
     isEdit: Boolean,
     groupSize: Int = 4,
     initialValue: Map<Dice, Int>? = mapOf(),
@@ -68,7 +68,7 @@ fun DiceGroupCreationScreen(
 
     SelectItemsGrid<Dice>(
         selectables = dices,
-        onSaveSelection = {},
+        onSaveSelection = { if (name.isNotEmpty()) onCreateDiceGroup(name, it) },
         getId = { it.name },
         initialSize = number?.takeIf { it.isDigitsOnly() && it.isNotEmpty() }?.toInt() ?: 0,
         initialValue = initialValue ?: mapOf()) { dice, modifier, maxWidth ->

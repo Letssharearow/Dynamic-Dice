@@ -52,7 +52,8 @@ fun EditDiceScreen(
                   text = name,
                   onValueChange = { name = it },
                   label = "Dice Name",
-                  isReadOnly = isEditMode,
+                  isReadOnly = false,
+                  isError = name.isEmpty(),
                   modifier = Modifier.padding(8.dp).fillMaxWidth(0.5F))
             }
             Box(
@@ -88,8 +89,9 @@ fun EditDiceScreen(
           modifier = Modifier.fillMaxHeight(0.4F))
     }
     Row(horizontalArrangement = Arrangement.SpaceAround) {
-      ContinueButton(onClick = { onEdit(name, color) }, text = "Edit Faces")
-      ContinueButton(onClick = { onSaveDice(name, color) }, text = "Save Dice")
+      ContinueButton(onClick = { if (name.isNotEmpty()) onEdit(name, color) }, text = "Edit Faces")
+      ContinueButton(
+          onClick = { if (name.isNotEmpty()) onSaveDice(name, color) }, text = "Save Dice")
     }
   }
 }

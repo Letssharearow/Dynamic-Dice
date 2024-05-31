@@ -7,14 +7,16 @@ import com.example.dynamicdiceprototype.data.Face
 
 data class DiceDTO(
     val images: Map<String, Int> = mapOf(),
-    var backgroundColor: Int = Color(0xFFCCCCCC).toArgb()
+    var backgroundColor: Int = Color(0xFFCCCCCC).toArgb(),
+    val name: String = "diceDTOName"
 )
 
-fun DiceDTO.toDice(name: String): Dice {
+fun DiceDTO.toDice(id: String): Dice {
   val faces =
       this.images.map { image -> Face(contentDescription = image.key, weight = image.value) }
 
   return Dice(
+      id = id,
       name = name, // Replace with actual logic to determine the name
       faces = faces,
       backgroundColor = Color(this.backgroundColor))

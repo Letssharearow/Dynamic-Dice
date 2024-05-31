@@ -16,7 +16,8 @@ import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
-import com.example.dynamicdiceprototype.data.toDiceGetDTO
+import com.example.dynamicdiceprototype.data.generateUniqueID
+import com.example.dynamicdiceprototype.data.toDiceDTO
 import kotlin.random.Random
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -70,7 +71,7 @@ object DiceViewModel : ViewModel() {
 
   private fun getDiceWithUniqueName(dice: Dice, names: List<String>): Dice {
     val diceName = generateUniqueName(dice.name, names)
-    return dice.copy(name = diceName)
+    return dice.copy(name = diceName, id = generateUniqueID())
   }
 
   fun setDiceName(name: String) {
@@ -98,8 +99,8 @@ object DiceViewModel : ViewModel() {
   }
 
   private fun addDice(dice: Dice) {
-    dices[dice.name] = dice
-    firebase.uploadDice(dice.name, dice.toDiceGetDTO())
+    dices[dice.id] = dice
+    firebase.uploadDice(dice.id, dice.toDiceDTO())
     saveUser()
   }
 
@@ -107,6 +108,7 @@ object DiceViewModel : ViewModel() {
     addDice(
         diceInEdit) // TODO consider using events to set and update local data instead of doing it
     // locally and with firebase to avoid data inconsistencies
+
   }
 
   // end create dice
@@ -127,8 +129,8 @@ object DiceViewModel : ViewModel() {
   fun removeDice(dice: Dice) {
     if (nonMutableDices.contains(dice.name))
         throw PermittedActionException("Can not make changes to Dice: ${dice.name}")
-    dices.remove(dice.name)
-    removeKeyFromInnerMaps(diceGroups, dice.name)
+    dices.remove(dice.id)
+    removeKeyFromInnerMaps(diceGroups, dice.id)
     saveUser()
   }
 
@@ -140,7 +142,7 @@ object DiceViewModel : ViewModel() {
   }
 
   fun duplicateDice(it: Dice) {
-    val newDice = getDiceWithUniqueName(it, dices.keys.toList())
+    val newDice = getDiceWithUniqueName(it, dices.values.map { it.name })
     addDice(newDice)
   }
 
@@ -154,8 +156,8 @@ object DiceViewModel : ViewModel() {
 
   // Dice Group
   // create Dice Group
-  fun createDiceGroup(name: String, dices: Map<String, Pair<Dice, Int>>) {
-    diceGroups[name] = mapOf(*dices.map { Pair(it.key, it.value.second) }.toTypedArray())
+  fun createDiceGroup(name: String, dices: Map<Dice, Int>) {
+    diceGroups[name] = mapOf(*dices.map { Pair(it.key.id, it.value) }.toTypedArray())
     saveUser()
   }
 
