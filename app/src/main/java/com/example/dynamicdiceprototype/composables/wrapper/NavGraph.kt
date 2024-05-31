@@ -9,9 +9,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.LifecycleAwareComponent
 import com.example.dynamicdiceprototype.composables.LandingPage
+import com.example.dynamicdiceprototype.composables.createdice.SelectFacesScreen
 import com.example.dynamicdiceprototype.composables.createdice.diceGraph
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupCreationScreen
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupsScreen
@@ -115,18 +117,39 @@ fun NavGraph(navController: NavHostController) {
     composable(route = Screen.CreateDiceGroup.route) {
       DiceGroupCreationScreen(
           dices = viewModel.dices.values.toList(),
-          onCreateDiceGroup = { name, dices ->
-            viewModel.setDicesForNewDiceGroup(name, dices)
-            navController.navigate(Screen.DiceGroups.route)
+          onSaveSelection = { name, dices ->
+            viewModel.setGroupInEditDices(name, dices)
+            navController.navigate(Screen.CreateDiceGroupStates.route)
           },
           groupSize = viewModel.groupSize,
           isEdit = viewModel.isGroupEditMode,
       )
     }
+    composable(route = Screen.CreateDiceGroupStates.route) {
+      if (viewModel.imageMap.isEmpty()) {
+        viewModel.loadAllImages()
+      }
+      SelectFacesScreen(
+          faces =
+              viewModel.imageMap.values.filter {
+                it.contentDescription != "image"
+              }, // TODO this filters images that were null or threw an error on firebase, maybe a
+          // better handling for that
+          color = viewModel.diceInEdit.backgroundColor,
+          initialValue =
+              viewModel.groupInEdit
+                  ?.second
+                  ?.states
+                  ?.associateBy({ viewModel.imageMap[it] ?: ImageDTO() }, { 1 }) ?: mapOf(),
+          onFacesSelectionClick = {
+            viewModel.setSelectedStates(it)
+            viewModel.saveGroupInEdit()
+            navController.navigate(Screen.DiceGroups.route)
+            headerViewModel.changeHeaderText("Create New Group")
+          })
+    }
   }
 }
-
-private val createDiceRoute = "dice/create"
 
 sealed class Screen(val route: String) {
 
@@ -137,6 +160,8 @@ sealed class Screen(val route: String) {
   object DiceGroups : Screen("dice_groups")
 
   object CreateDiceGroup : Screen("dice_groups/create")
+
+  object CreateDiceGroupStates : Screen("dice_groups/create/states")
 
   object UploadImage : Screen("upload")
 

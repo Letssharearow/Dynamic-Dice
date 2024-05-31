@@ -156,8 +156,20 @@ object DiceViewModel : ViewModel() {
 
   // Dice Group
   // create Dice Group
-  fun setDicesForNewDiceGroup(name: String, dices: Map<Dice, Int>) {
-    diceGroups[name] = DiceGroup(mapOf(*dices.map { Pair(it.key.id, it.value) }.toTypedArray()))
+  fun setGroupInEditDices(name: String, dices: Map<Dice, Int>) {
+    groupInEdit =
+        Pair(name, DiceGroup(mapOf(*dices.map { Pair(it.key.id, it.value) }.toTypedArray())))
+  }
+
+  fun setSelectedStates(states: Map<ImageDTO, Int>) {
+    groupInEdit =
+        groupInEdit?.let { group ->
+          Pair(group.first, group.second.copy(states = states.keys.map { it.contentDescription }))
+        }
+  }
+
+  fun saveGroupInEdit() {
+    groupInEdit?.let { diceGroups[it.first] = it.second }
     saveUser()
   }
 
@@ -181,7 +193,7 @@ object DiceViewModel : ViewModel() {
   fun setGroupInEdit(groupId: String) {
     isGroupEditMode = true
     val group = diceGroups[groupId]
-    group?.let { group -> groupInEdit = Pair(groupId, group.copy(states = listOf())) }
+    group?.let { group -> groupInEdit = Pair(groupId, group.copy(states = group.states.toList())) }
   }
 
   fun duplicateGroup(gorupId: String) {
