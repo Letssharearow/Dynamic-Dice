@@ -17,7 +17,6 @@ import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.toDiceDTO
-import kotlin.random.Random
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
@@ -199,7 +198,7 @@ object DiceViewModel : ViewModel() {
       val diceToAdd = dices[diceId]
       diceToAdd?.let {
         for (i in 1..count) {
-          newDicesState.add(diceToAdd.copy(rotation = Random.nextFloat() * i))
+          newDicesState.add(diceToAdd.copy(id = "", rotation = 0f))
         }
       } // TODO better handling for null Dice
     }
@@ -222,9 +221,9 @@ object DiceViewModel : ViewModel() {
         currentDices.map {
           if (it === dice) {
             // use copy function to trigger recomposition
-            if (dice.state == DiceState.UNLOCKED) dice.copy(state = DiceState.LOCKED, rotation = 0F)
+            if (dice.state == DiceState.UNLOCKED) dice.copy(state = DiceState.LOCKED, rotation = 0f)
             else {
-              dice.copy(state = DiceState.UNLOCKED, rotation = 0F)
+              dice.copy(state = DiceState.UNLOCKED, rotation = 0f)
             }
           } else it
         }

@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.example.dynamicdiceprototype.DTO.DiceDTO
 import com.example.dynamicdiceprototype.utils.randomItemByWeight
 import java.util.UUID
+import kotlin.math.sign
 import kotlin.random.Random
 
 data class Dice(
@@ -25,10 +26,15 @@ data class Dice(
   }
 
   fun roll(): Dice {
-
     return (this.copy(
         current = if (faces.isEmpty()) null else faces.randomItemByWeight(),
-        rotation = ((Random.nextFloat() * (15) + 5) * if (rotation > 0) -1 else 1)))
+        rotation =
+            ((Random.nextFloat() * (15) + 5) *
+                when {
+                  rotation > 0 -> -1
+                  rotation == 0f -> Random.nextInt().sign
+                  else -> 1
+                })))
   }
 }
 
