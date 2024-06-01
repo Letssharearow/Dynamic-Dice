@@ -3,6 +3,7 @@ package com.example.dynamicdiceprototype.utils
 import getMaxGridWidth
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
+import selectNext
 
 class UtilsKtTest {
 
@@ -26,5 +27,41 @@ class UtilsKtTest {
 
     maxGridWidth = getMaxGridWidth(count = 10, containerHeight = 650, containerWidth = 300)
     assertEquals(130f, maxGridWidth)
+  }
+
+  @org.junit.jupiter.api.Test
+  @Test
+  fun selectNextIndexSetFirstElementTest() {
+    val list = listOf("first", "second", "third")
+    val currentIndex = null
+    val nextIndex = list.selectNext(currentIndex)
+    assertEquals(0, nextIndex)
+  }
+
+  @org.junit.jupiter.api.Test
+  @Test
+  fun selectNextIndexSetNullIfListEmptyTest() {
+    val list = emptyList<String>()
+    val currentIndex = null
+    val nextIndex = list.selectNext(currentIndex)
+    assertEquals(null, nextIndex)
+  }
+
+  @org.junit.jupiter.api.Test
+  @Test
+  fun selectNextIndexSetNullIfLastIndexTest() {
+    val list = listOf("first", "second", "third")
+    val currentIndex = 2
+    val nextIndex = list.selectNext(currentIndex)
+    assertEquals(null, nextIndex)
+  }
+
+  @org.junit.jupiter.api.Test
+  @Test
+  fun selectNextIndexIncrementTest() {
+    val list = listOf("first", "second", "third")
+    val currentIndex = 1
+    val nextIndex = list.selectNext(currentIndex)
+    assertEquals(2, nextIndex)
   }
 }

@@ -47,7 +47,9 @@ fun toPx(dp: Dp) {
 
 fun Int.toPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
-// TODO Add tests
+fun <T> List<T>.selectNext(currentStateIndex: Int?): Int? {
+  return ((currentStateIndex ?: -1) + 1).takeIf { it >= 0 && it < this.size }
+}
 
 fun main() {
   println(getMaxGridWidth(1, 411, 814))

@@ -38,6 +38,7 @@ import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import com.example.dynamicdiceprototype.utils.MAIN_SCREEN_DICE_MIN_SIZE
+import selectNext
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -131,18 +132,6 @@ fun ItemSelectionDialog(
         },
         confirmButton = { Button(onClick = onDismiss) { Text("Close") } },
         modifier = Modifier.fillMaxHeight(0.9f))
-  }
-}
-
-fun <T> List<T>.nextItem(currentStateIndex: Int): Int? {
-  return if (currentStateIndex + 1 >= this.size) null else currentStateIndex + 1
-}
-
-fun <T> List<T>.selectNext(currentStateIndex: Int?): Int? {
-  return when {
-    this.isEmpty() -> null
-    currentStateIndex == null -> 0
-    else -> nextItem(currentStateIndex)
   }
 }
 
