@@ -20,7 +20,7 @@ fun TemplateSelectionScreen(
       items = dices,
       onSelect = onSelectTemplate,
       menuActions = menuActions,
-      getKey = { it.name },
+      getKey = { it.id },
       preferenceView = PreferenceKey.IsDicesViewCompact,
       onCreateItem = onCreateNewDice) { item, isCompact, modifier ->
         DiceCard(item, isCompact, modifier)

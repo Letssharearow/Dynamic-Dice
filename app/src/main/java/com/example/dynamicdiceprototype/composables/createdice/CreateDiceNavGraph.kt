@@ -1,8 +1,7 @@
 package com.example.dynamicdiceprototype.composables.createdice
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -11,7 +10,6 @@ import androidx.navigation.navigation
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.Screen
-import com.example.dynamicdiceprototype.composables.common.AlertBox
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
@@ -22,12 +20,10 @@ fun NavGraphBuilder.diceGraph(
     navController: NavHostController,
     headerViewModel: HeaderViewModel
 ) {
-  val test = ""
   navigation(route = DicesScreen.Dices.route, startDestination = DicesScreen.DicesList.route) {
     composable(route = DicesScreen.DicesList.route) {
-      if (diceViewModel.imageMap.isEmpty()) {
-        diceViewModel.loadAllImages()
-      }
+      LaunchedEffect(true) { diceViewModel.loadAllImages() }
+
       TemplateSelectionScreen(
           dices = diceViewModel.dices.values.toList(),
           onSelectTemplate = {
@@ -87,7 +83,6 @@ fun NavGraphBuilder.diceGraph(
           })
     }
     composable(route = DicesScreen.EditDice.route) {
-      var openDialog by remember { mutableStateOf(false) }
       EditDiceScreen(
           diceViewModel.diceInEdit,
           onEdit = { name, color ->
@@ -95,23 +90,9 @@ fun NavGraphBuilder.diceGraph(
             diceViewModel.setColor(color)
             navController.navigate(DicesScreen.SelectFaces.route)
           },
-          isEditMode = diceViewModel.isDiceEditMode,
           onSaveDice = { name, color ->
             diceViewModel.setDiceName(name)
             diceViewModel.setColor(color)
-            if (!diceViewModel.isDiceEditMode && diceViewModel.dices.contains(name)) {
-              openDialog = true
-            } else {
-              diceViewModel.saveDice()
-              navController.navigate(DicesScreen.DicesList.route)
-            }
-          })
-      AlertBox(
-          isOpen = openDialog,
-          text = "Name Already Exists, are you sure you want to overwrite it?",
-          onDismiss = { openDialog = false },
-          conConfirm = {
-            openDialog = false
             diceViewModel.saveDice()
             navController.navigate(DicesScreen.DicesList.route)
           })

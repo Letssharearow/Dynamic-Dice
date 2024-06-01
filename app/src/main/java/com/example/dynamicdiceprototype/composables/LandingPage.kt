@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.TAG
 import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
@@ -23,6 +24,7 @@ import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 fun LandingPage(
     dices: List<Dice>,
     name: String,
+    states: List<Face>,
     isLoading: Boolean,
     onRollClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -35,7 +37,7 @@ fun LandingPage(
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = modifier.fillMaxSize()) {
         AnimatedVisibility(visible = !isLoading, modifier = Modifier.weight(1f)) {
-          DiceBundle(dices = dices)
+          DiceBundle(dices = dices, states = states)
         }
         AnimatedVisibility(visible = isLoading, Modifier.weight(1f)) {
           CircularProgressIndicator(modifier = Modifier.wrapContentSize(align = Alignment.Center))
@@ -48,6 +50,11 @@ fun LandingPage(
 @Composable
 private fun prev() {
   DynamicDicePrototypeTheme {
-    LandingPage(dices = getDices(5), name = "Test", isLoading = false, onRollClicked = { /*TODO*/})
+    LandingPage(
+        dices = getDices(5),
+        name = "Test",
+        isLoading = false,
+        states = listOf(),
+        onRollClicked = { /*TODO*/ })
   }
 }

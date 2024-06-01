@@ -12,7 +12,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.text.isDigitsOnly
 import com.example.dynamicdiceprototype.composables.SelectItemsGrid
 import com.example.dynamicdiceprototype.composables.SingleLineTextInput
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
@@ -26,12 +25,10 @@ fun DiceGroupCreationScreen(
     dices: List<Dice>,
     onSaveSelection: (name: String, dices: Map<Dice, Int>) -> Unit,
     isEdit: Boolean,
-    groupSize: Int = 4,
     initialValue: Map<Dice, Int>? = mapOf(),
     initialName: String = "Change Later",
 ) {
   var name by remember { mutableStateOf(initialName) }
-  var number by remember { mutableStateOf<String?>("$groupSize") }
   ArrangedColumn {
     SingleLineTextInput(
         text = name,
@@ -44,7 +41,6 @@ fun DiceGroupCreationScreen(
         selectables = dices,
         onSaveSelection = { if (name.isNotEmpty()) onSaveSelection(name, it) },
         getId = { it.name },
-        initialSize = number?.takeIf { it.isDigitsOnly() && it.isNotEmpty() }?.toInt() ?: 0,
         initialValue = initialValue ?: mapOf()) { dice, modifier, maxWidth ->
           DicePreview(
               dice = dice, facesSum = dice.faces.sumOf { it.weight }, Modifier.size(maxWidth))
@@ -62,7 +58,6 @@ fun DiceroupsScreenPreview() {
     DiceGroupCreationScreen(
         dices = dices,
         onSaveSelection = { string, map -> },
-        groupSize = 20,
         isEdit = false,
         initialValue = mapOf(Dice("checked") to 3))
   }

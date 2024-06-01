@@ -8,7 +8,7 @@ import java.util.UUID
 import kotlin.random.Random
 
 data class Dice(
-    var id: String = generateUniqueID(),
+    var id: String = "",
     var name: String = "diceName",
     var faces: List<Face> = listOf(),
     var current: Face? = null,
@@ -16,6 +16,14 @@ data class Dice(
     var rotation: Float = ((Random.nextFloat() * (15) + 5) * if (Random.nextBoolean()) -1 else 1),
     var backgroundColor: Color = Color(0x80C0C0C0)
 ) {
+  init {
+    if (id.isEmpty())
+        id =
+            name
+                .substring(0, (20).coerceAtMost(name.length))
+                .plus(generateUniqueID().substring(name.length.coerceAtMost(20)))
+  }
+
   fun roll(): Dice {
 
     return (this.copy(

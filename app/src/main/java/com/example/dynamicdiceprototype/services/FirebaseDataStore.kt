@@ -160,6 +160,17 @@ class FirebaseDataStore {
     }
   }
 
+  fun deleteDice(id: String) {
+    db.collection(DICES_COLLECTION_NAME)
+        .document(id)
+        .delete()
+        .addOnSuccessListener { Log.d(TAG, "Firebase DocumentSnapshot deleted with ID: $id") }
+        .addOnFailureListener {
+          Log.d(TAG, "Firebase DocumentSnapshot deleted failed, ID: $id")
+          errorMessage = "Firebase DocumentSnapshot deleted failed, ID: $id, ${it.message}"
+        }
+  }
+
   private fun setDocument(
       keyName: String,
       dataMap: Any,

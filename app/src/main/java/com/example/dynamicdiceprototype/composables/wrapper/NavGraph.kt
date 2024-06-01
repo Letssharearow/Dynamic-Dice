@@ -3,6 +3,7 @@ package com.example.dynamicdiceprototype.composables.wrapper
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -20,8 +21,10 @@ import com.example.dynamicdiceprototype.composables.screens.DiceGroupsScreen
 import com.example.dynamicdiceprototype.composables.screens.TestScreen
 import com.example.dynamicdiceprototype.composables.screens.UploadImageScreen
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
+import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.PreferenceManager
@@ -59,6 +62,15 @@ fun NavGraph(navController: NavHostController) {
           dices = viewModel.currentDices,
           name = viewModel.lastDiceGroup,
           isLoading = viewModel.collectFlows <= 1,
+          states =
+              viewModel.diceGroups[viewModel.lastDiceGroup]?.states?.map { imageKey ->
+                val image = viewModel.imageMap[imageKey]
+                image?.let {
+                  Face(
+                      contentDescription = it.contentDescription,
+                      data = FirebaseDataStore.base64ToBitmap(it.base64String))
+                } ?: Face(contentDescription = imageKey)
+              } ?: listOf(),
           onRollClicked = { viewModel.rollDices() })
     }
     diceGraph(viewModel, navController, headerViewModel)
@@ -121,14 +133,12 @@ fun NavGraph(navController: NavHostController) {
             viewModel.setGroupInEditDices(name, dices)
             navController.navigate(Screen.CreateDiceGroupStates.route)
           },
-          groupSize = viewModel.groupSize,
           isEdit = viewModel.isGroupEditMode,
       )
     }
     composable(route = Screen.CreateDiceGroupStates.route) {
-      if (viewModel.imageMap.isEmpty()) {
-        viewModel.loadAllImages()
-      }
+      LaunchedEffect(true) { viewModel.loadAllImages() }
+
       SelectFacesScreen(
           faces =
               viewModel.imageMap.values.filter {

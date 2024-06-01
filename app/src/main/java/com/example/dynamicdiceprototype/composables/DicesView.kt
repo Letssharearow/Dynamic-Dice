@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -29,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.composables.common.PupMenuWithAlert
 import com.example.dynamicdiceprototype.composables.createdice.DiceCard
 import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.PreferenceKey
@@ -38,32 +40,48 @@ import com.example.dynamicdiceprototype.utils.MAIN_SCREEN_DICE_MIN_SIZE
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DicesView(dices: List<Dice>, modifier: Modifier = Modifier) {
+fun DicesView(
+    dices: List<Dice>,
+    modifier: Modifier = Modifier,
+    states: List<Face> = listOf(),
+) {
   val inPreviewMode = LocalInspectionMode.current
   val viewModel: DiceViewModel? = if (inPreviewMode) null else viewModel()
   OneScreenGrid<Dice>(dices, minSize = MAIN_SCREEN_DICE_MIN_SIZE, modifier) { dice, maxSize ->
     var showMenu by remember { mutableStateOf(false) }
     var showAddDiceDialog by remember { mutableStateOf(false) }
-
+    var currentState by remember { mutableStateOf<Face?>(null) }
     Box(
         contentAlignment = Alignment.Center,
         modifier =
             Modifier.fillMaxSize()
                 .combinedClickable(
-                    onClick = { viewModel?.lockDice(dice) }, onLongClick = { showMenu = true })) {
+                    onClick = {
+                      if (states.isEmpty()) viewModel?.lockDice(dice)
+                      else {
+                        currentState = states.selectNext(currentState)
+                      }
+                    },
+                    onLongClick = { showMenu = true })) {
           DiceView(
               dice = dice,
               size = maxSize,
           )
+          currentState?.let {
+            Box(modifier = Modifier.size(maxSize.div(5)).align(Alignment.TopStart)) {
+              SizedImage(
+                  image = it,
+              )
+            }
+          }
           Box(Modifier.align(Alignment.Center)) {
             PupMenuWithAlert(
                 actionItem = dice,
                 items =
                     listOf(
-                        //                      MenuItem(text = "Roll", callBack =
+                        //                      MenuItem(text = "Roll This", callBack =
                         // {viewModel.rollSingleDice(it)}),
-                        //                      MenuItem(text = "Lock", callBack =
-                        // {viewModel.lockSingleDice(it)}),
+                        MenuItem(text = "Lock", callBack = { viewModel?.lockDice(dice) }),
                         MenuItem(
                             text = "Duplicate",
                             callBack = { viewModel?.duplicateToCurrentDices(it) }),
@@ -113,6 +131,23 @@ fun ItemSelectionDialog(
   }
 }
 
+fun <T> List<T>.nextItem(currentItem: T?): T? {
+  val currentIndex = this.indexOf(currentItem)
+  return if (currentIndex == -1 || currentIndex == this.size - 1) {
+    null // Return null if the current item is not found or it is the last item
+  } else {
+    this[currentIndex + 1] // Return the next item in the list
+  }
+}
+
+fun <T> List<T>.selectNext(currentItem: T?): T? {
+  return if (currentItem == null) {
+    this.firstOrNull() // Return the first item if the current item is null
+  } else {
+    nextItem(currentItem)
+  }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun Preview() {
@@ -120,7 +155,10 @@ private fun Preview() {
     Box(Modifier.height(800.dp).width(300.dp)) {
       Column {
         Box(modifier = Modifier.fillMaxWidth().height(100.dp).background(Color.Cyan))
-        DicesView(dices = getDices(8), Modifier.weight(1f))
+        DicesView(
+            dices = getDices(8),
+            states = listOf(Face(contentDescription = "hi")),
+            modifier = Modifier.weight(1f))
 
         Box(modifier = Modifier.fillMaxWidth().height(40.dp).background(Color.Cyan))
       }

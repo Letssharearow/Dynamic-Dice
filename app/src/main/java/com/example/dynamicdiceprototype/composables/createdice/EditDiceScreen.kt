@@ -31,7 +31,6 @@ import com.example.dynamicdiceprototype.data.Dice
 @Composable
 fun EditDiceScreen(
     dice: Dice,
-    isEditMode: Boolean,
     onSaveDice: (name: String, color: Color) -> Unit,
     onEdit: (name: String, color: Color) -> Unit
 ) {

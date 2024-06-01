@@ -121,7 +121,7 @@ fun FaceView(
 }
 
 @Composable
-private fun SizedImage(image: Face?, modifier: Modifier = Modifier) {
+fun SizedImage(image: Face?, modifier: Modifier = Modifier) {
   image?.let { imageNotNull ->
     imageNotNull.data?.let {
       ImageBitmap(image = it, contentDescription = imageNotNull.contentDescription, modifier)

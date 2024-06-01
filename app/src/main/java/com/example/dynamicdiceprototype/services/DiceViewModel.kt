@@ -16,7 +16,6 @@ import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
-import com.example.dynamicdiceprototype.data.generateUniqueID
 import com.example.dynamicdiceprototype.data.toDiceDTO
 import kotlin.random.Random
 import kotlinx.coroutines.async
@@ -32,12 +31,9 @@ object DiceViewModel : ViewModel() {
 
   // create Dice
   var diceInEdit by mutableStateOf<Dice>(Dice()) // TODO make nullable
-  var facesSize by mutableStateOf<Int>(6)
-  var isDiceEditMode by mutableStateOf<Boolean>(false)
 
   // create Dice Group
   var groupInEdit by mutableStateOf<Pair<String, DiceGroup>?>(null)
-  var groupSize by mutableStateOf<Int>(6)
   var isGroupEditMode by mutableStateOf<Boolean>(false)
 
   // User Config
@@ -69,18 +65,12 @@ object DiceViewModel : ViewModel() {
 
   // create Dice Flow
 
-  private fun getDiceWithUniqueName(dice: Dice, names: List<String>): Dice {
-    val diceName = generateUniqueName(dice.name, names)
-    return dice.copy(name = diceName, id = generateUniqueID())
-  }
-
   fun setDiceName(name: String) {
     diceInEdit.name = name
   }
 
   fun createNewDice() {
     diceInEdit = Dice(name = "Change Later")
-    isDiceEditMode = false
   }
 
   fun setSelectedFaces(values: Map<ImageDTO, Int>) {
@@ -131,6 +121,7 @@ object DiceViewModel : ViewModel() {
         throw PermittedActionException("Can not make changes to Dice: ${dice.name}")
     dices.remove(dice.id)
     removeKeyFromInnerMaps(diceGroups, dice.id)
+    firebase.deleteDice(dice.id)
     saveUser()
   }
 
@@ -138,11 +129,10 @@ object DiceViewModel : ViewModel() {
     if (nonMutableDices.contains(dice.name))
         throw PermittedActionException("Can not make changes to Dice: ${dice.name}")
     diceInEdit = dice
-    isDiceEditMode = true
   }
 
   fun duplicateDice(it: Dice) {
-    val newDice = getDiceWithUniqueName(it, dices.values.map { it.name })
+    val newDice = it.copy(id = "")
     addDice(newDice)
   }
 
@@ -222,7 +212,7 @@ object DiceViewModel : ViewModel() {
 
   fun duplicateToCurrentDices(it: Dice) {
     val mutableCurrentDices = currentDices.toMutableList()
-    mutableCurrentDices.add(getDiceWithUniqueName(it, currentDices.map { it.name }))
+    mutableCurrentDices.add(it.copy(id = ""))
     currentDices = mutableCurrentDices
   }
 
@@ -261,12 +251,18 @@ object DiceViewModel : ViewModel() {
       val userDTO = firebase.fetchUserData(USER)
       if (userDTO != null) {
         userDTO.diceGroups.forEach { diceGroups[it.key] = it.value } // TODO handle config null
-        val tasks =
+        val diceTasks =
             userDTO.dices.map {
-              dices[it] = Dice(name = it)
+              dices[it] = Dice(id = it)
               async { loadDice(it) }
             }
-        tasks.awaitAll()
+        val statesTask =
+            userDTO.diceGroups.values.flatMap {
+              it.states.map { async { loadImage(diceId = null, imageId = it) } }
+            }
+
+        statesTask.awaitAll()
+        diceTasks.awaitAll()
         collectFlows++
         collectFlows++ // TODO resolve this weird double ++ colelction behaviour, probably use some
         // event subscription
@@ -289,19 +285,25 @@ object DiceViewModel : ViewModel() {
     }
   }
 
-  private suspend fun loadImage(diceId: String, imageId: String) {
+  private suspend fun loadImage(diceId: String?, imageId: String) {
     val image = firebase.getImageFromId(imageId)
+    val imageMapMutable = imageMap.toMutableMap()
     image?.let { imageNotNull ->
-      val bitmap = FirebaseDataStore.base64ToBitmap(imageNotNull.base64String)
-      val diceToUpdate = dices[diceId]
-      diceToUpdate?.let { dice ->
-        dices[diceId] =
-            dice.copy(
-                faces =
-                    dice.faces.map {
-                      if (it.contentDescription == image.contentDescription) it.copy(data = bitmap)
-                      else it
-                    })
+      imageMapMutable[imageId] = imageNotNull
+      imageMap = imageMapMutable
+      diceId?.let {
+        val bitmap = FirebaseDataStore.base64ToBitmap(imageNotNull.base64String)
+        val diceToUpdate = dices[diceId]
+        diceToUpdate?.let { dice ->
+          dices[diceId] =
+              dice.copy(
+                  faces =
+                      dice.faces.map {
+                        if (it.contentDescription == image.contentDescription)
+                            it.copy(data = bitmap)
+                        else it
+                      })
+        }
       }
     }
   }
