@@ -12,11 +12,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.composables.SelectItemsGrid
 import com.example.dynamicdiceprototype.composables.SingleLineTextInput
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.createdice.DicePreview
 import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
@@ -25,10 +27,9 @@ fun DiceGroupCreationScreen(
     dices: List<Dice>,
     onSaveSelection: (name: String, dices: Map<Dice, Int>) -> Unit,
     isEdit: Boolean,
-    initialValue: Map<Dice, Int>? = mapOf(),
-    initialName: String = "Change Later",
+    initialValue: Pair<String, DiceGroup>? = null,
 ) {
-  var name by remember { mutableStateOf(initialName) }
+  var name by remember { mutableStateOf(initialValue?.first ?: "Change Later") }
   ArrangedColumn {
     SingleLineTextInput(
         text = name,
@@ -41,11 +42,26 @@ fun DiceGroupCreationScreen(
         selectables = dices,
         onSaveSelection = { if (name.isNotEmpty()) onSaveSelection(name, it) },
         getId = { it.name },
-        initialValue = initialValue ?: mapOf()) { dice, modifier, maxWidth ->
-          DicePreview(
-              dice = dice, facesSum = dice.faces.sumOf { it.weight }, Modifier.size(maxWidth))
-        }
+        initialValue = transformDiceGroup(initialValue, dices),
+    ) { dice, modifier, maxWidth ->
+      DicePreview(dice = dice, facesSum = dice.faces.sumOf { it.weight }, Modifier.size(maxWidth))
+    }
   }
+}
+
+fun transformDiceGroup(diceGroupPair: Pair<String, DiceGroup>?, dices: List<Dice>): Map<Dice, Int> {
+  val diceGroup = diceGroupPair?.second ?: return emptyMap()
+  val diceMap = mutableMapOf<Dice, Int>()
+
+  for ((diceId, count) in diceGroup.dices) {
+    val dice =
+        dices.find { it.id == diceId }
+            ?: throw DiceNotFoundException(
+                "Dice with id $diceId could not be found in the dices List $dices")
+    diceMap[dice] = count
+  }
+
+  return diceMap.toMap()
 }
 
 @Composable
@@ -55,10 +71,6 @@ fun DiceroupsScreenPreview() {
     val context = LocalContext.current
     PreferenceManager.init(context)
     val dices = listOf(Dice("checked"), Dice("Name"), Dice("Name"))
-    DiceGroupCreationScreen(
-        dices = dices,
-        onSaveSelection = { string, map -> },
-        isEdit = false,
-        initialValue = mapOf(Dice("checked") to 3))
+    DiceGroupCreationScreen(dices = dices, onSaveSelection = { string, map -> }, isEdit = false)
   }
 }

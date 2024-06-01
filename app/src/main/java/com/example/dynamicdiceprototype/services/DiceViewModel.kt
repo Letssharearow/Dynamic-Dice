@@ -132,7 +132,7 @@ object DiceViewModel : ViewModel() {
   }
 
   fun duplicateDice(it: Dice) {
-    val newDice = it.copy(id = "")
+    val newDice = it.copy(id = "", name = it.name.plus("_copy"))
     addDice(newDice)
   }
 

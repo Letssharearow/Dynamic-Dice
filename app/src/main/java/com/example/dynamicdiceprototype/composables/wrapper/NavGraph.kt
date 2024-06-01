@@ -129,6 +129,7 @@ fun NavGraph(navController: NavHostController) {
     composable(route = Screen.CreateDiceGroup.route) {
       DiceGroupCreationScreen(
           dices = viewModel.dices.values.toList(),
+          initialValue = viewModel.groupInEdit,
           onSaveSelection = { name, dices ->
             viewModel.setGroupInEditDices(name, dices)
             navController.navigate(Screen.CreateDiceGroupStates.route)
