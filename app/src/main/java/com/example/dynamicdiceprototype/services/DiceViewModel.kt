@@ -241,6 +241,10 @@ object DiceViewModel : ViewModel() {
         }
   }
 
+  fun setCurrentDicesState(state: DiceState) {
+    currentDices = currentDices.map { it.copy(state = state) }
+  }
+
   // Main Screen actions end
 
   // Firebase Access

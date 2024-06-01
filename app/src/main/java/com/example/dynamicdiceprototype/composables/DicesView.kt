@@ -90,6 +90,12 @@ fun DicesView(
                             text = "Duplicate",
                             callBack = { viewModel?.duplicateToCurrentDices(it) }),
                         MenuItem(text = "Add Dice", callBack = { showAddDiceDialog = true }),
+                        MenuItem(
+                            text = "Lock all",
+                            callBack = { viewModel?.setCurrentDicesState(DiceState.LOCKED) }),
+                        MenuItem(
+                            text = "Unlock all",
+                            callBack = { viewModel?.setCurrentDicesState(DiceState.UNLOCKED) }),
                     ),
                 showMenu = showMenu,
                 onDismiss = { showMenu = false },
