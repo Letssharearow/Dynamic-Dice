@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.composables.common.PupMenuWithAlert
 import com.example.dynamicdiceprototype.composables.createdice.DiceCard
 import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
@@ -50,7 +51,7 @@ fun DicesView(
   OneScreenGrid<Dice>(dices, minSize = MAIN_SCREEN_DICE_MIN_SIZE, modifier) { dice, maxSize ->
     var showMenu by remember { mutableStateOf(false) }
     var showAddDiceDialog by remember { mutableStateOf(false) }
-    var currentState by remember { mutableStateOf<Face?>(null) }
+    var currentStateIndex by remember { mutableStateOf<Int?>(null) }
     Box(
         contentAlignment = Alignment.Center,
         modifier =
@@ -59,7 +60,7 @@ fun DicesView(
                     onClick = {
                       if (states.isEmpty()) viewModel?.lockDice(dice)
                       else {
-                        currentState = states.selectNext(currentState)
+                        currentStateIndex = states.selectNext(currentStateIndex)
                       }
                     },
                     onLongClick = { showMenu = true })) {
@@ -67,10 +68,10 @@ fun DicesView(
               dice = dice,
               size = maxSize,
           )
-          currentState?.let {
+          currentStateIndex?.let {
             Box(modifier = Modifier.size(maxSize.div(5)).align(Alignment.TopStart)) {
               SizedImage(
-                  image = it,
+                  image = states[it],
               )
             }
           }
@@ -81,7 +82,9 @@ fun DicesView(
                     listOf(
                         //                      MenuItem(text = "Roll This", callBack =
                         // {viewModel.rollSingleDice(it)}),
-                        MenuItem(text = "Lock", callBack = { viewModel?.lockDice(dice) }),
+                        MenuItem(
+                            text = if (dice.state == DiceState.UNLOCKED) "Lock" else "Unlock",
+                            callBack = { viewModel?.lockDice(dice) }),
                         MenuItem(
                             text = "Duplicate",
                             callBack = { viewModel?.duplicateToCurrentDices(it) }),
@@ -131,20 +134,15 @@ fun ItemSelectionDialog(
   }
 }
 
-fun <T> List<T>.nextItem(currentItem: T?): T? {
-  val currentIndex = this.indexOf(currentItem)
-  return if (currentIndex == -1 || currentIndex == this.size - 1) {
-    null // Return null if the current item is not found or it is the last item
-  } else {
-    this[currentIndex + 1] // Return the next item in the list
-  }
+fun <T> List<T>.nextItem(currentStateIndex: Int): Int? {
+  return if (currentStateIndex + 1 >= this.size) null else currentStateIndex + 1
 }
 
-fun <T> List<T>.selectNext(currentItem: T?): T? {
-  return if (currentItem == null) {
-    this.firstOrNull() // Return the first item if the current item is null
-  } else {
-    nextItem(currentItem)
+fun <T> List<T>.selectNext(currentStateIndex: Int?): Int? {
+  return when {
+    this.isEmpty() -> null
+    currentStateIndex == null -> 0
+    else -> nextItem(currentStateIndex)
   }
 }
 
