@@ -56,7 +56,7 @@ object DiceViewModel : ViewModel() {
   }
 
   fun createNewGroup() {
-    groupInEdit = null
+    groupInEdit = Pair("Change Later", DiceGroup())
     isGroupEditMode = false
   }
 
