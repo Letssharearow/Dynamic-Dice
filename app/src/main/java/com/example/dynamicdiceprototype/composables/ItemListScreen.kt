@@ -115,7 +115,7 @@ private fun Preview() {
         items = listOf(Dice(name = "test"), Dice(name = "test2"), Dice(name = "test3")),
         onSelect = {},
         menuActions = listOf(),
-        getKey = { it.name },
+        getKey = { it.id },
         onCreateItem = {}) { item, isCompact, modifier ->
           DiceCard(dice = item, isCompact = isCompact, modifier)
         }

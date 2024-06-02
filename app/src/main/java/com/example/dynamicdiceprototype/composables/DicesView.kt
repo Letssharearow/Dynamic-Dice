@@ -128,7 +128,7 @@ fun ItemSelectionDialog(
           ItemListScreen(
               items = selectables,
               onSelect = onItemSelected,
-              getKey = { it.name },
+              getKey = { it.id },
               menuActions = listOf(),
               preferenceView = PreferenceKey.IsAddDiceCompact,
               onCreateItem = null,
