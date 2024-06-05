@@ -86,7 +86,7 @@ fun NavGraph(navController: NavHostController) {
       }
     }
     composable(route = Screen.DiceGroups.route) {
-      headerViewModel.changeHeaderText("Dice Groups")
+      LaunchedEffect(true) { headerViewModel.changeHeaderText("Dice Groups") }
       DiceGroupsScreen(
           groups = viewModel.diceGroups.keys.toList(),
           onSelectGroup = { groupId ->
@@ -109,8 +109,7 @@ fun NavGraph(navController: NavHostController) {
                           headerViewModel.changeHeaderText(it)
                         } catch (e: DiceNotFoundException) {
                           e.printStackTrace()
-                          Toast.makeText(context, e.message, Toast.LENGTH_LONG)
-                              .show() // TODO actually wait for Firebase success
+                          Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
                         }
                       },
                   ),
@@ -133,7 +132,7 @@ fun NavGraph(navController: NavHostController) {
     }
     composable(route = Screen.CreateDiceGroup.route) {
       var openDialog by remember { mutableStateOf(false) }
-      headerViewModel.changeHeaderText("Create New Group")
+      LaunchedEffect(true) { headerViewModel.changeHeaderText("Create New Group") }
       DiceGroupCreationScreen(
           dices = viewModel.dices.values.toList(),
           initialValue = viewModel.groupInEdit,
@@ -158,7 +157,10 @@ fun NavGraph(navController: NavHostController) {
           })
     }
     composable(route = Screen.CreateDiceGroupStates.route) {
-      LaunchedEffect(true) { viewModel.loadAllImages() }
+      LaunchedEffect(true) {
+        viewModel.loadAllImages()
+        headerViewModel.changeHeaderText("Select optional Cycling State")
+      }
 
       SelectFacesScreen(
           faces =
