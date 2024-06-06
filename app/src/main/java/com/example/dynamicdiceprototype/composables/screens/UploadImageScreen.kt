@@ -12,8 +12,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,6 +46,9 @@ import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.DTO.ImageBitmapDTO
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.composables.SingleLineTextInput
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Regular
+import compose.icons.fontawesomeicons.regular.Images
 import java.io.InputStream
 
 @Composable
@@ -91,7 +96,7 @@ fun UploadImageScreen(
           LazyColumn(
               modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 items(images) { imageDTO ->
-                  var isEditMode by remember { mutableStateOf<Boolean>(false) }
+                  var isEditMode by remember { mutableStateOf(false) }
                   Column(
                       modifier =
                           Modifier.padding(16.dp)
@@ -132,30 +137,43 @@ fun UploadImageScreen(
               onClick = {
                 val imageDTOs = images.map { imageDTO -> imageDTO.toImageDTO() }
                 onImagesSelected(imageDTOs)
-                setImages(emptyList()) // Reset images after upload
-                setCommonTags(emptyList()) // Clear the common tag
+                setImages(emptyList())
+                setCommonTags(emptyList())
               },
               modifier = Modifier.padding(16.dp)) {
                 Text("Upload")
               }
         } else {
           Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(
+            IconButton(
                 onClick = { imagePickerLauncher.launch("image/*") },
-                modifier = Modifier.padding(16.dp)) {
-                  Text("Select Images")
+                modifier =
+                    Modifier.padding(16.dp).weight(1f).fillMaxWidth(0.66f).fillMaxWidth(0.66f)) {
+                  Icon(
+                      imageVector = FontAwesomeIcons.Regular.Images,
+                      contentDescription = "Upload Image",
+                  )
                 }
-            Button(
-                colors =
-                    ButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSecondary,
-                        disabledContainerColor = MaterialTheme.colorScheme.error,
-                        disabledContentColor = MaterialTheme.colorScheme.onError),
-                onClick = onNavigateToDiceCreation,
-                modifier = Modifier.padding(16.dp)) {
-                  Text("Create Dice")
-                }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+              Text(
+                  text = "Images ready?",
+                  style = MaterialTheme.typography.bodyLarge,
+              )
+              Button(
+                  colors =
+                      ButtonColors(
+                          containerColor = MaterialTheme.colorScheme.secondary,
+                          contentColor = MaterialTheme.colorScheme.onSecondary,
+                          disabledContainerColor = MaterialTheme.colorScheme.error,
+                          disabledContentColor = MaterialTheme.colorScheme.onError),
+                  onClick = onNavigateToDiceCreation,
+                  modifier = Modifier.padding(16.dp)) {
+                    Text("Create Dice")
+                  }
+            }
           }
         }
       }

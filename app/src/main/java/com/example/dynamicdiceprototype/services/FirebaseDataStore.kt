@@ -25,30 +25,15 @@ const val USER = "Juli GroupDataUpdate"
 private const val IMAGE_COLLECTION_NAME = "images"
 private const val DICES_COLLECTION_NAME = "dices"
 private const val CONFIG_COLLECTION_NAME = "users"
-const val local = false
-
-enum class ImageProperty {
-  CONTENT_DESCRIPTION,
-  IMAGE_BITMAP
-}
 
 enum class DiceProperty {
   IMAGE_IDS,
   COLOR
 }
 
-enum class UserProperty {
-  DICE_GROUPS,
-  DICES,
-}
-
 class FirebaseDataStore {
   private val db = Firebase.firestore
   var errorMessage by mutableStateOf<String?>(null)
-
-  init {
-    //    GlobalScope.launch { loadAllDices() }
-  }
 
   suspend fun loadAllImages(): MutableMap<String, ImageDTO> {
     val map = mutableMapOf<String, ImageDTO>()
