@@ -46,6 +46,7 @@ dependencies {
   implementation(libs.androidx.material3)
   implementation(libs.androidx.navigation.compose)
   implementation(libs.androidx.room.ktx)
+  implementation(libs.font.awesome)
   testImplementation(libs.junit)
   testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
   androidTestImplementation(libs.androidx.junit)
