@@ -18,7 +18,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.services.PreferenceKey
@@ -28,7 +27,7 @@ import com.example.dynamicdiceprototype.services.PreferenceManager
 fun SettingsScreen() {
   val preferences = PreferenceKey.entries.toTypedArray()
   val headerText =
-      PreferenceManager.getPreferenceFlow<String>( PreferenceKey.SettingsHeader)
+      PreferenceManager.getPreferenceFlow<String>(PreferenceKey.SettingsHeader)
           .collectAsState(initial = "Settings")
           .value
 
@@ -41,13 +40,13 @@ fun SettingsScreen() {
             modifier = Modifier.padding(bottom = 16.dp).align(Alignment.CenterHorizontally))
 
         preferences.forEach { preference ->
-          val valueFlow = PreferenceManager.getPreferenceFlow<Any>( preference)
+          val valueFlow = PreferenceManager.getPreferenceFlow<Any>(preference)
           val valueState = valueFlow.collectAsState(initial = preference.defaultValue)
 
           PreferenceItem(
               preference = preference,
               value = valueState.value,
-              onValueChange = { newValue -> PreferenceManager.saveData( preference, newValue) })
+              onValueChange = { newValue -> PreferenceManager.saveData(preference, newValue) })
         }
       }
 }
@@ -61,8 +60,8 @@ fun PreferenceItem(preference: PreferenceKey, value: Any, onValueChange: (Any) -
     is Int -> {
       PreferenceTextField(
           preference = preference,
-          value = value.toString(),
-          onValueChange = { newValue -> newValue.toIntOrNull()?.let { onValueChange(it) } },
+          value = if (value == 0) "" else value.toString(),
+          onValueChange = { newValue -> onValueChange(newValue.toIntOrNull() ?: 0) },
           isNumeric = true)
     }
     is String -> {
@@ -119,6 +118,7 @@ fun PreferenceTextField(
                 onValueChange(newValue)
               }
             },
+            singleLine = true,
             keyboardOptions =
                 if (isNumeric) {
                   KeyboardOptions(keyboardType = KeyboardType.Number)

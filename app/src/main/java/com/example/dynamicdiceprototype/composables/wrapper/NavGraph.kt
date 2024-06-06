@@ -19,6 +19,7 @@ import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.LifecycleAwareComponent
 import com.example.dynamicdiceprototype.composables.LandingPage
 import com.example.dynamicdiceprototype.composables.common.AlertBox
+import com.example.dynamicdiceprototype.composables.createdice.DicesScreen
 import com.example.dynamicdiceprototype.composables.createdice.SelectFacesScreen
 import com.example.dynamicdiceprototype.composables.createdice.diceGraph
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupCreationScreen
@@ -80,10 +81,13 @@ fun NavGraph(navController: NavHostController) {
     }
     diceGraph(viewModel, navController, headerViewModel)
     composable(route = Screen.UploadImage.route) {
-      UploadImageScreen(context) { images ->
-        viewModel.uploadImages(images)
-        Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
-      }
+      UploadImageScreen(
+          context = context,
+          onImagesSelected = { images ->
+            viewModel.uploadImages(images)
+            Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
+          },
+          onNavigateToDiceCreation = { navController.navigate(DicesScreen.SelectFaces.route) })
     }
     composable(route = Screen.DiceGroups.route) {
       LaunchedEffect(true) { headerViewModel.changeHeaderText("Dice Groups") }

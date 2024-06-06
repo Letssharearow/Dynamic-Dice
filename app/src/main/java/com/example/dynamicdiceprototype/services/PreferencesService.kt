@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.callbackFlow
 enum class PreferenceKey(val defaultValue: Any) {
   ItemSelectionMaxSize(100),
   ItemSelectionInitialSize(15),
+  MenuDrawerMaxWidthFraction(75),
   SettingsHeader("Settings"),
   LastDiceGroup("Kniffel"),
   IsAddDiceCompact(true),

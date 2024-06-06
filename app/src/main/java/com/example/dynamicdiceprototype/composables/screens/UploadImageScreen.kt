@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +50,7 @@ import java.io.InputStream
 fun UploadImageScreen(
     context: Context,
     onImagesSelected: (List<ImageDTO>) -> Unit = {},
+    onNavigateToDiceCreation: () -> Unit = {},
 ) {
   val (images, setImages) = remember { mutableStateOf<List<ImageBitmapDTO>>(emptyList()) }
   val (commonTags, setCommonTags) = remember { mutableStateOf(listOf<String>()) }
@@ -137,11 +139,24 @@ fun UploadImageScreen(
                 Text("Upload")
               }
         } else {
-          Button(
-              onClick = { imagePickerLauncher.launch("image/*") },
-              modifier = Modifier.padding(16.dp)) {
-                Text("Select Images")
-              }
+          Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Button(
+                onClick = { imagePickerLauncher.launch("image/*") },
+                modifier = Modifier.padding(16.dp)) {
+                  Text("Select Images")
+                }
+            Button(
+                colors =
+                    ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary,
+                        disabledContainerColor = MaterialTheme.colorScheme.error,
+                        disabledContentColor = MaterialTheme.colorScheme.onError),
+                onClick = onNavigateToDiceCreation,
+                modifier = Modifier.padding(16.dp)) {
+                  Text("Create Dice")
+                }
+          }
         }
       }
 }
