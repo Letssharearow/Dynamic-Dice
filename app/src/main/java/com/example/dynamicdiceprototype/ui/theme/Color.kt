@@ -2,19 +2,19 @@ package com.example.dynamicdiceprototype.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Green10 = Color(0xff331700)
-val Green20 = Color(0xff662e00)
-val Green30 = Color(0xff994500)
-val Green40 = Color(0xffcc5c00)
-val Green80 = Color(0xffffc799)
-val Green90 = Color(0xffffe3cc)
+val Orange10 = Color(0xff331700)
+val Orange20 = Color(0xff662e00)
+val Orange30 = Color(0xff994500)
+val Orange40 = Color(0xffcc5c00)
+val Orange80 = Color(0xffffc799)
+val Orange90 = Color(0xffffe3cc)
 
-val DarkGreen10 = Color(0xff331700)
-val DarkGreen20 = Color(0xff662e00)
-val DarkGreen30 = Color(0xff994500)
-val DarkGreen40 = Color(0xffcc5c00)
-val DarkGreen80 = Color(0xffffc799)
-val DarkGreen90 = Color(0xffffe3cc)
+val DarkOrange10 = Color(0xffcc5c00)
+val DarkOrange20 = Color(0xff994500)
+val DarkOrange30 = Color(0xff7f3a00)
+val DarkOrange40 = Color(0xff662e00)
+val DarkOrange80 = Color(0xffffc799)
+val DarkOrange90 = Color(0xffffe3cc)
 
 val Violet10 = Color(0xff333300)
 val Violet20 = Color(0xff666600)
