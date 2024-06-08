@@ -6,7 +6,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-enum class PreferenceKey(val defaultValue: Any, description: String? = "") {
+enum class PreferenceKey(val defaultValue: Any, val location: String = "No Steps provided") {
   ItemSelectionMaxSize(100),
   ItemSelectionInitialSize(15),
   MenuDrawerMaxWidthFraction(75),
