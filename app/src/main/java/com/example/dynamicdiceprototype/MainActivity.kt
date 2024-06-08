@@ -26,11 +26,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.composables.wrapper.Menu
+import com.example.dynamicdiceprototype.composables.wrapper.Screen
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
-import com.example.dynamicdiceprototype.utils.uploadImages
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -39,7 +40,7 @@ class MainActivity : ComponentActivity() {
     val res = resources
     //    uploadUser()
     //    uploadDices()
-    uploadImages(res)
+    //    uploadImages(res)
     //    val firebase = FirebaseDataStore()
 
     PreferenceManager.init(this)
@@ -58,12 +59,12 @@ class MainActivity : ComponentActivity() {
 fun MyApp() {
   val scope = rememberCoroutineScope()
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+  val navController = rememberNavController()
   Column {
-    AppBar({
-      scope.launch { drawerState.apply { if (isClosed) open() else close() } }
-    }) { /* TODO Handle profile picture button click */
+    AppBar({ scope.launch { drawerState.apply { if (isClosed) open() else close() } } }) {
+      navController.navigate(Screen.Profile.route)
     }
-    Menu(drawerState = drawerState, scope = scope)
+    Menu(drawerState = drawerState, scope = scope, navController = navController)
   }
 }
 

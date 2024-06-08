@@ -257,7 +257,7 @@ object DiceViewModel : ViewModel() {
 
   private fun loadUserConfig() {
     viewModelScope.launch {
-      val userDTO = firebase.fetchUserData(USER)
+      val userDTO = firebase.fetchUserData(USER_FETCH)
       if (userDTO != null) {
         userDTO.diceGroups.forEach { diceGroups[it.key] = it.value } // TODO handle config null
         val diceTasks =

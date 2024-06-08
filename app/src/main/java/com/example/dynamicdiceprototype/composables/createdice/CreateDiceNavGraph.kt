@@ -1,15 +1,13 @@
 package com.example.dynamicdiceprototype.composables.createdice
 
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
-import com.example.dynamicdiceprototype.Screen
+import com.example.dynamicdiceprototype.composables.wrapper.Screen
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel

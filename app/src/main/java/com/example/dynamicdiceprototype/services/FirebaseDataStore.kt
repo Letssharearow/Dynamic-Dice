@@ -21,7 +21,8 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlinx.coroutines.tasks.await
 
 const val TAG = "MyApp"
-const val USER = "Juli GroupDataUpdate"
+const val USER = "Juli Maintainance"
+const val USER_FETCH = "Juli Maintainance"
 private const val IMAGE_COLLECTION_NAME = "images"
 private const val DICES_COLLECTION_NAME = "dices"
 private const val CONFIG_COLLECTION_NAME = "users"

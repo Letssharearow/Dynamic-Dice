@@ -24,6 +24,7 @@ import com.example.dynamicdiceprototype.composables.createdice.SelectFacesScreen
 import com.example.dynamicdiceprototype.composables.createdice.diceGraph
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupCreationScreen
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupsScreen
+import com.example.dynamicdiceprototype.composables.screens.ProfileScreen
 import com.example.dynamicdiceprototype.composables.screens.TestScreen
 import com.example.dynamicdiceprototype.composables.screens.UploadImageScreen
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
@@ -58,6 +59,7 @@ fun NavGraph(navController: NavHostController) {
   LifecycleAwareComponent { viewModel.saveUser() }
   NavHost(navController, startDestination = Screen.MainScreen.route) {
     composable(route = Screen.TestScreen.route) { TestScreen() }
+    composable(route = Screen.Profile.route) { ProfileScreen() }
     composable(route = Screen.MainScreen.route) {
       remember {
         PreferenceManager.saveData(PreferenceKey.LastDiceGroup, viewModel.lastDiceGroup)
@@ -200,6 +202,8 @@ sealed class Screen(val route: String) {
   object CreateDiceGroupStates : Screen("dice_groups/create/states")
 
   object UploadImage : Screen("upload")
+
+  object Profile : Screen("profile")
 
   fun withArgs(vararg args: String): String {
     return buildString {

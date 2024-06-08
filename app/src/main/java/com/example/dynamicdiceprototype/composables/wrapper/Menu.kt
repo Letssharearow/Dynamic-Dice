@@ -25,8 +25,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.dynamicdiceprototype.Screen
 import com.example.dynamicdiceprototype.composables.createdice.DicesScreen
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceKey
@@ -34,7 +32,6 @@ import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.regular.Image
 import compose.icons.fontawesomeicons.solid.Dice
 import compose.icons.fontawesomeicons.solid.DiceD6
 import compose.icons.fontawesomeicons.solid.Image
@@ -44,12 +41,11 @@ import kotlinx.coroutines.launch
 data class NavItmProps(val text: String, val route: String, val imageVector: ImageVector)
 
 @Composable
-fun Menu(drawerState: DrawerState, scope: CoroutineScope) {
+fun Menu(drawerState: DrawerState, scope: CoroutineScope, navController: NavHostController) {
   val widthFraction =
       PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.MenuDrawerMaxWidthFraction)
           .collectAsState(initial = 75)
           .value
-  val navController = rememberNavController()
   val navItems =
       listOf(
           NavItmProps("Test Screen", Screen.TestScreen.route, Icons.Default.Info),
@@ -61,7 +57,7 @@ fun Menu(drawerState: DrawerState, scope: CoroutineScope) {
   ModalNavigationDrawer(
       drawerState = drawerState,
       drawerContent = {
-        ModalDrawerSheet(modifier = Modifier.fillMaxWidth(widthFraction/100f)) {
+        ModalDrawerSheet(modifier = Modifier.fillMaxWidth(widthFraction / 100f)) {
           Text("Navigate", fontWeight = FontWeight(550), modifier = Modifier.padding(16.dp))
           HorizontalDivider()
           navItems.forEach { NavItem(navController, scope, drawerState, it) }
