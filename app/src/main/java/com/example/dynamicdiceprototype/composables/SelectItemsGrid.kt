@@ -60,6 +60,10 @@ fun <T> SelectItemsGrid(
       PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionMaxSize)
           .collectAsState(initial = maxSize)
           .value
+  val oneScreenGridMinWidth =
+      PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionOneScreenGridMinWidth)
+          .collectAsState(initial = 400)
+          .value
 
   var selectablesFiltered by remember { mutableStateOf(selectables) }
   val selectedItems = remember {
@@ -76,79 +80,81 @@ fun <T> SelectItemsGrid(
   ArrangedColumn(modifier = modifier.padding(4.dp)) {
     FilterInput(applyFilter, filter) { newFilter -> filter = newFilter }
 
-    OneScreenGrid(items = selectablesFiltered, minSize = 400f, modifier.weight(1f)) {
-        item,
-        maxWidthDp -> // TODO hardcoded minSize, maybe as parameter?
-      Box(
-          contentAlignment = Alignment.Center,
-          modifier =
-              Modifier.fillMaxWidth().padding(8.dp).clickable {
-                val selectedItem = selectedItems[item]
-                if (selectedItem == null) {
-                  if (sumOfSelection < maxSizeUpdated) selectedItems[item] = 1
-                } else {
-                  selectedItems.remove(item)
-                }
-              }) {
-            val selectedItem = selectedItems[item]
-
-            view(item, Modifier, maxWidthDp)
-            selectedItem?.let {
-              NumberCircle(
-                  text = selectedItem.toString(),
-                  fontSize = 24.sp,
-                  modifier = Modifier.align(Alignment.TopStart))
-            }
-            Box(
-                Modifier.align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(40.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.66f))
-                    .padding(8.dp)) {
-                  selectedItem?.let {
-                    var debounceJob by remember { mutableStateOf<Job?>(null) }
-                    var mutableSize by remember {
-                      mutableIntStateOf(
-                          initialSizeUpdated.coerceAtMost(maxSizeUpdated - sumOfSelection + it))
+    OneScreenGrid(
+        items = selectablesFiltered,
+        minSize = oneScreenGridMinWidth.toFloat(),
+        modifier.weight(1f)) { item, maxWidthDp ->
+          Box(
+              contentAlignment = Alignment.Center,
+              modifier =
+                  Modifier.fillMaxWidth().padding(8.dp).clickable {
+                    val selectedItem = selectedItems[item]
+                    if (selectedItem == null) {
+                      if (sumOfSelection < maxSizeUpdated) selectedItems[item] = 1
+                    } else {
+                      selectedItems.remove(item)
                     }
+                  }) {
+                val selectedItem = selectedItems[item]
 
-                    Slider(
-                        value = it.toFloat(),
-                        onValueChange = { value ->
-                          val selectedCurrentItem = selectedItems[item]
-                          selectedCurrentItem?.let { currentCount ->
-                            val newCount = value.toInt()
-                            val newSum = sumOfSelection - currentCount + newCount
-                            if (newSum <= maxSizeUpdated) {
-                              selectedItems[item] = newCount
-                            }
-                            debounceJob?.cancel()
-                            debounceJob =
-                                GlobalScope.launch {
-                                  delay(1000)
-                                  mutableSize =
-                                      when {
-                                        newCount == mutableSize -> {
-                                          (mutableSize * 2).coerceAtMost(
-                                              maxSizeUpdated - sumOfSelection + currentCount)
-                                        }
-                                        newCount < initialSizeUpdated -> initialSizeUpdated
-                                        else -> mutableSize
-                                      }
-                                }
-                          }
-                        },
-                        valueRange = 1f..mutableSize.toFloat().coerceAtLeast(1f),
-                        steps = (mutableSize - 1).coerceAtLeast(1))
-                  }
-                      ?: Text(
-                          text = getId(item),
-                          style = MaterialTheme.typography.bodyLarge,
-                          modifier = Modifier.align(Alignment.Center))
+                view(item, Modifier, maxWidthDp)
+                selectedItem?.let {
+                  NumberCircle(
+                      text = selectedItem.toString(),
+                      fontSize = 24.sp,
+                      modifier = Modifier.align(Alignment.TopStart))
                 }
-          }
-    }
+                Box(
+                    Modifier.align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(40.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.66f))
+                        .padding(8.dp)) {
+                      selectedItem?.let {
+                        var debounceJob by remember { mutableStateOf<Job?>(null) }
+                        var mutableSize by remember {
+                          mutableIntStateOf(
+                              initialSizeUpdated.coerceAtMost(maxSizeUpdated - sumOfSelection + it))
+                        }
+
+                        Slider(
+                            value = it.toFloat(),
+                            onValueChange = { value ->
+                              val selectedCurrentItem = selectedItems[item]
+                              selectedCurrentItem?.let { currentCount ->
+                                val newCount = value.toInt()
+                                val newSum = sumOfSelection - currentCount + newCount
+                                if (newSum <= maxSizeUpdated) {
+                                  selectedItems[item] = newCount
+                                }
+                                debounceJob?.cancel()
+                                debounceJob =
+                                    GlobalScope.launch {
+                                      delay(1000)
+                                      mutableSize =
+                                          when {
+                                            newCount == mutableSize -> {
+                                              (mutableSize * 2).coerceAtMost(
+                                                  maxSizeUpdated - sumOfSelection + currentCount)
+                                            }
+                                            newCount < initialSizeUpdated -> initialSizeUpdated
+                                            else -> mutableSize
+                                          }
+                                    }
+                              }
+                            },
+                            valueRange = 1f..mutableSize.toFloat().coerceAtLeast(1f),
+                            steps = (mutableSize - 1).coerceAtLeast(1))
+                      }
+                          ?: Text(
+                              text = getId(item),
+                              style = MaterialTheme.typography.bodyLarge,
+                              modifier = Modifier.align(Alignment.Center))
+                    }
+              }
+        }
     ContinueButton(
         onClick = { onSaveSelection(selectedItems) }, text = "Save Selection  : ($sumOfSelection)")
   }

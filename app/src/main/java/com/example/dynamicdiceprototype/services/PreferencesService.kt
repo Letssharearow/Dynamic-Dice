@@ -6,10 +6,11 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-enum class PreferenceKey(val defaultValue: Any) {
+enum class PreferenceKey(val defaultValue: Any, description: String? = "") {
   ItemSelectionMaxSize(100),
   ItemSelectionInitialSize(15),
   MenuDrawerMaxWidthFraction(75),
+  ItemSelectionOneScreenGridMinWidth(400),
   SettingsHeader("Settings"),
   LastDiceGroup("Kniffel"),
   IsAddDiceCompact(true),
