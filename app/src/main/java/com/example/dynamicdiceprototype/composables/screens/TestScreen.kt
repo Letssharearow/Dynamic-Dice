@@ -3,6 +3,7 @@ package com.example.dynamicdiceprototype.composables.screens
 import OneScreenGrid
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,12 +11,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,10 +39,22 @@ import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TestScreen() {
-  SettingsScreen()
+  val tooltipState = rememberTooltipState(isPersistent = true)
+  val scope = rememberCoroutineScope()
+
+  TooltipBox(
+      positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+      tooltip = { PlainTooltip { Text(text = "hello") } },
+      state = tooltipState) {
+        Text(
+            text = "Hello Please click me for tooltip",
+            modifier = Modifier.clickable { scope.launch { tooltipState.show() } })
+      }
 }
 
 @Composable

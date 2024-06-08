@@ -8,21 +8,30 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults.rememberPlainTooltipPositionProvider
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.PreferenceManager
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen() {
   val preferences = PreferenceKey.entries.toTypedArray()
@@ -30,23 +39,29 @@ fun SettingsScreen() {
       PreferenceManager.getPreferenceFlow<String>(PreferenceKey.SettingsHeader)
           .collectAsState(initial = "Settings")
           .value
+  LaunchedEffect(headerText) { HeaderViewModel.changeHeaderText(headerText) }
 
   Column(
       modifier =
           Modifier.fillMaxSize().padding(16.dp).background(MaterialTheme.colorScheme.background)) {
-        Text(
-            text = headerText,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 16.dp).align(Alignment.CenterHorizontally))
-
         preferences.forEach { preference ->
           val valueFlow = PreferenceManager.getPreferenceFlow<Any>(preference)
           val valueState = valueFlow.collectAsState(initial = preference.defaultValue)
 
-          PreferenceItem(
-              preference = preference,
-              value = valueState.value,
-              onValueChange = { newValue -> PreferenceManager.saveData(preference, newValue) })
+          val tooltipState = rememberTooltipState(isPersistent = true)
+          val scope = rememberCoroutineScope()
+
+          TooltipBox(
+              positionProvider = rememberPlainTooltipPositionProvider(),
+              tooltip = { PlainTooltip { Text(text = "hello") } },
+              state = tooltipState) {
+                PreferenceItem(
+                    preference = preference,
+                    value = valueState.value,
+                    onValueChange = { newValue ->
+                      PreferenceManager.saveData(preference, newValue)
+                    })
+              }
         }
       }
 }

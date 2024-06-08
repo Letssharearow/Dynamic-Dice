@@ -51,11 +51,7 @@ class FirebaseDataStore {
     for (document in documents) {
       val documentId = document.id
       val imageDTO = document.toObject<ImageDTO>()
-      if (imageDTO != null) {
-        map[documentId] = imageDTO
-      } else {
-        Log.e(TAG, "Failed to convert document $documentId to ImageDTO")
-      }
+      map[documentId] = imageDTO
     }
     Log.d(TAG, "Firebase all data fetched (keys): ${map.keys}")
     return map
