@@ -57,28 +57,6 @@ class FirebaseDataStore {
     return map
   }
 
-  suspend fun loadAllDices() {
-    val collectionRef = db.collection(DICES_COLLECTION_NAME)
-    val documents =
-        collectionRef
-            .get()
-            .addOnFailureListener {
-              it.printStackTrace()
-              Log.e(TAG, "Firebase $DICES_COLLECTION_NAME")
-              errorMessage = "Fetching $DICES_COLLECTION_NAME"
-            }
-            .await()
-    for (document in documents) {
-      val documentId = document.id
-      val imagesId = document[DiceProperty.IMAGE_IDS.name] as? Map<String, Int>
-      val backgroundColor = document[DiceProperty.COLOR.name] as? Number
-      if (imagesId != null && backgroundColor != null) {
-        val upload = DiceDTO(backgroundColor = backgroundColor.toInt(), images = imagesId)
-        uploadDice(documentId, upload)
-      }
-    }
-  }
-
   fun uploadImageDTO(image: ImageDTO) {
     setDocument(image.contentDescription, image, IMAGE_COLLECTION_NAME)
   }
