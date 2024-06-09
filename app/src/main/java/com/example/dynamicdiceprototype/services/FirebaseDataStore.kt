@@ -23,13 +23,11 @@ import kotlinx.coroutines.tasks.await
 const val TAG = "MyApp"
 const val USER = "Juli Maintainance"
 const val USER_FETCH = "Juli Maintainance"
-private const val IMAGE_COLLECTION_NAME = "images"
-private const val DICES_COLLECTION_NAME = "dices"
-private const val CONFIG_COLLECTION_NAME = "users"
 
-enum class DiceProperty {
-  IMAGE_IDS,
-  COLOR
+enum class Collection {
+  images,
+  dices,
+  users
 }
 
 class FirebaseDataStore {
@@ -38,13 +36,14 @@ class FirebaseDataStore {
 
   suspend fun loadAllImages(): MutableMap<String, ImageDTO> {
     val map = mutableMapOf<String, ImageDTO>()
-    val collectionRef = db.collection(IMAGE_COLLECTION_NAME)
+    val collection = Collection.images.name
+    val collectionRef = db.collection(collection)
     val documents =
         collectionRef
             .get()
             .addOnFailureListener {
               it.printStackTrace()
-              Log.e(TAG, "Firebase $IMAGE_COLLECTION_NAME")
+              Log.e(TAG, "Firebase $collection")
               errorMessage = "Fetching Images"
             }
             .await()
@@ -58,7 +57,7 @@ class FirebaseDataStore {
   }
 
   fun uploadImageDTO(image: ImageDTO) {
-    setDocument(image.contentDescription, image, IMAGE_COLLECTION_NAME)
+    setDocument(image.contentDescription, image, Collection.images)
   }
 
   fun uploadImageDTOs(images: List<ImageDTO>) {
@@ -68,7 +67,7 @@ class FirebaseDataStore {
   }
 
   fun uploadDice(key: String, dice: DiceDTO) {
-    setDocument(key, dice, DICES_COLLECTION_NAME)
+    setDocument(key, dice, Collection.dices)
   }
 
   fun uploadDices(mapOf: Map<String, DiceDTO>) {
@@ -79,15 +78,15 @@ class FirebaseDataStore {
       userId: String,
       user: UserDTO,
   ) {
-    setDocument(keyName = userId, dataMap = user, collectionName = CONFIG_COLLECTION_NAME)
+    setDocument(keyName = userId, dataMap = user, collectionName = Collection.users)
   }
 
   private suspend inline fun <reified T> fetchDocumentData(
-      collectionName: String,
+      collectionName: Collection,
       documentId: String,
       crossinline mapper: (DocumentSnapshot) -> T?
   ): T? {
-    val collection = db.collection(collectionName)
+    val collection = db.collection(collectionName.name)
     try {
       val documentSnapshot = collection.document(documentId).get().await()
       Log.d(TAG, "Firebase fetch: ${documentSnapshot.id} => ${documentSnapshot.data}")
@@ -103,25 +102,25 @@ class FirebaseDataStore {
   }
 
   suspend fun fetchUserData(userId: String): UserDTO? {
-    return fetchDocumentData(CONFIG_COLLECTION_NAME, userId) { documentSnapshot ->
+    return fetchDocumentData(Collection.users, userId) { documentSnapshot ->
       documentSnapshot.toObject<UserDTO>()
     }
   }
 
   suspend fun getDiceFromId(diceName: String): DiceDTO? {
-    return fetchDocumentData(DICES_COLLECTION_NAME, diceName) { documentSnapshot ->
+    return fetchDocumentData(Collection.dices, diceName) { documentSnapshot ->
       documentSnapshot.toObject<DiceDTO>()
     }
   }
 
   suspend fun getImageFromId(imageId: String): ImageDTO? {
-    return fetchDocumentData(IMAGE_COLLECTION_NAME, imageId) { documentSnapshot ->
+    return fetchDocumentData(Collection.images, imageId) { documentSnapshot ->
       documentSnapshot.toObject<ImageDTO>()
     }
   }
 
   fun deleteDice(id: String) {
-    db.collection(DICES_COLLECTION_NAME)
+    db.collection(Collection.dices.name)
         .document(id)
         .delete()
         .addOnSuccessListener { Log.d(TAG, "Firebase DocumentSnapshot deleted with ID: $id") }
@@ -131,15 +130,9 @@ class FirebaseDataStore {
         }
   }
 
-  private fun setDocument(
-      keyName: String,
-      dataMap: Any,
-      collectionName:
-          String // TODO make a class or something like with the Screen.paths.route and not a
-      // string
-  ) {
+  private fun setDocument(keyName: String, dataMap: Any, collectionName: Collection) {
     Log.d(TAG, "Firebase save this: $keyName => $dataMap")
-    db.collection(collectionName)
+    db.collection(collectionName.name)
         .document(keyName)
         .set(dataMap)
         .addOnSuccessListener { Log.d(TAG, "Firebase DocumentSnapshot added with ID: $keyName") }

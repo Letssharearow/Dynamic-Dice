@@ -67,7 +67,6 @@ fun NavGraph(navController: NavHostController) {
     composable(route = Screen.MainScreen.route) {
       remember {
         PreferenceManager.saveData(PreferenceKey.LastDiceGroup, viewModel.lastDiceGroup)
-        headerViewModel.changeHeaderText(viewModel.lastDiceGroup)
         true
       }
       LandingPage(
