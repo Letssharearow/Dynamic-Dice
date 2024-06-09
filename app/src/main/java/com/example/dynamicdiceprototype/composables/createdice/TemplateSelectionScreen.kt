@@ -17,7 +17,7 @@ fun TemplateSelectionScreen(
     onCreateNewDice: () -> Unit
 ) {
   ItemListScreen(
-      items = dices,
+      items = dices.sortedBy { it.name.uppercase() },
       onSelect = onSelectTemplate,
       menuActions = menuActions,
       getKey = { it.id },

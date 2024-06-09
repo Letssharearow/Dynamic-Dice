@@ -32,7 +32,7 @@ fun DiceGroupsScreen(
     onCreateNewGroup: () -> Unit
 ) {
   ItemListScreen(
-      items = groups,
+      items = groups.sortedBy { it.uppercase() },
       onSelect = onSelectGroup,
       menuActions = menuActions,
       onCreateItem = onCreateNewGroup,
