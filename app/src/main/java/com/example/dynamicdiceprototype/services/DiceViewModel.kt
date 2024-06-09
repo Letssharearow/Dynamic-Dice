@@ -26,7 +26,7 @@ object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
   var imageMap = mutableStateMapOf<String, ImageDTO>()
-  var collectFlows by mutableStateOf(0)
+  var hasLoadedUser by mutableStateOf(false)
 
   // create Dice
   var diceInEdit by mutableStateOf<Dice>(Dice()) // TODO make nullable
@@ -190,9 +190,7 @@ object DiceViewModel : ViewModel() {
   fun setGroupInEdit(groupId: String) {
     isGroupEditMode = true
     val group = diceGroups[groupId]
-    group?.let { group ->
-      groupInEdit = Pair(groupId, group.copy(dices = group.dices.toMap()))
-    } // TODO think about not copying or find a common solution
+    group?.let { group -> groupInEdit = Pair(groupId, group.copy(dices = group.dices.toMap())) }
   }
 
   fun duplicateGroup(gorupId: String) {
@@ -262,23 +260,20 @@ object DiceViewModel : ViewModel() {
   private fun loadUserConfig() {
     viewModelScope.launch {
       val userDTO = firebase.fetchUserData(USER_FETCH)
+      hasLoadedUser = true
       if (userDTO != null) {
-        userDTO.diceGroups.forEach { diceGroups[it.key] = it.value } // TODO handle config null
+        userDTO.diceGroups.forEach { diceGroups[it.key] = it.value } // TODO handle User null
+        val statesTask =
+            userDTO.diceGroups.values.flatMap {
+              it.states.map { async { loadImage(diceId = null, imageId = it) } }
+            }
         val diceTasks =
             userDTO.dices.map {
               dices[it] = Dice(id = it)
               async { loadDice(it) }
             }
-        val statesTask =
-            userDTO.diceGroups.values.flatMap {
-              it.states.map { async { loadImage(diceId = null, imageId = it) } }
-            }
-
         statesTask.awaitAll()
         diceTasks.awaitAll()
-        collectFlows++
-        collectFlows++ // TODO resolve this weird double ++ colelction behaviour, probably use some
-        // event subscription
         selectDiceGroup(lastDiceGroup)
       } else {
         userConfigIsNull = true

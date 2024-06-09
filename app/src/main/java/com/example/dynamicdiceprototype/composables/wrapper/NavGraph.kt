@@ -74,7 +74,7 @@ fun NavGraph(navController: NavHostController) {
       LandingPage(
           dices = viewModel.currentDices,
           name = viewModel.lastDiceGroup,
-          isLoading = viewModel.collectFlows <= 1,
+          isLoading = !viewModel.hasLoadedUser,
           states =
               viewModel.diceGroups[viewModel.lastDiceGroup]?.states?.map { imageKey ->
                 val image = viewModel.imageMap[imageKey]

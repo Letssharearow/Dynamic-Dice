@@ -38,6 +38,8 @@ fun DiceGroupCreationScreen(
         isReadOnly = isEdit,
         modifier = Modifier.padding(8.dp))
 
+    // TODO Improve so that the user can create a sorting for the dices (e.g. they are sorted the
+    // way they were selected)
     SelectItemsGrid<Dice>(
         selectables = dices,
         onSaveSelection = { if (name.isNotEmpty()) onSaveSelection(name, it) },
