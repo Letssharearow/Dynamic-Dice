@@ -56,29 +56,44 @@ class FirebaseDataStore {
     return map
   }
 
-  fun uploadImageDTO(image: ImageDTO) {
-    setDocument(image.contentDescription, image, Collection.images)
+  fun uploadImageDTO(
+      image: ImageDTO,
+      onSuccess: (String) -> Unit,
+  ) {
+    setDocument(image.contentDescription, image, Collection.images, onSuccess = onSuccess)
   }
 
-  fun uploadImageDTOs(images: List<ImageDTO>) {
+  fun uploadImageDTOs(
+      images: List<ImageDTO>,
+      onSuccess: (String) -> Unit,
+  ) {
     for (image in images) {
-      uploadImageDTO(image = image)
+      uploadImageDTO(image = image, onSuccess = onSuccess)
     }
   }
 
-  fun uploadDice(key: String, dice: DiceDTO) {
-    setDocument(key, dice, Collection.dices)
+  fun uploadDice(
+      key: String,
+      dice: DiceDTO,
+      onSuccess: (String) -> Unit,
+  ) {
+    setDocument(key, dice, Collection.dices, onSuccess = onSuccess)
   }
 
-  fun uploadDices(mapOf: Map<String, DiceDTO>) {
-    mapOf.forEach { uploadDice(key = it.key, dice = it.value) }
+  fun uploadDices(
+      mapOf: Map<String, DiceDTO>,
+      onSuccess: (String) -> Unit,
+  ) {
+    mapOf.forEach { uploadDice(key = it.key, dice = it.value, onSuccess = onSuccess) }
   }
 
   fun uploadUserConfig(
       userId: String,
       user: UserDTO,
+      onSuccess: (String) -> Unit,
   ) {
-    setDocument(keyName = userId, dataMap = user, collectionName = Collection.users)
+    setDocument(
+        keyName = userId, dataMap = user, collectionName = Collection.users, onSuccess = onSuccess)
   }
 
   private suspend inline fun <reified T> fetchDocumentData(
@@ -130,13 +145,24 @@ class FirebaseDataStore {
         }
   }
 
-  private fun setDocument(keyName: String, dataMap: Any, collectionName: Collection) {
+  private fun setDocument(
+      keyName: String,
+      dataMap: Any,
+      collectionName: Collection,
+      onSuccess: (String) -> Unit,
+  ) {
     Log.d(TAG, "Firebase save this: $keyName => $dataMap")
     db.collection(collectionName.name)
         .document(keyName)
         .set(dataMap)
-        .addOnSuccessListener { Log.d(TAG, "Firebase DocumentSnapshot added with ID: $keyName") }
-        .addOnFailureListener { e -> Log.w(TAG, "Firebase Error adding document", e) }
+        .addOnSuccessListener {
+          Log.d(TAG, "Firebase DocumentSnapshot added with ID: $keyName \nit: $it")
+          onSuccess(keyName)
+        }
+        .addOnFailureListener { e ->
+          Log.w(TAG, "Firebase Error adding document", e)
+          errorMessage = "upload failed, error message: ${e.message}"
+        }
   }
 
   companion object {

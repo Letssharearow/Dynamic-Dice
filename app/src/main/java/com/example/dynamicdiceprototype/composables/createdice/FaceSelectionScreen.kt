@@ -26,7 +26,8 @@ fun SelectFacesScreen(
       maxSize = 500,
       initialValue = initialValue,
       applyFilter = { image, filter ->
-        image.contentDescription.contains(filter) || image.tags.find { it.contains(filter) } != null
+        image.contentDescription.contains(filter, ignoreCase = true) ||
+            image.tags.find { it.contains(filter, ignoreCase = true) } != null
       }) { item, modifier, maxWidthDp ->
         FaceView(
             face =

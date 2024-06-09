@@ -44,7 +44,8 @@ fun uploadImages(res: Resources) {
     var bitmap = BitmapFactory.decodeResource(res, it.image)
     firebase.uploadImageDTO(
         ImageDTO(
-            contentDescription = it.name, base64String = FirebaseDataStore.bitmapToBase64(bitmap)))
+            contentDescription = it.name, base64String = FirebaseDataStore.bitmapToBase64(bitmap)),
+        onSuccess = {})
   }
 
   val imageCreator = ImageCreator()
@@ -77,7 +78,8 @@ fun uploadImages(res: Resources) {
     firebase.uploadImageDTO(
         ImageDTO(
             contentDescription = namedColor,
-            base64String = FirebaseDataStore.bitmapToBase64(bitmap)))
+            base64String = FirebaseDataStore.bitmapToBase64(bitmap)),
+        onSuccess = {})
   }
 }
 
@@ -117,7 +119,7 @@ fun uploadDices() {
                       (R.drawable.two_transparent.toString() to 1),
                       (R.drawable.one_transparent.toString() to 1),
                   ))))
-  images.forEach { firbase.uploadDice(it.first, it.second) }
+  images.forEach { firbase.uploadDice(it.first, it.second, onSuccess = {}) }
 }
 
 fun uploadUser() {
@@ -130,5 +132,5 @@ fun uploadUser() {
       )
   val dices = listOf("random", "6er", "animals")
 
-  firbase.uploadUserConfig(USER, UserDTO(dices = dices, diceGroups = diceGroups))
+  firbase.uploadUserConfig(USER, UserDTO(dices = dices, diceGroups = diceGroups), onSuccess = {})
 }

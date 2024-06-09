@@ -69,6 +69,8 @@ fun NavGraph(navController: NavHostController) {
         PreferenceManager.saveData(PreferenceKey.LastDiceGroup, viewModel.lastDiceGroup)
         true
       }
+      // TODO: find solution: Opening Dice group sets AppBar Text. Starting the app doesn't. Also
+      // Rolling a single dice isn't saved on reload, it will load the last rolled group always
       LandingPage(
           dices = viewModel.currentDices,
           name = viewModel.lastDiceGroup,
@@ -92,7 +94,10 @@ fun NavGraph(navController: NavHostController) {
             viewModel.uploadImages(images)
             Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
           },
-          onNavigateToDiceCreation = { navController.navigate(DicesScreen.SelectFaces.route) })
+          onNavigateToDiceCreation = {
+            navController.navigate(DicesScreen.SelectFaces.route)
+            viewModel.createNewDice()
+          })
     }
     composable(route = Screen.DiceGroups.route) {
       LaunchedEffect(true) { headerViewModel.changeHeaderText("Dice Groups") }

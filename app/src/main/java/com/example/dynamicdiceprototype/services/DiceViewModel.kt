@@ -25,11 +25,12 @@ import kotlinx.coroutines.launch
 object DiceViewModel : ViewModel() {
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
-  var imageMap by mutableStateOf(mapOf<String, ImageDTO>())
+  var imageMap = mutableStateMapOf<String, ImageDTO>()
   var collectFlows by mutableStateOf(0)
 
   // create Dice
   var diceInEdit by mutableStateOf<Dice>(Dice()) // TODO make nullable
+  var isDiceEditMode by mutableStateOf<Boolean>(false) //
 
   // create Dice Group
   var groupInEdit by mutableStateOf<Pair<String, DiceGroup>?>(null)
@@ -70,6 +71,7 @@ object DiceViewModel : ViewModel() {
 
   fun createNewDice() {
     diceInEdit = Dice(name = "Change Later")
+    isDiceEditMode = false
   }
 
   fun setSelectedFaces(values: Map<ImageDTO, Int>) {
@@ -88,16 +90,17 @@ object DiceViewModel : ViewModel() {
   }
 
   private fun addDice(dice: Dice) {
-    dices[dice.id] = dice
-    firebase.uploadDice(dice.id, dice.toDiceDTO())
-    saveUser()
+    firebase.uploadDice(
+        dice.id,
+        dice.toDiceDTO(),
+        onSuccess = {
+          dices[it] = dice
+          saveUser()
+        })
   }
 
   fun saveDice() {
-    addDice(
-        diceInEdit) // TODO consider using events to set and update local data instead of doing it
-    // locally and with firebase to avoid data inconsistencies
-
+    addDice(if (isDiceEditMode) diceInEdit else diceInEdit.copy(id = ""))
   }
 
   // end create dice
@@ -127,6 +130,7 @@ object DiceViewModel : ViewModel() {
   fun editDice(dice: Dice) {
     if (nonMutableDices.contains(dice.name))
         throw PermittedActionException("Can not make changes to Dice: ${dice.name}")
+    isDiceEditMode = true
     diceInEdit = dice
   }
 
@@ -296,10 +300,8 @@ object DiceViewModel : ViewModel() {
 
   private suspend fun loadImage(diceId: String?, imageId: String) {
     val image = firebase.getImageFromId(imageId)
-    val imageMapMutable = imageMap.toMutableMap()
     image?.let { imageNotNull ->
-      imageMapMutable[imageId] = imageNotNull
-      imageMap = imageMapMutable
+      imageMap[imageId] = imageNotNull
       diceId?.let {
         val bitmap = FirebaseDataStore.base64ToBitmap(imageNotNull.base64String)
         val diceToUpdate = dices[diceId]
@@ -320,28 +322,28 @@ object DiceViewModel : ViewModel() {
   fun loadAllImages() {
     viewModelScope.launch {
       val images = firebase.loadAllImages()
-      imageMap = images
+      images.forEach { imageMap[it.key] = it.value }
     }
   }
 
   fun uploadImage(imageDTO: ImageDTO) {
-    val newImageMap = imageMap.toMutableMap()
-    newImageMap[imageDTO.contentDescription] = imageDTO // TODO make sure upload was successful
-    imageMap = newImageMap
-    firebase.uploadImageDTO(imageDTO)
+    firebase.uploadImageDTO(
+        image = imageDTO, onSuccess = { imageId -> imageMap[imageId] = imageDTO })
   }
 
   fun uploadImages(images: List<ImageDTO>) {
-    val newImageMap = imageMap.toMutableMap()
-    images.forEach { newImageMap[it.contentDescription] = it }
-    imageMap = newImageMap
-    firebase.uploadImageDTOs(images)
+    for (image in images) {
+      firebase.uploadImageDTO(image = image, onSuccess = { imageId -> imageMap[imageId] = image })
+    }
   }
 
   fun saveUser() {
     if (!userConfigIsNull && dices.isNotEmpty()) {
       firebase.uploadUserConfig(
-          USER, UserDTO(dices = dices.map { it.key }, diceGroups = diceGroups))
+          USER,
+          UserDTO(dices = dices.map { it.key }, diceGroups = diceGroups),
+          onSuccess = {}) // TODO consider also saving userData to firebase first and saving it
+      // locally when the call was successful
     }
   }
 
