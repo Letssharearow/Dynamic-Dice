@@ -60,7 +60,6 @@ fun UploadImageScreen(
   val (images, setImages) = remember { mutableStateOf<List<ImageBitmapDTO>>(emptyList()) }
   val (commonTags, setCommonTags) = remember { mutableStateOf(listOf<String>()) }
   val (newTag, setNewTag) = remember { mutableStateOf("") }
-
   val imagePickerLauncher =
       rememberLauncherForActivityResult(contract = ActivityResultContracts.GetMultipleContents()) {
           uris ->
