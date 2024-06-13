@@ -6,12 +6,10 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.7.0"
-activityCompose = "1.8.2"
-composeBom = "2023.08.00"
 navigationCompose = "2.7.7"
 roomKtx = "2.6.1"
-composeIconsFontawesome = "latest.version"
 fontAwesome = "1.1.0"
+datastore = "1.1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,8 +28,8 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.2.0-alpha12" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
-compose-icons-fontawesome = { group = "com.github.DevSrSouza", name = "compose-icons-fontawesome", version.ref = "composeIconsFontawesome" }
 font-awesome = { group = "br.com.devsrsouza.compose.icons", name = "font-awesome", version.ref = "fontAwesome" }
+androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastore" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

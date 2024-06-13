@@ -2,6 +2,7 @@ plugins {
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.jetbrainsKotlinAndroid)
   id("com.google.gms.google-services")
+  id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -72,4 +73,9 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
   implementation("com.github.skydoves:colorpicker-compose:1.0.7")
+
+  // datastore
+  implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+  implementation(libs.androidx.datastore)
 }
