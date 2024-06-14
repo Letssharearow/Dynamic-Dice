@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.DTO.UserDTO
@@ -32,9 +33,9 @@ class DiceViewModel(
 ) : ViewModel() {
 
   // dataStore
-  val imagesStore = imageDataStore.data
-  val dicesStore = diceDataStore.data
-  val userConfigStore = userDataStore.data
+  val imagesStore = imageDataStore
+  val dicesStore = diceDataStore
+  val userConfigStore = userDataStore
 
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
@@ -67,6 +68,14 @@ class DiceViewModel(
       uniqueName += "_copy"
     }
     return uniqueName
+  }
+
+  fun setDataStore() {
+    viewModelScope.launch {
+      imagesStore.updateData { ImageDTOMap(imageMap) }
+      dicesStore.updateData { DiceDTOMap(dices.mapValues { it.value.toDiceDTO() }) }
+      userConfigStore.updateData { UserDTO(dices = dices.keys.toList(), diceGroups = diceGroups) }
+    }
   }
 
   fun createNewGroup() {
@@ -357,4 +366,19 @@ class DiceViewModel(
 
   // Firebase Access end
 
+}
+
+class DiceViewModelFactory(
+    private val imageDataStore: DataStore<ImageDTOMap>,
+    private val diceDataStore: DataStore<DiceDTOMap>,
+    private val userDataStore: DataStore<UserDTO>
+) : ViewModelProvider.Factory {
+
+  override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    if (modelClass.isAssignableFrom(DiceViewModel::class.java)) {
+      @Suppress("UNCHECKED_CAST")
+      return DiceViewModel(imageDataStore, diceDataStore, userDataStore) as T
+    }
+    throw IllegalArgumentException("Unknown ViewModel class")
+  }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,6 +38,7 @@ import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.composables.wrapper.Menu
 import com.example.dynamicdiceprototype.composables.wrapper.Screen
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.DiceViewModelFactory
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.services.serializer.DiceSerializer
@@ -68,7 +70,10 @@ class MainActivity : ComponentActivity() {
         val testSettings = testDataStore.data.collectAsState(initial = TestStorableObject())
         val scope = rememberCoroutineScope()
         // A surface container using the 'background' color from the theme
-        val viewModel: DiceViewModel = DiceViewModel(imagesDataStore, diceDataStore, userDataStore)
+        val viewModel: DiceViewModel by viewModels {
+          DiceViewModelFactory(imagesDataStore, diceDataStore, userDataStore)
+        }
+
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           MyApp(viewModel)
           Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
