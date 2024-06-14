@@ -5,7 +5,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.DTO.UserDTO
@@ -17,12 +19,24 @@ import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.toDiceDTO
+import com.example.dynamicdiceprototype.services.serializer.DiceDTOMap
+import com.example.dynamicdiceprototype.services.serializer.ImageDTOMap
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 // extend ViewModel to survive configuration change (landscape mode)
-object DiceViewModel : ViewModel() {
+class DiceViewModel(
+    imageDataStore: DataStore<ImageDTOMap>,
+    diceDataStore: DataStore<DiceDTOMap>,
+    userDataStore: DataStore<UserDTO>
+) : ViewModel() {
+
+  // dataStore
+  val imagesStore = imageDataStore
+  val dicesStore = diceDataStore
+  val userConfigStore = userDataStore
+
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
   var imageMap = mutableStateMapOf<String, ImageDTO>()
@@ -54,6 +68,14 @@ object DiceViewModel : ViewModel() {
       uniqueName += "_copy"
     }
     return uniqueName
+  }
+
+  fun setDataStore() {
+    viewModelScope.launch {
+      imagesStore.updateData { ImageDTOMap(imageMap) }
+      dicesStore.updateData { DiceDTOMap(dices.mapValues { it.value.toDiceDTO() }) }
+      userConfigStore.updateData { UserDTO(dices = dices.keys.toList(), diceGroups = diceGroups) }
+    }
   }
 
   fun createNewGroup() {
@@ -344,4 +366,19 @@ object DiceViewModel : ViewModel() {
 
   // Firebase Access end
 
+}
+
+class DiceViewModelFactory(
+    private val imageDataStore: DataStore<ImageDTOMap>,
+    private val diceDataStore: DataStore<DiceDTOMap>,
+    private val userDataStore: DataStore<UserDTO>
+) : ViewModelProvider.Factory {
+
+  override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    if (modelClass.isAssignableFrom(DiceViewModel::class.java)) {
+      @Suppress("UNCHECKED_CAST")
+      return DiceViewModel(imageDataStore, diceDataStore, userDataStore) as T
+    }
+    throw IllegalArgumentException("Unknown ViewModel class")
+  }
 }

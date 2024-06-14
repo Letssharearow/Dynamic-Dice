@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,18 +37,21 @@ import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.composables.wrapper.Menu
 import com.example.dynamicdiceprototype.composables.wrapper.Screen
-import com.example.dynamicdiceprototype.services.DiceSerializer
+import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.DiceViewModelFactory
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceManager
-import com.example.dynamicdiceprototype.services.TestSerializer
-import com.example.dynamicdiceprototype.services.TestStorableObject
-import com.example.dynamicdiceprototype.services.UserConfigSerializer
+import com.example.dynamicdiceprototype.services.serializer.DiceSerializer
+import com.example.dynamicdiceprototype.services.serializer.ImageSerializer
+import com.example.dynamicdiceprototype.services.serializer.TestSerializer
+import com.example.dynamicdiceprototype.services.serializer.TestStorableObject
+import com.example.dynamicdiceprototype.services.serializer.UserConfigSerializer
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import kotlinx.coroutines.launch
 
-val Context.dataStore by dataStore("dices-settings.json", DiceSerializer)
+val Context.diceDataStore by dataStore("dices-settings.json", DiceSerializer)
 val Context.userDataStore by dataStore("user-settings.json", UserConfigSerializer)
-val Context.imagesDataStore by dataStore("images-settings.json", UserConfigSerializer)
+val Context.imagesDataStore by dataStore("images-settings.json", ImageSerializer)
 val Context.testDataStore by dataStore("test-settings.json", TestSerializer)
 
 class MainActivity : ComponentActivity() {
@@ -66,8 +70,12 @@ class MainActivity : ComponentActivity() {
         val testSettings = testDataStore.data.collectAsState(initial = TestStorableObject())
         val scope = rememberCoroutineScope()
         // A surface container using the 'background' color from the theme
+        val viewModel: DiceViewModel by viewModels {
+          DiceViewModelFactory(imagesDataStore, diceDataStore, userDataStore)
+        }
+
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          MyApp()
+          MyApp(viewModel)
           Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column {
               Text(text = testSettings.value.text)
@@ -91,7 +99,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp() {
+fun MyApp(viewModel: DiceViewModel) {
   val scope = rememberCoroutineScope()
   val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
   val navController = rememberNavController()
@@ -99,7 +107,11 @@ fun MyApp() {
     AppBar({ scope.launch { drawerState.apply { if (isClosed) open() else close() } } }) {
       navController.navigate(Screen.Profile.route)
     }
-    Menu(drawerState = drawerState, scope = scope, navController = navController)
+    Menu(
+        drawerState = drawerState,
+        scope = scope,
+        navController = navController,
+        viewModel = viewModel)
   }
 }
 

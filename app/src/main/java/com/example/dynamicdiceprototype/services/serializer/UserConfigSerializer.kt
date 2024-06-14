@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype.services
+package com.example.dynamicdiceprototype.services.serializer
 
 import androidx.datastore.core.Serializer
 import com.example.dynamicdiceprototype.DTO.UserDTO
