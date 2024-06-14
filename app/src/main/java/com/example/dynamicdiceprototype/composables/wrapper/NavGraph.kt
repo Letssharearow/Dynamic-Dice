@@ -83,7 +83,8 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
                       data = FirebaseDataStore.base64ToBitmap(it.base64String))
                 } ?: Face(contentDescription = imageKey)
               } ?: listOf(),
-          onRollClicked = { viewModel.rollDices() })
+          onRollClicked = { viewModel.rollDices() },
+          viewModel = viewModel)
     }
     diceGraph(viewModel, navController, headerViewModel)
     composable(route = Screen.UploadImage.route) {

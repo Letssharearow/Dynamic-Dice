@@ -46,9 +46,9 @@ fun DicesView(
     dices: List<Dice>,
     modifier: Modifier = Modifier,
     states: List<Face> = listOf(),
+    viewModel: DiceViewModel? = null
 ) {
   val inPreviewMode = LocalInspectionMode.current
-  val viewModel: DiceViewModel? = if (inPreviewMode) null else viewModel()
   OneScreenGrid<Dice>(dices, minSize = MAIN_SCREEN_DICE_MIN_SIZE, modifier) { dice, maxSize ->
     var showMenu by remember { mutableStateOf(false) }
     var showAddDiceDialog by remember { mutableStateOf(false) }

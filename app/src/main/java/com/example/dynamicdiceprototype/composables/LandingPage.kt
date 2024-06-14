@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Face
+import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.TAG
 import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
@@ -27,7 +28,8 @@ fun LandingPage(
     states: List<Face>,
     isLoading: Boolean,
     onRollClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: DiceViewModel? = null
 ) {
 
   Log.d(TAG, "Recompose LandingPage $name => $dices")
@@ -37,7 +39,7 @@ fun LandingPage(
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = modifier.fillMaxSize()) {
         AnimatedVisibility(visible = !isLoading, modifier = Modifier.weight(1f)) {
-          DiceBundle(dices = dices, states = states)
+          DiceBundle(dices = dices, states = states, viewModel = viewModel)
         }
         AnimatedVisibility(visible = isLoading, Modifier.weight(1f)) {
           CircularProgressIndicator(modifier = Modifier.wrapContentSize(align = Alignment.Center))
