@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dynamicdiceprototype.DTO.ImageDTO
@@ -17,12 +18,24 @@ import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.toDiceDTO
+import com.example.dynamicdiceprototype.services.serializer.DiceDTOMap
+import com.example.dynamicdiceprototype.services.serializer.ImageDTOMap
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 // extend ViewModel to survive configuration change (landscape mode)
-object DiceViewModel : ViewModel() {
+class DiceViewModel(
+    imageDataStore: DataStore<ImageDTOMap>,
+    diceDataStore: DataStore<DiceDTOMap>,
+    userDataStore: DataStore<UserDTO>
+) : ViewModel() {
+
+  // dataStore
+  val imagesStore = imageDataStore.data
+  val dicesStore = diceDataStore.data
+  val userConfigStore = userDataStore.data
+
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
   var imageMap = mutableStateMapOf<String, ImageDTO>()

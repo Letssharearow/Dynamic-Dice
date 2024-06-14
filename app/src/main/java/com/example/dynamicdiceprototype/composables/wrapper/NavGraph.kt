@@ -39,8 +39,7 @@ import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.services.TAG
 
 @Composable
-fun NavGraph(navController: NavHostController) {
-  val viewModel: DiceViewModel = viewModel<DiceViewModel>()
+fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
   val headerViewModel: HeaderViewModel = viewModel<HeaderViewModel>()
   val context = LocalContext.current
   val savedGroup = PreferenceManager.loadData<String>(PreferenceKey.LastDiceGroup)

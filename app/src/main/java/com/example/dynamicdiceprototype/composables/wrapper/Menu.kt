@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.dynamicdiceprototype.composables.createdice.DicesScreen
+import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.PreferenceManager
@@ -41,7 +42,12 @@ import kotlinx.coroutines.launch
 data class NavItmProps(val text: String, val route: String, val imageVector: ImageVector)
 
 @Composable
-fun Menu(drawerState: DrawerState, scope: CoroutineScope, navController: NavHostController) {
+fun Menu(
+    drawerState: DrawerState,
+    scope: CoroutineScope,
+    navController: NavHostController,
+    viewModel: DiceViewModel
+) {
   val widthFraction =
       PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.MenuDrawerMaxWidthFraction)
           .collectAsState(initial = 75)
@@ -64,7 +70,7 @@ fun Menu(drawerState: DrawerState, scope: CoroutineScope, navController: NavHost
         }
       },
   ) {
-    NavGraph(navController)
+    NavGraph(navController, viewModel)
   }
 }
 
