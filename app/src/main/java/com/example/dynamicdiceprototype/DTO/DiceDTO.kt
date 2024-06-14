@@ -4,7 +4,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Face
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class DiceDTO(
     val images: Map<String, Int> = mapOf(),
     var backgroundColor: Int = Color(0xFFCCCCCC).toArgb(),
