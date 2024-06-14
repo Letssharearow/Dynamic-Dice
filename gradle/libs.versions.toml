@@ -10,6 +10,8 @@ navigationCompose = "2.7.7"
 roomKtx = "2.6.1"
 fontAwesome = "1.1.0"
 datastore = "1.1.1"
+kotlinxCollectionsImmutable = "0.3.7"
+kotlinxSerializationJson = "1.7.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,6 +32,8 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 font-awesome = { group = "br.com.devsrsouza.compose.icons", name = "font-awesome", version.ref = "fontAwesome" }
 androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastore" }
+kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

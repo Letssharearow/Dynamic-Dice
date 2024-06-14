@@ -75,7 +75,7 @@ dependencies {
   implementation("com.github.skydoves:colorpicker-compose:1.0.7")
 
   // datastore
-  implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+  implementation(libs.kotlinx.collections.immutable)
   implementation(libs.androidx.datastore)
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }
