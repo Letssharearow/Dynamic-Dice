@@ -4,6 +4,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +38,7 @@ import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.services.TAG
+import com.example.dynamicdiceprototype.services.serializer.ImageDTOMap
 
 @Composable
 fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
@@ -76,7 +78,11 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           isLoading = !viewModel.hasLoadedUser,
           states =
               viewModel.diceGroups[viewModel.lastDiceGroup]?.states?.map { imageKey ->
-                val image = viewModel.imageMap[imageKey]
+                val image =
+                    viewModel.imagesStore.data
+                        .collectAsState(initial = ImageDTOMap())
+                        .value
+                        .images[imageKey]
                 image?.let {
                   Face(
                       contentDescription = it.contentDescription,
@@ -88,7 +94,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
     }
     diceGraph(viewModel, navController, headerViewModel)
     composable(route = Screen.UploadImage.route) {
-      viewModel.setDataStore()
+      //      LaunchedEffect(key1 = true) { viewModel.setDataStore() }
       UploadImageScreen(
           context = context,
           onImagesSelected = { images ->
@@ -172,23 +178,33 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           })
     }
     composable(route = Screen.CreateDiceGroupStates.route) {
-      LaunchedEffect(true) {
-        viewModel.loadAllImages()
-        headerViewModel.changeHeaderText("Select optional Cycling State")
-      }
+      LaunchedEffect(true) { headerViewModel.changeHeaderText("Select optional Cycling State") }
 
       SelectFacesScreen(
           faces =
-              viewModel.imageMap.values.filter {
-                it.contentDescription != "image"
-              }, // TODO this filters images that were null or threw an error on firebase, maybe a
+              viewModel.imagesStore.data
+                  .collectAsState(initial = ImageDTOMap())
+                  .value
+                  .images
+                  .values
+                  .filter {
+                    it.contentDescription != "image"
+                  }, // TODO this filters images that were null or threw an error on firebase, maybe
+          // a
           // better handling for that, because "image" seems to be hardcoded
           color = Color.Transparent,
           initialValue =
               viewModel.groupInEdit
                   ?.second
                   ?.states
-                  ?.associateBy({ viewModel.imageMap[it] ?: ImageDTO() }, { 1 }) ?: mapOf(),
+                  ?.associateBy(
+                      {
+                        viewModel.imagesStore.data
+                            .collectAsState(initial = ImageDTOMap())
+                            .value
+                            .images[it] ?: ImageDTO()
+                      },
+                      { 1 }) ?: mapOf(),
           onFacesSelectionClick = {
             viewModel.setSelectedStates(it)
             viewModel.saveGroupInEdit()

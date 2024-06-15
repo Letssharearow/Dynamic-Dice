@@ -39,7 +39,6 @@ class DiceViewModel(
 
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
-  var imageMap = mutableStateMapOf<String, ImageDTO>()
   var hasLoadedUser by mutableStateOf(false)
 
   // create Dice
@@ -72,7 +71,6 @@ class DiceViewModel(
 
   fun setDataStore() {
     viewModelScope.launch {
-      imagesStore.updateData { ImageDTOMap(imageMap) }
       dicesStore.updateData { DiceDTOMap(dices.mapValues { it.value.toDiceDTO() }) }
       userConfigStore.updateData { UserDTO(dices = dices.keys.toList(), diceGroups = diceGroups) }
     }
@@ -285,16 +283,11 @@ class DiceViewModel(
       hasLoadedUser = true
       if (userDTO != null) {
         userDTO.diceGroups.forEach { diceGroups[it.key] = it.value } // TODO handle User null
-        val statesTask =
-            userDTO.diceGroups.values.flatMap {
-              it.states.map { async { loadImage(diceId = null, imageId = it) } }
-            }
         val diceTasks =
             userDTO.dices.map {
               dices[it] = Dice(id = it)
               async { loadDice(it) }
             }
-        statesTask.awaitAll()
         diceTasks.awaitAll()
         selectDiceGroup(lastDiceGroup)
       } else {
@@ -307,50 +300,17 @@ class DiceViewModel(
     val diceDTO = firebase.getDiceFromId(diceId)
     diceDTO?.let { diceGetDTO ->
       dices[diceId] = diceGetDTO.toDice(diceId)
-      viewModelScope.launch {
-        val tasks = diceGetDTO.images.map { async { loadImage(diceId = diceId, imageId = it.key) } }
-        tasks.awaitAll()
-        selectDiceGroup(lastDiceGroup)
-      }
+      viewModelScope.launch { selectDiceGroup(lastDiceGroup) }
     }
   }
 
-  private suspend fun loadImage(diceId: String?, imageId: String) {
-    val image = firebase.getImageFromId(imageId)
-    image?.let { imageNotNull ->
-      imageMap[imageId] = imageNotNull
-      diceId?.let {
-        val bitmap = FirebaseDataStore.base64ToBitmap(imageNotNull.base64String)
-        val diceToUpdate = dices[diceId]
-        diceToUpdate?.let { dice ->
-          dices[diceId] =
-              dice.copy(
-                  faces =
-                      dice.faces.map {
-                        if (it.contentDescription == image.contentDescription)
-                            it.copy(data = bitmap)
-                        else it
-                      })
-        }
-      }
-    }
-  }
-
-  fun loadAllImages() {
+  fun uploadImages(newImages: List<ImageDTO>) {
     viewModelScope.launch {
-      val images = firebase.loadAllImages()
-      images.forEach { imageMap[it.key] = it.value }
-    }
-  }
-
-  fun uploadImage(imageDTO: ImageDTO) {
-    firebase.uploadImageDTO(
-        image = imageDTO, onSuccess = { imageId -> imageMap[imageId] = imageDTO })
-  }
-
-  fun uploadImages(images: List<ImageDTO>) {
-    for (image in images) {
-      firebase.uploadImageDTO(image = image, onSuccess = { imageId -> imageMap[imageId] = image })
+      imagesStore.updateData { t ->
+        val mutableMapState = t.images.toMutableMap()
+        newImages.forEach { mutableMapState[it.contentDescription] = it }
+        t.copy(images = mutableMapState) // TODO make persistentMap()?
+      }
     }
   }
 
