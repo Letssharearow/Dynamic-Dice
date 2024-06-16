@@ -1,6 +1,5 @@
 package com.example.dynamicdiceprototype.composables.createdice
 
-import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -12,7 +11,6 @@ import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.HeaderViewModel
-import com.example.dynamicdiceprototype.services.serializer.ImageDTOMap
 
 fun NavGraphBuilder.diceGraph(
     diceViewModel: DiceViewModel,
@@ -67,23 +65,11 @@ fun NavGraphBuilder.diceGraph(
     }
     composable(route = DicesScreen.SelectFaces.route) {
       SelectFacesScreen(
-          faces =
-              diceViewModel.imagesStore.data
-                  .collectAsState(initial = ImageDTOMap())
-                  .value
-                  .images
-                  .values
-                  .filter { it.contentDescription != "image" },
+          faces = diceViewModel.imageMap.values.filter { it.contentDescription != "image" },
           color = diceViewModel.diceInEdit.backgroundColor,
           initialValue =
               diceViewModel.diceInEdit.faces.associateBy(
-                  {
-                    diceViewModel.imagesStore.data
-                        .collectAsState(initial = ImageDTOMap())
-                        .value
-                        .images[it.contentDescription] ?: ImageDTO()
-                  },
-                  { it.weight }),
+                  { diceViewModel.imageMap[it.contentDescription] ?: ImageDTO() }, { it.weight }),
           onFacesSelectionClick = { // TODO Consider using same datatype (map probably) for
             // everything)
             diceViewModel.setSelectedFaces(it)

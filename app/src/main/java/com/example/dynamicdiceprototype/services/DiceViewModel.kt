@@ -56,6 +56,8 @@ class DiceViewModel(
 
   var toastMessageText by mutableStateOf<String?>(null)
 
+  var selectedImages by mutableStateOf(emptyMap<ImageDTO, Int>())
+
   init {
     populatedDicesWithImages()
     collectUserConfig()
@@ -77,13 +79,6 @@ class DiceViewModel(
       uniqueName += "_copy"
     }
     return uniqueName
-  }
-
-  fun setDataStore() {
-    viewModelScope.launch {
-      dicesStore.updateData { DiceDTOMap(dices.mapValues { it.value.toDiceDTO() }) }
-      userConfigStore.updateData { UserDTO(dices = dices.keys.toList(), diceGroups = diceGroups) }
-    }
   }
 
   fun createNewGroup() {
@@ -146,7 +141,7 @@ class DiceViewModel(
                 dicesFlow.dices.mapValues { diceDTOEntry ->
                   diceDTOEntry.value.toDice(diceDTOEntry.key, imagesFlow.images)
                 }
-            imageMap = imagesFlow.images
+            imageMap = imagesFlow.images.mapValues { it.value.copy(contentDescription = it.key) }
           }
     }
   }
@@ -344,8 +339,21 @@ class DiceViewModel(
       }
     }
   }
-  // Firebase Access end
 
+  // Firebase Access end
+  fun changeSelectedImages(images: Map<ImageDTO, Int>) {
+    selectedImages = images
+  }
+
+  fun deleteImages(images: Map<ImageDTO, Int>) {
+    viewModelScope.launch {
+      imagesStore.updateData { t ->
+        val mutableMapState = t.images.toMutableMap()
+        images.forEach { mutableMapState.remove(it.key.contentDescription) }
+        t.copy(images = mutableMapState) // TODO make persistentMap()?
+      }
+    }
+  }
 }
 
 class DiceViewModelFactory(

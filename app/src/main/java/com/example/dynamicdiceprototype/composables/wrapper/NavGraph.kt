@@ -23,6 +23,7 @@ import com.example.dynamicdiceprototype.composables.createdice.SelectFacesScreen
 import com.example.dynamicdiceprototype.composables.createdice.diceGraph
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupCreationScreen
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupsScreen
+import com.example.dynamicdiceprototype.composables.screens.ImagesActionsScreen
 import com.example.dynamicdiceprototype.composables.screens.ProfileScreen
 import com.example.dynamicdiceprototype.composables.screens.SettingsScreen
 import com.example.dynamicdiceprototype.composables.screens.TestScreen
@@ -92,7 +93,6 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
     }
     diceGraph(viewModel, navController, headerViewModel)
     composable(route = Screen.UploadImage.route) {
-      //      LaunchedEffect(key1 = true) { viewModel.setDataStore() }
       UploadImageScreen(
           context = context,
           onImagesSelected = { images ->
@@ -102,6 +102,31 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           onNavigateToDiceCreation = {
             navController.navigate(DicesScreen.SelectFaces.route)
             viewModel.createNewDice()
+          })
+    }
+    composable(route = Screen.Images.route) {
+      SelectFacesScreen(
+          faces =
+              viewModel.imageMap.values.filter {
+                it.contentDescription != "image"
+              }, // TODO this filters images that were null or threw an error on firebase, maybe a
+          // better handling for that, because "image" seems to be hardcoded
+          color = Color.Transparent,
+          initialValue = emptyMap(),
+          onFacesSelectionClick = { // TODO Consider using same datatype (map probably) for
+            // everything)
+            viewModel.changeSelectedImages(it)
+            navController.navigate(Screen.ImagesActions.route)
+            headerViewModel.changeHeaderText("Image actions")
+          })
+    }
+    composable(route = Screen.ImagesActions.route) {
+      ImagesActionsScreen(
+          images = viewModel.selectedImages,
+          onCreateDice = {},
+          onDeleteImages = {
+            viewModel.deleteImages(it)
+            navController.navigate(Screen.Images.route)
           })
     }
     composable(route = Screen.DiceGroups.route) {
@@ -217,6 +242,10 @@ sealed class Screen(val route: String) {
   object Profile : Screen("profile")
 
   object Settings : Screen("settings")
+
+  object Images : Screen("images")
+
+  object ImagesActions : Screen("images/action")
 
   fun withArgs(vararg args: String): String {
     return buildString {

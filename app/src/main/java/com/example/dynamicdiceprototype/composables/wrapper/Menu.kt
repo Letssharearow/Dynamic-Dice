@@ -36,6 +36,7 @@ import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Dice
 import compose.icons.fontawesomeicons.solid.DiceD6
 import compose.icons.fontawesomeicons.solid.Image
+import compose.icons.fontawesomeicons.solid.Images
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -59,6 +60,7 @@ fun Menu(
           NavItmProps("Dices", DicesScreen.Dices.route, FontAwesomeIcons.Solid.DiceD6),
           NavItmProps("Dice Groups", Screen.DiceGroups.route, FontAwesomeIcons.Solid.Dice),
           NavItmProps("Upload Image", Screen.UploadImage.route, FontAwesomeIcons.Solid.Image),
+          NavItmProps("Images", Screen.Images.route, FontAwesomeIcons.Solid.Images),
       )
   ModalNavigationDrawer(
       drawerState = drawerState,
