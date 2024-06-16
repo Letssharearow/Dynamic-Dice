@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Face
+import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,6 +17,22 @@ data class DiceDTO(
 fun DiceDTO.toDice(id: String): Dice {
   val faces =
       this.images.map { image -> Face(contentDescription = image.key, weight = image.value) }
+
+  return Dice(
+      id = id,
+      name = name, // Replace with actual logic to determine the name
+      faces = faces,
+      backgroundColor = Color(this.backgroundColor))
+}
+
+fun DiceDTO.toDice(id: String, images: Map<String, ImageDTO>): Dice {
+  val faces =
+      this.images.map { image ->
+        Face(
+            contentDescription = image.key,
+            weight = image.value,
+            data = images[image.key]?.let { FirebaseDataStore.base64ToBitmap(it.base64String) })
+      }
 
   return Dice(
       id = id,

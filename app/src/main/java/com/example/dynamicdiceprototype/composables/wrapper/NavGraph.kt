@@ -4,7 +4,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,7 +16,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
-import com.example.dynamicdiceprototype.LifecycleAwareComponent
 import com.example.dynamicdiceprototype.composables.LandingPage
 import com.example.dynamicdiceprototype.composables.common.AlertBox
 import com.example.dynamicdiceprototype.composables.createdice.DicesScreen
@@ -38,7 +36,6 @@ import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.services.TAG
-import com.example.dynamicdiceprototype.services.serializer.ImageDTOMap
 
 @Composable
 fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
@@ -58,7 +55,6 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
     Toast.makeText(context, viewModel.toastMessageText, Toast.LENGTH_LONG).show()
   }
 
-  LifecycleAwareComponent { viewModel.saveUser() }
   NavHost(navController, startDestination = Screen.MainScreen.route) {
     composable(route = Screen.TestScreen.route) { TestScreen() }
     composable(route = Screen.Settings.route) { SettingsScreen() }
@@ -70,6 +66,12 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
         PreferenceManager.saveData(PreferenceKey.LastDiceGroup, viewModel.lastDiceGroup)
         true
       }
+      LaunchedEffect(key1 = viewModel.lastDiceGroup, viewModel.dices, viewModel.diceGroups) {
+        Log.i(
+            TAG,
+            "NavHost LaunchedEffect last: ${viewModel.lastDiceGroup} current: ${viewModel.currentDices.size} dices: ${viewModel.dices.size} diceGroups ${viewModel.diceGroups[viewModel.lastDiceGroup]}")
+        viewModel.selectDiceGroup(viewModel.lastDiceGroup)
+      }
       // TODO: find solution: Opening Dice group sets AppBar Text. Starting the app doesn't. Also
       // Rolling a single dice isn't saved on reload, it will load the last rolled group always
       LandingPage(
@@ -78,11 +80,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           isLoading = !viewModel.hasLoadedUser,
           states =
               viewModel.diceGroups[viewModel.lastDiceGroup]?.states?.map { imageKey ->
-                val image =
-                    viewModel.imagesStore.data
-                        .collectAsState(initial = ImageDTOMap())
-                        .value
-                        .images[imageKey]
+                val image = viewModel.imageMap[imageKey]
                 image?.let {
                   Face(
                       contentDescription = it.contentDescription,
@@ -182,14 +180,9 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
 
       SelectFacesScreen(
           faces =
-              viewModel.imagesStore.data
-                  .collectAsState(initial = ImageDTOMap())
-                  .value
-                  .images
-                  .values
-                  .filter {
-                    it.contentDescription != "image"
-                  }, // TODO this filters images that were null or threw an error on firebase, maybe
+              viewModel.imageMap.values.filter {
+                it.contentDescription != "image"
+              }, // TODO this filters images that were null or threw an error on firebase, maybe
           // a
           // better handling for that, because "image" seems to be hardcoded
           color = Color.Transparent,
@@ -197,14 +190,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
               viewModel.groupInEdit
                   ?.second
                   ?.states
-                  ?.associateBy(
-                      {
-                        viewModel.imagesStore.data
-                            .collectAsState(initial = ImageDTOMap())
-                            .value
-                            .images[it] ?: ImageDTO()
-                      },
-                      { 1 }) ?: mapOf(),
+                  ?.associateBy({ viewModel.imageMap[it] ?: ImageDTO() }, { 1 }) ?: mapOf(),
           onFacesSelectionClick = {
             viewModel.setSelectedStates(it)
             viewModel.saveGroupInEdit()

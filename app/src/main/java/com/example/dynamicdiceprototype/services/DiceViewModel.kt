@@ -2,7 +2,6 @@ package com.example.dynamicdiceprototype.services
 
 import android.util.Log
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -39,6 +38,7 @@ class DiceViewModel(
 
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
+  var imageMap by mutableStateOf<Map<String, ImageDTO>>(emptyMap())
   var hasLoadedUser by mutableStateOf(false)
 
   // create Dice
@@ -50,16 +50,25 @@ class DiceViewModel(
   var isGroupEditMode by mutableStateOf<Boolean>(false)
 
   // User Config
-  val diceGroups = mutableStateMapOf<String, DiceGroup>()
-  var userConfigIsNull: Boolean = false
-  var dices = mutableStateMapOf<String, Dice>()
+  var diceGroups by mutableStateOf<Map<String, DiceGroup>>(emptyMap())
+  var dices by mutableStateOf<Map<String, Dice>>(emptyMap())
   var lastDiceGroup by mutableStateOf("Red flag or Green flag")
 
   var toastMessageText by mutableStateOf<String?>(null)
 
   init {
     populatedDicesWithImages()
-    loadUserConfig()
+    collectUserConfig()
+  }
+
+  private fun collectUserConfig() {
+    viewModelScope.launch {
+      userConfigStore.data.collect {
+        Log.d(TAG, "ViewModel collectUserConfig flow: groups key ${it.diceGroups.keys}")
+        diceGroups = it.diceGroups
+        hasLoadedUser = true
+      }
+    }
   }
 
   private fun generateUniqueName(baseName: String, keys: List<String>): String {
@@ -133,18 +142,11 @@ class DiceViewModel(
             Log.d(
                 TAG,
                 "ViewModel populatedDicesWithImages flow: dices keys ${dicesFlow.dices.keys} images Size: ${imagesFlow.images.keys.size}")
-            dicesFlow.dices.forEach { diceDTOEntry ->
-              val currentDice = dices[diceDTOEntry.key]
-              if (currentDice == null) {
-                dices[diceDTOEntry.key] = diceDTOEntry.value.toDice(diceDTOEntry.key)
-                dices[diceDTOEntry.key]?.faces?.forEach { face ->
-                  face.data =
-                      imagesFlow.images[face.contentDescription]?.let {
-                        FirebaseDataStore.base64ToBitmap(it.base64String)
-                      }
+            dices =
+                dicesFlow.dices.mapValues { diceDTOEntry ->
+                  diceDTOEntry.value.toDice(diceDTOEntry.key, imagesFlow.images)
                 }
-              }
-            }
+            imageMap = imagesFlow.images
           }
     }
   }
@@ -171,10 +173,20 @@ class DiceViewModel(
   fun removeDice(dice: Dice) {
     if (nonMutableDices.contains(dice.name))
         throw PermittedActionException("Can not make changes to Dice: ${dice.name}")
-    dices.remove(dice.id)
-    removeKeyFromInnerMaps(diceGroups, dice.id)
-    firebase.deleteDice(dice.id)
-    saveUser()
+    viewModelScope.launch {
+      dicesStore.updateData {
+        val toMutableMap = it.dices.toMutableMap()
+        toMutableMap.remove(dice.id)
+        it.copy(dices = toMutableMap)
+      }
+    }
+    viewModelScope.launch {
+      userConfigStore.updateData {
+        val toMutableMap = it.diceGroups.toMutableMap()
+        removeKeyFromInnerMaps(toMutableMap, dice.id)
+        it.copy(diceGroups = toMutableMap)
+      }
+    }
   }
 
   fun editDice(dice: Dice) {
@@ -216,8 +228,13 @@ class DiceViewModel(
   }
 
   fun saveGroupInEdit() {
-    groupInEdit?.let { diceGroups[it.first] = it.second }
-    saveUser()
+    viewModelScope.launch {
+      userConfigStore.updateData {
+        val toMutableMap = it.diceGroups.toMutableMap()
+        groupInEdit?.let { group -> toMutableMap[group.first] = group.second }
+        it.copy(diceGroups = toMutableMap)
+      }
+    }
   }
 
   fun copyDiceGroup(name: String): Pair<String, DiceGroup> {
@@ -232,9 +249,14 @@ class DiceViewModel(
 
   // create Dice Group end
   // group Menu Actions
-  fun removeGroup(it: String) {
-    diceGroups.remove(it)
-    saveUser()
+  fun removeGroup(groupId: String) {
+    viewModelScope.launch {
+      userConfigStore.updateData {
+        val toMutableMap = it.diceGroups.toMutableMap()
+        toMutableMap.remove(groupId)
+        it.copy(diceGroups = toMutableMap)
+      }
+    }
   }
 
   fun setGroupInEdit(groupId: String) {
@@ -243,45 +265,30 @@ class DiceViewModel(
     group?.let { group -> groupInEdit = Pair(groupId, group.copy(dices = group.dices.toMap())) }
   }
 
-  fun duplicateGroup(gorupId: String) {
-    val newDiceGroup = copyDiceGroup(gorupId)
-    diceGroups[newDiceGroup.first] = newDiceGroup.second
+  fun duplicateGroup(groupId: String) {
+    val newDiceGroup = copyDiceGroup(groupId)
+    viewModelScope.launch {
+      userConfigStore.updateData {
+        val toMutableMap = it.diceGroups.toMutableMap()
+        toMutableMap[newDiceGroup.first] = newDiceGroup.second
+        it.copy(diceGroups = toMutableMap)
+      }
+    }
   }
 
   // group Menu Actions end
   fun selectDiceGroup(groupId: String) {
     lastDiceGroup = groupId
-    viewModelScope.launch {
-      combine(
-              dicesStore.data,
-              userConfigStore.data,
-          ) { dices, userConfig ->
-            Log.d(TAG, "ViewModel selectDiceGroup flow: $dices $userConfig")
-            // Process the data from both DataStores here
-            dices to userConfig // Pair the data for easier access
-          }
-          .collect { (dices, userConfig) ->
-            val newDicesState = mutableListOf<Dice>()
-            val group = userConfig.diceGroups[groupId]
-            group?.dices?.forEach { (diceId, count) ->
-              val diceToAdd = dices.dices[diceId]
-              diceToAdd?.let { dice -> repeat(count) { newDicesState.add(dice.toDice("")) } }
-            }
-            currentDices = newDicesState
-          }
+    val newDicesState = mutableListOf<Dice>()
+    diceGroups[groupId]?.dices?.forEach { (diceId, count) ->
+      val diceToAdd = dices[diceId]
+      diceToAdd?.let {
+        for (i in 1..count) {
+          newDicesState.add(diceToAdd.copy(id = "", rotation = 0f))
+        }
+      } // TODO better handling for null Dice
     }
-
-    //    lastDiceGroup = groupId
-    //    val newDicesState = mutableListOf<Dice>()
-    //    diceGroups[groupId]?.dices?.forEach { (diceId, count) ->
-    //      val diceToAdd = dices[diceId]
-    //      diceToAdd?.let {
-    //        for (i in 1..count) {
-    //          newDicesState.add(diceToAdd.copy(id = "", rotation = 0f))
-    //        }
-    //      } // TODO better handling for null Dice
-    //    }
-    //    currentDices = newDicesState
+    currentDices = newDicesState
   }
 
   // Dice Group end
@@ -328,19 +335,6 @@ class DiceViewModel(
   // Firebase Access
   fun getErrorMessage() = firebase.errorMessage
 
-  private fun loadUserConfig() {
-    viewModelScope.launch {
-      val userDTO = firebase.fetchUserData(USER_FETCH)
-      hasLoadedUser = true
-      if (userDTO != null) {
-        userDTO.diceGroups.forEach { diceGroups[it.key] = it.value } // TODO handle User null
-        selectDiceGroup(lastDiceGroup)
-      } else {
-        userConfigIsNull = true
-      }
-    }
-  }
-
   fun uploadImages(newImages: List<ImageDTO>) {
     viewModelScope.launch {
       imagesStore.updateData { t ->
@@ -350,17 +344,6 @@ class DiceViewModel(
       }
     }
   }
-
-  fun saveUser() {
-    if (!userConfigIsNull && dices.isNotEmpty()) {
-      firebase.uploadUserConfig(
-          USER,
-          UserDTO(dices = dices.map { it.key }, diceGroups = diceGroups),
-          onSuccess = {}) // TODO consider also saving userData to firebase first and saving it
-      // locally when the call was successful
-    }
-  }
-
   // Firebase Access end
 
 }

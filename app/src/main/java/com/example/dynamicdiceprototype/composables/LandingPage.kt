@@ -32,17 +32,19 @@ fun LandingPage(
     viewModel: DiceViewModel? = null
 ) {
 
-  Log.d(TAG, "Recompose LandingPage $name => $dices")
+  Log.d(TAG, "Recompose LandingPage $name => ${dices.size}")
 
   Column(
       verticalArrangement = Arrangement.SpaceBetween,
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = modifier.fillMaxSize()) {
-        AnimatedVisibility(visible = !isLoading, modifier = Modifier.weight(1f)) {
-          DiceBundle(dices = dices, states = states, viewModel = viewModel)
-        }
-        AnimatedVisibility(visible = isLoading, Modifier.weight(1f)) {
-          CircularProgressIndicator(modifier = Modifier.wrapContentSize(align = Alignment.Center))
+        Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)) {
+          AnimatedVisibility(visible = !isLoading) {
+            DiceBundle(dices = dices, states = states, viewModel = viewModel)
+          }
+          AnimatedVisibility(visible = isLoading) {
+            CircularProgressIndicator(modifier = Modifier.wrapContentSize(align = Alignment.Center))
+          }
         }
         DiceButtonM3(onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
       }

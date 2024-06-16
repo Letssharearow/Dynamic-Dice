@@ -40,7 +40,6 @@ fun <T> OneScreenGrid(
             containerHeight = constraints.maxHeight)
     val maxSize = floor(minSize.coerceAtLeast(maxWidthPixels))
     val maxWidthDp = pxToDp(density, maxSize)
-
     LazyVerticalGrid(columns = GridCells.Adaptive(minSize = maxWidthDp)) {
       items(items) { item -> onRender(item, maxWidthDp) }
     }
@@ -54,13 +53,12 @@ fun OneScreenGridPreview() {
     Box(Modifier.height(800.dp).width(300.dp)) {
       Column {
         Box(modifier = Modifier.fillMaxWidth().height(300.dp).background(Color.Cyan))
-        OneScreenGrid(items = getFaces(10), minSize = 30f, Modifier.weight(1f)) { item, maxWidth
-          ->
+        OneScreenGrid(items = getFaces(10), minSize = 30f, Modifier.weight(1f)) { item, maxWidth ->
           Box(
               contentAlignment = Alignment.Center,
               modifier = Modifier.height(maxWidth).width(maxWidth).padding(4.dp)) {
                 FaceView(face = item, spacing = maxWidth.div(10), color = Color.Black)
-                Text(text ="$maxWidth", Modifier.background(Color.White))
+                Text(text = "$maxWidth", Modifier.background(Color.White))
               }
         }
 
