@@ -34,7 +34,7 @@ fun DiceGroupCreationScreen(
     SingleLineTextInput(
         text = name,
         onValueChange = { name = it },
-        label = "Dice Name",
+        label = "Dice Group Name",
         isReadOnly = isEdit,
         modifier = Modifier.padding(8.dp))
 
