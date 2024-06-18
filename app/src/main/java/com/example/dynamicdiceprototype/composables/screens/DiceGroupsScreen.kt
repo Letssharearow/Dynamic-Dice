@@ -3,9 +3,11 @@ package com.example.dynamicdiceprototype.composables.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -60,7 +62,9 @@ fun DiceGroupItem(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = modifier.height(if (isCompact) 35.dp else 70.dp).padding(8.dp)) {
+            modifier =
+                (if (isCompact) Modifier.height(IntrinsicSize.Max) else Modifier.height(70.dp))
+                    .padding(8.dp)) {
               Text(
                   text = item,
                   style =
@@ -70,25 +74,13 @@ fun DiceGroupItem(
               Icon(
                   painter = painterResource(id = R.drawable.pouch),
                   contentDescription = "Pouch",
-              )
+                  modifier = Modifier.size(if (isCompact) 24.dp else 70.dp))
             }
       }
 }
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
-private fun DiceGroupsScreenPreview() {
-  DynamicDicePrototypeTheme {
-    DiceGroupsScreen(
-        groups =
-            listOf(
-                "kniffel",
-                "sonst.",
-                "WürfelSpielX",
-                "Long Name for a Dice Group, Wow this is soo long"),
-        onSelectGroup = {},
-        menuActions = listOf(),
-        onCreateNewGroup = {},
-    )
-  }
+private fun DiceGroupsScreenPreview2() {
+  DynamicDicePrototypeTheme { DiceGroupItem(item = "kniffel") }
 }
