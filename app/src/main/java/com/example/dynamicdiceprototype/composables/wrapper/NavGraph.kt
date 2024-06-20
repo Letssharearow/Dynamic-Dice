@@ -34,17 +34,13 @@ import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.HeaderViewModel
-import com.example.dynamicdiceprototype.services.PreferenceKey
-import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.services.TAG
+import com.example.dynamicdiceprototype.utils.temp_group_id
 
 @Composable
 fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
   val headerViewModel: HeaderViewModel = viewModel<HeaderViewModel>()
   val context = LocalContext.current
-  val savedGroup = PreferenceManager.loadData<String>(PreferenceKey.LastDiceGroup)
-  viewModel.lastDiceGroup = savedGroup
-
   if (viewModel.getErrorMessage() != null) {
     Toast.makeText(
             context,
@@ -63,24 +59,14 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
       ProfileScreen { navController.navigate(Screen.Settings.route) }
     }
     composable(route = Screen.MainScreen.route) {
-      remember {
-        PreferenceManager.saveData(PreferenceKey.LastDiceGroup, viewModel.lastDiceGroup)
-        true
+      LaunchedEffect(viewModel.dices, viewModel.diceGroups) {
+        viewModel.selectDiceGroup(temp_group_id)
       }
-      LaunchedEffect(key1 = viewModel.lastDiceGroup, viewModel.dices, viewModel.diceGroups) {
-        Log.i(
-            TAG,
-            "NavHost LaunchedEffect last: ${viewModel.lastDiceGroup} current: ${viewModel.currentDices.size} dices: ${viewModel.dices.size} diceGroups ${viewModel.diceGroups[viewModel.lastDiceGroup]}")
-        viewModel.selectDiceGroup(viewModel.lastDiceGroup)
-      }
-      // TODO: find solution: Opening Dice group sets AppBar Text. Starting the app doesn't. Also
-      // Rolling a single dice isn't saved on reload, it will load the last rolled group always
       LandingPage(
           dices = viewModel.currentDices,
-          name = viewModel.lastDiceGroup,
           isLoading = !viewModel.hasLoadedUser,
           states =
-              viewModel.diceGroups[viewModel.lastDiceGroup]?.states?.map { imageKey ->
+              viewModel.diceGroups[temp_group_id]?.states?.map { imageKey ->
                 val image = viewModel.imageMap[imageKey]
                 image?.let {
                   Face(
@@ -89,7 +75,8 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
                 } ?: Face(contentDescription = imageKey)
               } ?: listOf(),
           onRollClicked = { viewModel.rollDices() },
-          viewModel = viewModel)
+          viewModel = viewModel,
+          onClose = { viewModel.saveCurrentDices() })
     }
     diceGraph(viewModel, navController, headerViewModel)
     composable(route = Screen.UploadImage.route) {
@@ -132,12 +119,12 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
     composable(route = Screen.DiceGroups.route) {
       LaunchedEffect(true) { headerViewModel.changeHeaderText("Dice Groups") }
       DiceGroupsScreen(
-          groups = viewModel.diceGroups.keys.toList(),
-          onSelectGroup = { groupId ->
+          groups = viewModel.diceGroups.values.toList(),
+          onSelectGroup = { group ->
             try {
-              viewModel.selectDiceGroup(groupId)
+              viewModel.selectDiceGroup(group.id)
               navController.navigate(Screen.MainScreen.route)
-              headerViewModel.changeHeaderText(groupId)
+              headerViewModel.changeHeaderText(group.name)
             } catch (e: NullPointerException) {
               Log.e(TAG, "One Dice is probably not found in the global dices ${e.message}")
             }
@@ -148,9 +135,9 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
                       text = "Edit dice group",
                       callBack = {
                         try {
-                          viewModel.setGroupInEdit(it)
+                          viewModel.setGroupInEdit(it.id)
                           navController.navigate(Screen.CreateDiceGroup.route)
-                          headerViewModel.changeHeaderText(it)
+                          headerViewModel.changeHeaderText(it.name)
                         } catch (e: DiceNotFoundException) {
                           e.printStackTrace()
                           Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
@@ -159,11 +146,11 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
                   ),
                   MenuItem(
                       text = "Duplicate dice group",
-                      callBack = { viewModel.duplicateGroup(it) },
+                      callBack = { viewModel.duplicateGroup(it.id) },
                   ),
                   MenuItem(
                       text = "Delete dice group",
-                      callBack = { viewModel.removeGroup(it) },
+                      callBack = { viewModel.removeGroup(it.id) },
                       alert =
                           AlterBoxProperties(
                               "Cofirm Deletion",
@@ -182,13 +169,15 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           initialValue = viewModel.groupInEdit,
           onSaveSelection = { name, dices ->
             viewModel.setGroupInEditDices(name, dices)
-            if (!viewModel.isGroupEditMode && viewModel.diceGroups.contains(name)) {
+            if (!viewModel.isGroupEditMode &&
+                viewModel.diceGroups
+                    .filter { it.value.name.equals(name, ignoreCase = true) }
+                    .isNotEmpty()) {
               openDialog = true
             } else {
               navController.navigate(Screen.CreateDiceGroupStates.route)
             }
           },
-          isEdit = viewModel.isGroupEditMode,
       )
       AlertBox(
           isOpen = openDialog,
@@ -213,7 +202,6 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           color = Color.Transparent,
           initialValue =
               viewModel.groupInEdit
-                  ?.second
                   ?.states
                   ?.associateBy({ viewModel.imageMap[it] ?: ImageDTO() }, { 1 }) ?: mapOf(),
           onFacesSelectionClick = {

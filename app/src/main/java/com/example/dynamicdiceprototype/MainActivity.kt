@@ -20,15 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.datastore.dataStore
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.composables.wrapper.Menu
@@ -39,8 +34,6 @@ import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.services.serializer.DiceSerializer
 import com.example.dynamicdiceprototype.services.serializer.ImageSerializer
-import com.example.dynamicdiceprototype.services.serializer.TestSerializer
-import com.example.dynamicdiceprototype.services.serializer.TestStorableObject
 import com.example.dynamicdiceprototype.services.serializer.UserConfigSerializer
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import kotlinx.coroutines.launch
@@ -48,30 +41,24 @@ import kotlinx.coroutines.launch
 val Context.diceDataStore by dataStore("dices-settings.json", DiceSerializer)
 val Context.userDataStore by dataStore("user-settings.json", UserConfigSerializer)
 val Context.imagesDataStore by dataStore("images-settings.json", ImageSerializer)
-val Context.testDataStore by dataStore("test-settings.json", TestSerializer)
 
 class MainActivity : ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    val res = resources
-    //    uploadUser()
-    //    uploadDices()
-    //    uploadImages(res)
-    //    val firebase = FirebaseDataStore()
 
     PreferenceManager.init(this)
     setContent {
       DynamicDicePrototypeTheme {
-        val testSettings = testDataStore.data.collectAsState(initial = TestStorableObject())
-        val scope = rememberCoroutineScope()
         // A surface container using the 'background' color from the theme
         val viewModel: DiceViewModel by viewModels {
           DiceViewModelFactory(imagesDataStore, diceDataStore, userDataStore)
         }
-
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           MyApp(viewModel)
+          //          Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+          //            TestScreen()
+          //          }
         }
       }
     }
@@ -93,28 +80,6 @@ fun MyApp(viewModel: DiceViewModel) {
         navController = navController,
         viewModel = viewModel)
   }
-}
-
-@Composable
-fun LifecycleAwareComponent(onClose: () -> Unit) {
-  val lifecycleOwner = LocalLifecycleOwner.current
-
-  DisposableEffect(lifecycleOwner) {
-    val observer = LifecycleEventObserver { _, event ->
-      if (event == Lifecycle.Event.ON_STOP) {
-        // App is being closed, save data here
-        onClose()
-      }
-    }
-
-    // Add the observer to the lifecycle
-    lifecycleOwner.lifecycle.addObserver(observer)
-
-    // When the effect leaves the Composition, remove the observer
-    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-  }
-
-  // Your composable content goes here
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

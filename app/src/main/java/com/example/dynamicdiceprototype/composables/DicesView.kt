@@ -23,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,7 +47,6 @@ fun DicesView(
     states: List<Face> = listOf(),
     viewModel: DiceViewModel? = null
 ) {
-  val inPreviewMode = LocalInspectionMode.current
   OneScreenGrid<Dice>(dices, minSize = MAIN_SCREEN_DICE_MIN_SIZE, modifier) { dice, maxSize ->
     var showMenu by remember { mutableStateOf(false) }
     var showAddDiceDialog by remember { mutableStateOf(false) }

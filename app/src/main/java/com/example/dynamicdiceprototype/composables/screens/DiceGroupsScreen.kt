@@ -22,25 +22,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.composables.ItemListScreen
+import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
 fun DiceGroupsScreen(
-    groups: List<String>,
-    onSelectGroup: (groupId: String) -> Unit,
-    menuActions: List<MenuItem<String>>,
+    groups: List<DiceGroup>,
+    onSelectGroup: (groupName: DiceGroup) -> Unit,
+    menuActions: List<MenuItem<DiceGroup>>,
     onCreateNewGroup: () -> Unit
 ) {
   ItemListScreen(
-      items = groups.sortedBy { it.uppercase() },
+      items = groups.sortedBy { it.name.uppercase() },
       onSelect = onSelectGroup,
       menuActions = menuActions,
       onCreateItem = onCreateNewGroup,
-      getKey = { it },
+      getKey = { it.id },
       preferenceView = PreferenceKey.IsDicesGroupViewCompact) { item, isCompact, modifier ->
-        DiceGroupItem(item = item, isCompact = isCompact, modifier = modifier)
+        DiceGroupItem(item = item.name, isCompact = isCompact, modifier = modifier)
       }
 }
 

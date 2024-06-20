@@ -26,16 +26,15 @@ import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 fun DiceGroupCreationScreen(
     dices: List<Dice>,
     onSaveSelection: (name: String, dices: Map<Dice, Int>) -> Unit,
-    isEdit: Boolean,
-    initialValue: Pair<String, DiceGroup>? = null,
+    initialValue: DiceGroup? = null,
 ) {
-  var name by remember { mutableStateOf(initialValue?.first ?: "Change Later") }
+  var name by remember { mutableStateOf(initialValue?.name ?: "Change Later") }
   ArrangedColumn {
     SingleLineTextInput(
         text = name,
         onValueChange = { name = it },
         label = "Dice Group Name",
-        isReadOnly = isEdit,
+        isReadOnly = false,
         modifier = Modifier.padding(8.dp))
 
     // TODO Improve so that the user can create a sorting for the dices (e.g. they are sorted the
@@ -51,8 +50,8 @@ fun DiceGroupCreationScreen(
   }
 }
 
-fun transformDiceGroup(diceGroupPair: Pair<String, DiceGroup>?, dices: List<Dice>): Map<Dice, Int> {
-  val diceGroup = diceGroupPair?.second ?: return emptyMap()
+fun transformDiceGroup(diceGroupPair: DiceGroup?, dices: List<Dice>): Map<Dice, Int> {
+  val diceGroup = diceGroupPair ?: return emptyMap()
   val diceMap = mutableMapOf<Dice, Int>()
 
   for ((diceId, count) in diceGroup.dices) {
@@ -73,6 +72,6 @@ fun DiceroupsScreenPreview() {
     val context = LocalContext.current
     PreferenceManager.init(context)
     val dices = listOf(Dice("checked"), Dice("Name"), Dice("Name"))
-    DiceGroupCreationScreen(dices = dices, onSaveSelection = { string, map -> }, isEdit = false)
+    DiceGroupCreationScreen(dices = dices, onSaveSelection = { string, map -> })
   }
 }

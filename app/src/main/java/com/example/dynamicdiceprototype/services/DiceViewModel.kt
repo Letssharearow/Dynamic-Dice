@@ -12,7 +12,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.DTO.toDice
-import com.example.dynamicdiceprototype.Exceptions.DiceGroupNotFoundException
 import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceGroup
@@ -21,6 +20,7 @@ import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.toDiceDTO
 import com.example.dynamicdiceprototype.services.serializer.DiceDTOMap
 import com.example.dynamicdiceprototype.services.serializer.ImageDTOMap
+import com.example.dynamicdiceprototype.utils.temp_group_id
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
@@ -38,6 +38,7 @@ class DiceViewModel(
 
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
+
   var imageMap by mutableStateOf<Map<String, ImageDTO>>(emptyMap())
   var hasLoadedUser by mutableStateOf(false)
 
@@ -46,7 +47,7 @@ class DiceViewModel(
   var isDiceEditMode by mutableStateOf<Boolean>(false) //
 
   // create Dice Group
-  var groupInEdit by mutableStateOf<Pair<String, DiceGroup>?>(null)
+  var groupInEdit by mutableStateOf<DiceGroup?>(null)
   var isGroupEditMode by mutableStateOf<Boolean>(false)
 
   // User Config
@@ -69,6 +70,9 @@ class DiceViewModel(
         Log.d(TAG, "ViewModel collectUserConfig flow: groups key ${it.diceGroups.keys}")
         diceGroups = it.diceGroups
         hasLoadedUser = true
+        if (!it.diceGroups.keys.contains(temp_group_id)) {
+          saveGroup(DiceGroup(id = temp_group_id))
+        }
       }
     }
   }
@@ -79,11 +83,6 @@ class DiceViewModel(
       uniqueName += "_copy"
     }
     return uniqueName
-  }
-
-  fun createNewGroup() {
-    groupInEdit = Pair("Change Later", DiceGroup())
-    isGroupEditMode = false
   }
 
   // Dice
@@ -199,6 +198,7 @@ class DiceViewModel(
   // Dice Menu Actions end
 
   fun selectDice(dice: Dice) {
+    diceGroups[temp_group_id]?.let { saveGroup(it.copy(dices = mapOf(dice.id to 1))) }
     currentDices = listOf(dice)
   }
 
@@ -206,45 +206,46 @@ class DiceViewModel(
 
   // Dice Group
   // create Dice Group
+  fun createNewGroup() {
+    groupInEdit = DiceGroup()
+    isGroupEditMode = false
+  }
+
   fun setGroupInEditDices(name: String, dices: Map<Dice, Int>) {
     groupInEdit =
-        Pair(
-            name,
-            DiceGroup(
+        groupInEdit?.copy(
+            name = name, dices = mapOf(*dices.map { Pair(it.key.id, it.value) }.toTypedArray()))
+            ?: DiceGroup(
+                name = name,
                 dices = mapOf(*dices.map { Pair(it.key.id, it.value) }.toTypedArray()),
-                states = groupInEdit?.second?.states ?: emptyList()))
+            )
   }
 
   fun setSelectedStates(states: Map<ImageDTO, Int>) {
     groupInEdit =
-        groupInEdit?.let { group ->
-          Pair(group.first, group.second.copy(states = states.keys.map { it.contentDescription }))
-        }
+        groupInEdit?.let { group -> group.copy(states = states.keys.map { it.contentDescription }) }
   }
 
   fun saveGroupInEdit() {
+    groupInEdit?.let { saveGroup(it) }
+  }
+
+  fun saveGroup(group: DiceGroup) {
     viewModelScope.launch {
-      userConfigStore.updateData {
-        val toMutableMap = it.diceGroups.toMutableMap()
-        groupInEdit?.let { group -> toMutableMap[group.first] = group.second }
-        it.copy(diceGroups = toMutableMap)
+      userConfigStore.updateData { userDTO ->
+        val toMutableMap = userDTO.diceGroups.toMutableMap()
+        group.let { group -> toMutableMap[group.id] = group }
+        userDTO.copy(diceGroups = toMutableMap.mapKeys { it.value.id })
       }
     }
-  }
-
-  fun copyDiceGroup(name: String): Pair<String, DiceGroup> {
-    val state = diceGroups[name] ?: throw DiceGroupNotFoundException("Group not found: $name")
-    return copyDiceGroupIfNotExists(name.plus("_copy"), state)
-  }
-
-  fun copyDiceGroupIfNotExists(newName: String, state: DiceGroup): Pair<String, DiceGroup> {
-    val uniqueName = generateUniqueName(newName, diceGroups.keys.toList())
-    return Pair(uniqueName, state)
   }
 
   // create Dice Group end
   // group Menu Actions
   fun removeGroup(groupId: String) {
+    if (groupId == temp_group_id) {
+      return
+    }
     viewModelScope.launch {
       userConfigStore.updateData {
         val toMutableMap = it.diceGroups.toMutableMap()
@@ -257,15 +258,21 @@ class DiceViewModel(
   fun setGroupInEdit(groupId: String) {
     isGroupEditMode = true
     val group = diceGroups[groupId]
-    group?.let { group -> groupInEdit = Pair(groupId, group.copy(dices = group.dices.toMap())) }
+    group?.let { group -> groupInEdit = group.copy(dices = group.dices.toMap()) }
   }
 
   fun duplicateGroup(groupId: String) {
-    val newDiceGroup = copyDiceGroup(groupId)
+    val newDiceGroup =
+        diceGroups[groupId]?.copy(
+            id = "",
+            name =
+                generateUniqueName(
+                    baseName = diceGroups[groupId]?.name ?: "", diceGroups.values.map { it.name }))
+            ?: DiceGroup()
     viewModelScope.launch {
       userConfigStore.updateData {
         val toMutableMap = it.diceGroups.toMutableMap()
-        toMutableMap[newDiceGroup.first] = newDiceGroup.second
+        toMutableMap[newDiceGroup.id] = newDiceGroup
         it.copy(diceGroups = toMutableMap)
       }
     }
@@ -273,13 +280,12 @@ class DiceViewModel(
 
   // group Menu Actions end
   fun selectDiceGroup(groupId: String) {
-    lastDiceGroup = groupId
     val newDicesState = mutableListOf<Dice>()
     diceGroups[groupId]?.dices?.forEach { (diceId, count) ->
       val diceToAdd = dices[diceId]
       diceToAdd?.let {
         for (i in 1..count) {
-          newDicesState.add(diceToAdd.copy(id = "", rotation = 0f))
+          newDicesState.add(diceToAdd.copy(rotation = 0f))
         }
       } // TODO better handling for null Dice
     }
@@ -292,7 +298,7 @@ class DiceViewModel(
 
   fun duplicateToCurrentDices(it: Dice) {
     val mutableCurrentDices = currentDices.toMutableList()
-    mutableCurrentDices.add(it.copy(id = ""))
+    mutableCurrentDices.add(it.copy(rotation = 0f))
     currentDices = mutableCurrentDices
   }
 
@@ -300,7 +306,9 @@ class DiceViewModel(
     currentDices =
         // use Map function to trigger recomposition
         currentDices.map {
-          if (it === dice) {
+          if (it ===
+              dice) { // use === to compare references so that dices with same rotation and Id still
+            // are different
             // use copy function to trigger recomposition
             if (dice.state == DiceState.UNLOCKED) dice.copy(state = DiceState.LOCKED, rotation = 0f)
             else {
@@ -323,6 +331,12 @@ class DiceViewModel(
 
   fun setCurrentDicesState(state: DiceState) {
     currentDices = currentDices.map { it.copy(state = state) }
+  }
+
+  fun saveCurrentDices() {
+    val newDices = mutableMapOf<String, Int>()
+    currentDices.forEach { newDices[it.id] = newDices[it.id]?.plus(1) ?: 1 }
+    diceGroups[temp_group_id]?.let { saveGroup(it.copy(dices = newDices)) }
   }
 
   // Main Screen actions end

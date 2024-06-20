@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.DiceViewModel
@@ -22,18 +26,59 @@ import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
+fun LifecycleAwareComponent(onClose: () -> Unit) {
+  val lifecycleOwner = LocalLifecycleOwner.current
+
+  DisposableEffect(lifecycleOwner) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_STOP) {
+        // App is being closed, save data here
+        onClose()
+      }
+    }
+
+    // Add the observer to the lifecycle
+    lifecycleOwner.lifecycle.addObserver(observer)
+
+    // When the effect leaves the Composition, remove the observer
+    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+  }
+
+  // Your composable content goes here
+}
+
+@Composable
 fun LandingPage(
     dices: List<Dice>,
-    name: String,
     states: List<Face>,
     isLoading: Boolean,
     onRollClicked: () -> Unit,
+    onClose: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DiceViewModel? = null
 ) {
+  Log.d(TAG, "Recompose LandingPage ${dices.size}")
 
-  Log.d(TAG, "Recompose LandingPage $name => ${dices.size}")
+  val lifecycleOwner = LocalLifecycleOwner.current
+  DisposableEffect(lifecycleOwner) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_STOP) {
+        onClose()
+      }
+      if (event == Lifecycle.Event.ON_PAUSE) {
+        onClose()
+      }
+      if (event == Lifecycle.Event.ON_DESTROY) {
+        onClose()
+      }
+    }
+    lifecycleOwner.lifecycle.addObserver(observer)
 
+    // When the effect leaves the Composition, remove the observer
+    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+  }
+
+  // Your composable content goes here
   Column(
       verticalArrangement = Arrangement.SpaceBetween,
       horizontalAlignment = Alignment.CenterHorizontally,
@@ -56,9 +101,9 @@ private fun prev() {
   DynamicDicePrototypeTheme {
     LandingPage(
         dices = getDices(5),
-        name = "Test",
         isLoading = false,
         states = listOf(),
-        onRollClicked = { /*TODO*/ })
+        onRollClicked = { /*TODO*/ },
+        onClose = {})
   }
 }
