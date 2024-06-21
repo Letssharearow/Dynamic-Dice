@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.data.Dice
-import com.example.dynamicdiceprototype.data.DiceState
+import com.example.dynamicdiceprototype.data.DiceLockState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.getFaces
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
@@ -74,7 +74,7 @@ fun DiceView(
               modifier =
                   Modifier.align(Alignment.BottomEnd).absoluteOffset(x = spacing, y = spacing))
         }
-    if (dice.state == DiceState.LOCKED) {
+    if (dice.diceLockState == DiceLockState.LOCKED) {
       LockIcon(modifier = Modifier.align(Alignment.TopEnd).size(spacing.times(2)))
     }
   }

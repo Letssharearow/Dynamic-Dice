@@ -15,7 +15,7 @@ import com.example.dynamicdiceprototype.DTO.toDice
 import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceGroup
-import com.example.dynamicdiceprototype.data.DiceState
+import com.example.dynamicdiceprototype.data.DiceLockState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.toDiceDTO
 import com.example.dynamicdiceprototype.services.serializer.DiceDTOMap
@@ -199,7 +199,6 @@ class DiceViewModel(
 
   fun selectDice(dice: Dice) {
     diceGroups[temp_group_id]?.let { saveGroup(it.copy(dices = mapOf(dice.id to 1))) }
-    currentDices = listOf(dice)
   }
 
   // Dice end
@@ -279,27 +278,46 @@ class DiceViewModel(
   }
 
   // group Menu Actions end
+
+  fun saveDiceGroup(group: DiceGroup) {
+    val tempGroup = diceGroups[temp_group_id]!!
+    saveGroup(group.copy(id = tempGroup.id, name = tempGroup.name))
+  }
+
   fun selectDiceGroup(groupId: String) {
-    val newDicesState = mutableListOf<Dice>()
-    diceGroups[groupId]?.dices?.forEach { (diceId, count) ->
-      val diceToAdd = dices[diceId]
-      diceToAdd?.let {
-        for (i in 1..count) {
-          newDicesState.add(diceToAdd.copy(rotation = 0f))
-        }
-      } // TODO better handling for null Dice
+    diceGroups[groupId]?.dices?.let { diceMap ->
+      setNewCurrentDices(diceMap.mapKeys { dices[it.key]!! })
     }
-    currentDices = newDicesState
   }
 
   // Dice Group end
 
-  // Main Screen actions
+  private fun addToCurrentDices(oldState: List<Dice>, dices: Map<Dice, Int>) {
+    val newDicesState = oldState.toMutableList()
+    dices.forEach { (dice, count) ->
+      for (i in 1..count) {
+        newDicesState.add(dice.copy(rotation = 0f))
+      }
+    }
+    currentDices = newDicesState
+  }
 
-  fun duplicateToCurrentDices(it: Dice) {
-    val mutableCurrentDices = currentDices.toMutableList()
-    mutableCurrentDices.add(it.copy(rotation = 0f))
-    currentDices = mutableCurrentDices
+  // Main Screen actions
+  fun setNewCurrentDices(dices: Map<Dice, Int>) {
+    addToCurrentDices(emptyList(), dices)
+  }
+
+  fun duplicateToCurrentDices(newDices: Map<Dice, Int>) {
+    addToCurrentDices(currentDices, newDices)
+  }
+
+  fun rollSingleDice(dice: Dice) {
+    currentDices =
+        currentDices.map {
+          if (it === dice) {
+            it.roll()
+          } else it
+        }
   }
 
   fun lockDice(dice: Dice) {
@@ -310,9 +328,10 @@ class DiceViewModel(
               dice) { // use === to compare references so that dices with same rotation and Id still
             // are different
             // use copy function to trigger recomposition
-            if (dice.state == DiceState.UNLOCKED) dice.copy(state = DiceState.LOCKED, rotation = 0f)
+            if (dice.diceLockState == DiceLockState.UNLOCKED)
+                dice.copy(diceLockState = DiceLockState.LOCKED, rotation = 0f)
             else {
-              dice.copy(state = DiceState.UNLOCKED, rotation = 0f)
+              dice.copy(diceLockState = DiceLockState.UNLOCKED, rotation = 0f)
             }
           } else it
         }
@@ -321,7 +340,7 @@ class DiceViewModel(
   fun rollDices() {
     currentDices =
         currentDices.map { dice ->
-          if (dice.state != DiceState.LOCKED) {
+          if (dice.diceLockState != DiceLockState.LOCKED) {
             dice.roll()
           } else {
             dice
@@ -329,8 +348,12 @@ class DiceViewModel(
         }
   }
 
-  fun setCurrentDicesState(state: DiceState) {
-    currentDices = currentDices.map { it.copy(state = state) }
+  fun resetCurrentDices() {
+    currentDices = currentDices.map { it.reset() }
+  }
+
+  fun setCurrentDicesState(state: DiceLockState) {
+    currentDices = currentDices.map { it.copy(diceLockState = state) }
   }
 
   fun saveCurrentDices() {

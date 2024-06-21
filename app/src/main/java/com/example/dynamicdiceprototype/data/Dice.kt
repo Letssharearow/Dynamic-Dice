@@ -13,7 +13,7 @@ data class Dice(
     var name: String = "diceName",
     var faces: List<Face> = listOf(),
     var current: Face? = null,
-    var state: DiceState = DiceState.UNLOCKED,
+    var diceLockState: DiceLockState = DiceLockState.UNLOCKED,
     var rotation: Float = ((Random.nextFloat() * (15) + 5) * if (Random.nextBoolean()) -1 else 1),
     var backgroundColor: Color = Color(0x80C0C0C0)
 ) {
@@ -36,13 +36,16 @@ data class Dice(
                   else -> 1
                 })))
   }
+
+  fun reset(): Dice =
+      this.copy(current = null, rotation = 0f, diceLockState = DiceLockState.UNLOCKED)
 }
 
 fun generateUniqueID(): String {
   return UUID.randomUUID().toString()
 }
 
-enum class DiceState {
+enum class DiceLockState {
   LOCKED,
   UNLOCKED
 }

@@ -25,15 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dynamicdiceprototype.composables.common.PupMenuWithAlert
-import com.example.dynamicdiceprototype.composables.createdice.DiceCard
+import com.example.dynamicdiceprototype.composables.createdice.DicePreview
 import com.example.dynamicdiceprototype.data.Dice
-import com.example.dynamicdiceprototype.data.DiceState
+import com.example.dynamicdiceprototype.data.DiceLockState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
-import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.getDices
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import com.example.dynamicdiceprototype.utils.MAIN_SCREEN_DICE_MIN_SIZE
@@ -44,12 +42,12 @@ import selectNext
 fun DicesView(
     dices: List<Dice>,
     modifier: Modifier = Modifier,
-    states: List<Face> = listOf(),
+    states: List<Face> = listOf(), // TODO: append CurrentDices Class with States
     viewModel: DiceViewModel? = null
 ) {
+  var showAddDiceDialog by remember { mutableStateOf(false) }
   OneScreenGrid<Dice>(dices, minSize = MAIN_SCREEN_DICE_MIN_SIZE, modifier) { dice, maxSize ->
     var showMenu by remember { mutableStateOf(false) }
-    var showAddDiceDialog by remember { mutableStateOf(false) }
     var currentStateIndex by remember { mutableStateOf<Int?>(null) }
     Box(
         contentAlignment = Alignment.Center,
@@ -79,36 +77,44 @@ fun DicesView(
                 actionItem = dice,
                 items =
                     listOf(
-                        //                      MenuItem(text = "Roll This", callBack =
-                        // {viewModel.rollSingleDice(it)}),
                         MenuItem(
-                            text = if (dice.state == DiceState.UNLOCKED) "Lock" else "Unlock",
+                            text = "Roll This Dice", callBack = { viewModel?.rollSingleDice(it) }),
+                        MenuItem(
+                            text =
+                                (if (dice.diceLockState == DiceLockState.UNLOCKED) "Lock"
+                                    else "Unlock")
+                                    .plus(" this Dice"),
                             callBack = { viewModel?.lockDice(dice) }),
                         MenuItem(
-                            text = "Duplicate",
-                            callBack = { viewModel?.duplicateToCurrentDices(it) }),
-                        MenuItem(text = "Add Dice", callBack = { showAddDiceDialog = true }),
+                            text = "Duplicate this Dice",
+                            callBack = { viewModel?.duplicateToCurrentDices(mapOf(it to 1)) }),
                         MenuItem(
-                            text = "Lock all",
-                            callBack = { viewModel?.setCurrentDicesState(DiceState.LOCKED) }),
+                            text = "Add / Remove Dices", callBack = { showAddDiceDialog = true }),
                         MenuItem(
-                            text = "Unlock all",
-                            callBack = { viewModel?.setCurrentDicesState(DiceState.UNLOCKED) }),
+                            text = "Lock all Dices",
+                            callBack = { viewModel?.setCurrentDicesState(DiceLockState.LOCKED) }),
+                        MenuItem(
+                            text = "Unlock all Dices",
+                            callBack = { viewModel?.setCurrentDicesState(DiceLockState.UNLOCKED) }),
+                        MenuItem(
+                            text = "Reset all Dices",
+                            callBack = { viewModel?.resetCurrentDices() }),
                     ),
                 showMenu = showMenu,
                 onDismiss = { showMenu = false },
             )
           }
         }
-    ItemSelectionDialog(
-        showDialog = showAddDiceDialog,
-        selectables = viewModel?.dices?.values?.toList() ?: listOf(),
-        onDismiss = { showAddDiceDialog = false },
-        onItemSelected = {
-          viewModel?.duplicateToCurrentDices(it)
-          showAddDiceDialog = false
-        })
   }
+  ItemSelectionDialog(
+      showDialog = showAddDiceDialog,
+      selectables = viewModel?.dices?.values?.toList() ?: listOf(),
+      onDismiss = { showAddDiceDialog = false },
+      onItemSelected = {
+        viewModel?.setNewCurrentDices(it)
+        showAddDiceDialog = false
+      },
+      initialValue = viewModel?.currentDices ?: listOf())
 }
 
 @Composable
@@ -116,26 +122,35 @@ fun ItemSelectionDialog(
     showDialog: Boolean,
     selectables: List<Dice>,
     onDismiss: () -> Unit,
-    onItemSelected: (Dice) -> Unit
+    initialValue: List<Dice>,
+    onItemSelected: (Map<Dice, Int>) -> Unit
 ) {
   if (showDialog) {
+    val initialValueMapped by remember {
+      val newDices = mutableMapOf<Dice, Int>()
+      initialValue.forEach { multibleDice ->
+        val actualDice = selectables.find { it.id == multibleDice.id }!!
+        newDices[actualDice] = newDices[actualDice]?.plus(1) ?: 1
+      }
+      mutableStateOf(newDices.toMap())
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = "Select an Item") },
         text = {
-          ItemListScreen(
-              items = selectables,
-              onSelect = onItemSelected,
-              getKey = { it.id },
-              menuActions = listOf(),
-              preferenceView = PreferenceKey.IsAddDiceCompact,
-              onCreateItem = null,
-          ) { item, isCompact, modifier ->
-            DiceCard(item, isCompact, modifier)
+          SelectItemsGrid<Dice>(
+              selectables = selectables,
+              onSaveSelection = onItemSelected,
+              getId = { it.name },
+              initialValue = initialValueMapped,
+              itemMinWidthPixel = 200f,
+          ) { dice, modifier, maxWidth ->
+            DicePreview(
+                dice = dice, facesSum = dice.faces.sumOf { it.weight }, Modifier.size(maxWidth))
           }
         },
         confirmButton = { Button(onClick = onDismiss) { Text("Close") } },
-        modifier = Modifier.fillMaxHeight(0.9f))
+        modifier = Modifier.fillMaxHeight(0.95f).fillMaxWidth(1f))
   }
 }
 

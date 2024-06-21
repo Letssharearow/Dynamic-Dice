@@ -122,7 +122,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           groups = viewModel.diceGroups.values.toList(),
           onSelectGroup = { group ->
             try {
-              viewModel.selectDiceGroup(group.id)
+              viewModel.saveDiceGroup(group)
               navController.navigate(Screen.MainScreen.route)
               headerViewModel.changeHeaderText(group.name)
             } catch (e: NullPointerException) {

@@ -49,6 +49,7 @@ fun <T> SelectItemsGrid(
     initialSize: Int = 10,
     maxSize: Int = 100,
     applyFilter: ((T, String) -> Boolean)? = null,
+    itemMinWidthPixel: Float? = null,
     initialValue: Map<T, Int> = mapOf(),
     view: @Composable (item: T, modifier: Modifier, size: Dp) -> Unit,
 ) {
@@ -60,7 +61,7 @@ fun <T> SelectItemsGrid(
       PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionMaxSize)
           .collectAsState(initial = maxSize)
           .value
-  val oneScreenGridMinWidth =
+  val oneScreenGridMinWidth = itemMinWidthPixel?:
       PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionOneScreenGridMinWidth)
           .collectAsState(initial = 400)
           .value
@@ -156,7 +157,7 @@ fun <T> SelectItemsGrid(
               }
         }
     ContinueButton(
-        onClick = { onSaveSelection(selectedItems) }, text = "Save Selection  : ($sumOfSelection)")
+        onClick = { onSaveSelection(selectedItems) }, text = "Save Selection ($sumOfSelection)")
   }
 }
 
