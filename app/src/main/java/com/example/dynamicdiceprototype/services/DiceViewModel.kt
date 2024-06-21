@@ -337,6 +337,15 @@ class DiceViewModel(
         }
   }
 
+  fun setDiceState(dice: Dice, state: Face?) {
+    currentDices =
+        currentDices.map {
+          if (it === dice) {
+            it.copy(state = state)
+          } else it
+        }
+  }
+
   fun rollDices() {
     currentDices =
         currentDices.map { dice ->

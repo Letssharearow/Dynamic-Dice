@@ -42,13 +42,12 @@ import selectNext
 fun DicesView(
     dices: List<Dice>,
     modifier: Modifier = Modifier,
-    states: List<Face> = listOf(), // TODO: append CurrentDices Class with States
+    states: List<Face> = listOf(), // TODO: append CurrentDices Class with States List
     viewModel: DiceViewModel? = null
 ) {
   var showAddDiceDialog by remember { mutableStateOf(false) }
   OneScreenGrid<Dice>(dices, minSize = MAIN_SCREEN_DICE_MIN_SIZE, modifier) { dice, maxSize ->
     var showMenu by remember { mutableStateOf(false) }
-    var currentStateIndex by remember { mutableStateOf<Int?>(null) }
     Box(
         contentAlignment = Alignment.Center,
         modifier =
@@ -57,7 +56,8 @@ fun DicesView(
                     onClick = {
                       if (states.isEmpty()) viewModel?.lockDice(dice)
                       else {
-                        currentStateIndex = states.selectNext(currentStateIndex)
+                        val nextIndex = states.selectNext(states.indexOf(dice.state))
+                        viewModel?.setDiceState(dice, nextIndex?.let { states[nextIndex] })
                       }
                     },
                     onLongClick = { showMenu = true })) {
@@ -65,10 +65,10 @@ fun DicesView(
               dice = dice,
               size = maxSize,
           )
-          currentStateIndex?.let {
+          dice.state?.let {
             Box(modifier = Modifier.size(maxSize.div(5)).align(Alignment.TopStart)) {
               SizedImage(
-                  image = states[it],
+                  image = it,
               )
             }
           }

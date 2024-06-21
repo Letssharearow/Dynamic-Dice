@@ -15,6 +15,7 @@ data class Dice(
     var current: Face? = null,
     var diceLockState: DiceLockState = DiceLockState.UNLOCKED,
     var rotation: Float = ((Random.nextFloat() * (15) + 5) * if (Random.nextBoolean()) -1 else 1),
+    var state: Face? = null,
     var backgroundColor: Color = Color(0x80C0C0C0)
 ) {
   init {
@@ -38,7 +39,7 @@ data class Dice(
   }
 
   fun reset(): Dice =
-      this.copy(current = null, rotation = 0f, diceLockState = DiceLockState.UNLOCKED)
+      this.copy(current = null, rotation = 0f, diceLockState = DiceLockState.UNLOCKED, state = null)
 }
 
 fun generateUniqueID(): String {
