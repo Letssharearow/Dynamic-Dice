@@ -52,7 +52,7 @@ import compose.icons.fontawesomeicons.regular.Images
 import java.io.InputStream
 
 @Composable
-fun UploadImageScreen(
+fun SaveImageScreen(
     context: Context,
     onImagesSelected: (List<ImageDTO>) -> Unit = {},
     onNavigateToDiceCreation: () -> Unit = {},
@@ -140,7 +140,7 @@ fun UploadImageScreen(
                 setCommonTags(emptyList())
               },
               modifier = Modifier.padding(16.dp)) {
-                Text("Upload")
+                Text("Save")
               }
         } else {
           Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -150,7 +150,7 @@ fun UploadImageScreen(
                     Modifier.padding(16.dp).weight(1f).fillMaxWidth(0.66f).fillMaxWidth(0.66f)) {
                   Icon(
                       imageVector = FontAwesomeIcons.Regular.Images,
-                      contentDescription = "Upload Image",
+                      contentDescription = "Save Image",
                   )
                 }
             Spacer(modifier = Modifier.height(16.dp))

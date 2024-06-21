@@ -59,7 +59,7 @@ fun Menu(
           NavItmProps("Main Screen", Screen.MainScreen.route, Icons.Default.Home),
           NavItmProps("Dices", DicesScreen.Dices.route, FontAwesomeIcons.Solid.DiceD6),
           NavItmProps("Dice Groups", Screen.DiceGroups.route, FontAwesomeIcons.Solid.Dice),
-          NavItmProps("Upload Image", Screen.UploadImage.route, FontAwesomeIcons.Solid.Image),
+          NavItmProps("Upload Images", Screen.SaveImage.route, FontAwesomeIcons.Solid.Image),
           NavItmProps("Images", Screen.Images.route, FontAwesomeIcons.Solid.Images),
       )
   ModalNavigationDrawer(

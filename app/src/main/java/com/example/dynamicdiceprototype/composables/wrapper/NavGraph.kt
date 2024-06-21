@@ -25,9 +25,9 @@ import com.example.dynamicdiceprototype.composables.screens.DiceGroupCreationScr
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupsScreen
 import com.example.dynamicdiceprototype.composables.screens.ImagesActionsScreen
 import com.example.dynamicdiceprototype.composables.screens.ProfileScreen
+import com.example.dynamicdiceprototype.composables.screens.SaveImageScreen
 import com.example.dynamicdiceprototype.composables.screens.SettingsScreen
 import com.example.dynamicdiceprototype.composables.screens.TestScreen
-import com.example.dynamicdiceprototype.composables.screens.UploadImageScreen
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.MenuItem
@@ -79,12 +79,12 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           onClose = { viewModel.saveCurrentDices() })
     }
     diceGraph(viewModel, navController, headerViewModel)
-    composable(route = Screen.UploadImage.route) {
-      UploadImageScreen(
+    composable(route = Screen.SaveImage.route) {
+      SaveImageScreen(
           context = context,
           onImagesSelected = { images ->
-            viewModel.uploadImages(images)
-            Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
+            viewModel.saveImages(images)
+            Toast.makeText(context, "Images Saved", Toast.LENGTH_SHORT).show()
           },
           onNavigateToDiceCreation = {
             navController.navigate(DicesScreen.SelectFaces.route)
@@ -225,7 +225,7 @@ sealed class Screen(val route: String) {
 
   object CreateDiceGroupStates : Screen("dice_groups/create/states")
 
-  object UploadImage : Screen("upload")
+  object SaveImage : Screen("save")
 
   object Profile : Screen("profile")
 

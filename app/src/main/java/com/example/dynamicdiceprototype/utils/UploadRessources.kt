@@ -13,7 +13,7 @@ import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.USER
 
-fun uploadImages(res: Resources) {
+fun saveImages(res: Resources) {
   val firebase = FirebaseDataStore()
   data class ImageModelSetDTO(val image: Int, val name: String)
   val images =

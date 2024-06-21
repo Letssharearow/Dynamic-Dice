@@ -344,7 +344,7 @@ class DiceViewModel(
   // Firebase Access
   fun getErrorMessage() = firebase.errorMessage
 
-  fun uploadImages(newImages: List<ImageDTO>) {
+  fun saveImages(newImages: List<ImageDTO>) {
     viewModelScope.launch {
       imagesStore.updateData { t ->
         val mutableMapState = t.images.toMutableMap()
