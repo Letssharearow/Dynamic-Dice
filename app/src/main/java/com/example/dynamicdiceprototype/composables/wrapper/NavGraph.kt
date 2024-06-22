@@ -4,6 +4,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,21 +60,26 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
       ProfileScreen { navController.navigate(Screen.Settings.route) }
     }
     composable(route = Screen.MainScreen.route) {
+      val states by remember {
+        derivedStateOf {
+          viewModel.diceGroups[temp_group_id]?.states?.map { imageKey ->
+            val image = viewModel.imageMap[imageKey]
+            image?.let {
+              Face(
+                  contentDescription = it.contentDescription,
+                  data = FirebaseDataStore.base64ToBitmap(it.base64String))
+            } ?: Face(contentDescription = imageKey)
+          } ?: listOf()
+        }
+      }
+
       LaunchedEffect(viewModel.dices, viewModel.diceGroups) {
         viewModel.selectDiceGroup(temp_group_id)
       }
       LandingPage(
           dices = viewModel.currentDices,
           isLoading = !viewModel.hasLoadedUser,
-          states =
-              viewModel.diceGroups[temp_group_id]?.states?.map { imageKey ->
-                val image = viewModel.imageMap[imageKey]
-                image?.let {
-                  Face(
-                      contentDescription = it.contentDescription,
-                      data = FirebaseDataStore.base64ToBitmap(it.base64String))
-                } ?: Face(contentDescription = imageKey)
-              } ?: listOf(),
+          states = states,
           onRollClicked = { viewModel.rollDices() },
           viewModel = viewModel,
           onClose = { viewModel.saveCurrentDices() })

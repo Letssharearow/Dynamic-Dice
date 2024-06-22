@@ -140,7 +140,7 @@ class DiceViewModel(
                 dicesFlow.dices.mapValues { diceDTOEntry ->
                   diceDTOEntry.value.toDice(diceDTOEntry.key, imagesFlow.images)
                 }
-            imageMap = imagesFlow.images.mapValues { it.value.copy(contentDescription = it.key) }
+            imageMap = imagesFlow.images
           }
     }
   }
