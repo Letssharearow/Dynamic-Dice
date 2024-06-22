@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -37,19 +37,8 @@ import kotlin.math.sin
 
 @Composable
 fun TestScreen() {
-  SimpleFilledTextFieldSample()
-}
-
-@Composable
-fun SimpleFilledTextFieldSample() {
   var text by remember { mutableStateOf("Hello") }
-
-  TextField(
-      value = text,
-      onValueChange = { text = it },
-      label = { Text("Label") },
-      singleLine = true,
-      modifier = Modifier.padding(24.dp))
+  OutlinedTextField(value = text, onValueChange = { text = it })
 }
 
 @Composable
