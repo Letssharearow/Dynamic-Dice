@@ -1,8 +1,6 @@
 plugins {
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.jetbrainsKotlinAndroid)
-  id("com.google.gms.google-services")
-  id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -45,9 +43,6 @@ dependencies {
   implementation(libs.androidx.ui.graphics)
   implementation(libs.androidx.ui.tooling.preview)
   implementation(libs.androidx.material3)
-  implementation(libs.androidx.navigation.compose)
-  implementation(libs.androidx.room.ktx)
-  implementation(libs.font.awesome)
   testImplementation(libs.junit)
   testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
   androidTestImplementation(libs.androidx.junit)
@@ -73,9 +68,4 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
   implementation("com.github.skydoves:colorpicker-compose:1.0.7")
-
-  // datastore
-  implementation(libs.kotlinx.collections.immutable)
-  implementation(libs.androidx.datastore)
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }
