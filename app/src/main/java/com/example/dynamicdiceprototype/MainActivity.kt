@@ -1,33 +1,64 @@
 package com.example.dynamicdiceprototype
 
+import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusEvent
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.datastore.dataStore
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
+import com.example.dynamicdiceprototype.composables.wrapper.Menu
+import com.example.dynamicdiceprototype.composables.wrapper.Screen
+import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.DiceViewModelFactory
+import com.example.dynamicdiceprototype.services.HeaderViewModel
+import com.example.dynamicdiceprototype.services.PreferenceManager
+import com.example.dynamicdiceprototype.services.serializer.DiceSerializer
+import com.example.dynamicdiceprototype.services.serializer.ImageSerializer
+import com.example.dynamicdiceprototype.services.serializer.UserConfigSerializer
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import kotlinx.coroutines.launch
+
+val Context.diceDataStore by dataStore("dices-settings.json", DiceSerializer)
+val Context.userDataStore by dataStore("user-settings.json", UserConfigSerializer)
+val Context.imagesDataStore by dataStore("images-settings.json", ImageSerializer)
 
 class MainActivity : ComponentActivity() {
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    enableEdgeToEdge()
+
+    PreferenceManager.init(this)
     setContent {
       DynamicDicePrototypeTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          SimpleFilledTextFieldSample()
+        // A surface container using the 'background' color from the theme
+        val viewModel: DiceViewModel by viewModels {
+          DiceViewModelFactory(imagesDataStore, diceDataStore, userDataStore)
+        }
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+          MyApp(viewModel)
+          //          Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+          //            TestScreen()
+          //          }
         }
       }
     }
@@ -35,23 +66,44 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SimpleFilledTextFieldSample() {
-  var text by remember { mutableStateOf("Hello") }
+fun MyApp(viewModel: DiceViewModel) {
+  val scope = rememberCoroutineScope()
+  val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+  val navController = rememberNavController()
+  Column {
+    AppBar({ scope.launch { drawerState.apply { if (isClosed) open() else close() } } }) {
+      navController.navigate(Screen.Profile.route)
+    }
+    Menu(
+        drawerState = drawerState,
+        scope = scope,
+        navController = navController,
+        viewModel = viewModel)
+  }
+}
 
-  TextField(
-      value = text,
-      onValueChange = {
-        text = it
-        Log.d("TextField", "Text field value changed: $text")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppBar(onMenuClicked: () -> Unit, onProfileClicked: () -> Unit) {
+  val viewModel = viewModel<HeaderViewModel>()
+  TopAppBar(
+      title = { Text(text = viewModel.headerText) },
+      navigationIcon = {
+        IconButton(onClick = { onMenuClicked() }) {
+          Icon(Icons.Filled.Menu, contentDescription = "Menu")
+        }
       },
-      label = { Text("Label") },
-      singleLine = true,
-      modifier =
-          Modifier.padding(24.dp).onFocusEvent { event ->
-            if (event.isFocused) {
-              Log.d("TextField", "Text field gained focus")
-            } else {
-              Log.d("TextField", "Text field lost focus")
-            }
-          })
+      actions = {
+        IconButton(onClick = onProfileClicked) {
+          Icon(Icons.Filled.AccountCircle, contentDescription = "Profile")
+        }
+      })
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AppBarPreview() {
+  DynamicDicePrototypeTheme {
+    AppBar({ /* Handle navigation icon click */ }) { /* Handle profile picture button click */ }
+  }
 }
