@@ -221,6 +221,8 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
 
 sealed class Screen(val route: String) {
 
+  object Onboarding : Screen("onboarding")
+
   object MainScreen : Screen("home")
 
   object TestScreen : Screen("Test")

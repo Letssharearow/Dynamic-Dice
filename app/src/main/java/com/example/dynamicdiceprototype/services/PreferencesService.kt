@@ -16,6 +16,7 @@ enum class PreferenceKey(val defaultValue: Any, val location: String = "No Steps
   IsAddDiceCompact(true),
   IsDicesViewCompact(true),
   IsDicesGroupViewCompact(true),
+  hasOnboardingCompleted(true),
 }
 
 object PreferenceManager {

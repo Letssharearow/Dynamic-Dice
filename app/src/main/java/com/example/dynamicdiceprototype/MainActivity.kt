@@ -20,17 +20,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.datastore.dataStore
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.dynamicdiceprototype.composables.screens.OnboardingScreen
 import com.example.dynamicdiceprototype.composables.wrapper.Menu
 import com.example.dynamicdiceprototype.composables.wrapper.Screen
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.DiceViewModelFactory
 import com.example.dynamicdiceprototype.services.HeaderViewModel
+import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.services.serializer.DiceSerializer
 import com.example.dynamicdiceprototype.services.serializer.ImageSerializer
@@ -53,12 +56,16 @@ class MainActivity : ComponentActivity() {
         val viewModel: DiceViewModel by viewModels {
           DiceViewModelFactory(imagesDataStore, diceDataStore, userDataStore)
         }
-        //        saveImages(resources, viewModel)
+        val hasOnboardingCompleted =
+            PreferenceManager.getPreferenceFlow<Boolean>(PreferenceKey.hasOnboardingCompleted)
+                .collectAsState(initial = false)
+                .value
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          MyApp(viewModel)
-          //          Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-          //            TestScreen()
-          //          }
+          if (hasOnboardingCompleted) {
+            MyApp(viewModel)
+          } else {
+            OnboardingScreen()
+          }
         }
       }
     }
