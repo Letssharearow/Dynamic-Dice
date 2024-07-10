@@ -79,7 +79,7 @@ fun PreferenceText(preference: PreferenceKey) {
         PlainTooltip {
           Text(
               text =
-                  "you can find see changes when you do this: ${preference.location} \ndefault value: ${preference.defaultValue}")
+                  "you can see changes made to this property when you do the following: ${preference.location} \n\ndefault value: ${preference.defaultValue}")
         }
       },
       state = tooltipState) {
