@@ -31,10 +31,12 @@ class DiceViewModel(
     userDataStore: DataStore<UserDTO>
 ) : ViewModel() {
 
+  var countRolls: Int = 0
+
   // dataStore
-  val imagesStore = imageDataStore // TODO make private, updateData should not be public
-  val dicesStore = diceDataStore
-  val userConfigStore = userDataStore
+  private val imagesStore = imageDataStore // TODO make private, updateData should not be public
+  private val dicesStore = diceDataStore
+  private val userConfigStore = userDataStore
 
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
@@ -67,13 +69,37 @@ class DiceViewModel(
   private fun collectUserConfig() {
     viewModelScope.launch {
       userConfigStore.data.collect {
-        Log.d(TAG, "ViewModel collectUserConfig flow: groups key ${it.diceGroups.keys}")
+        Log.d(
+            TAG,
+            "ViewModel collectUserConfig flow: groups key ${it.diceGroups.values.map { group -> group.name }}")
         diceGroups = it.diceGroups
         hasLoadedUser = true
         if (!it.diceGroups.keys.contains(temp_group_id)) {
-          saveGroup(DiceGroup(id = temp_group_id))
+          saveGroup(DiceGroup(id = temp_group_id, name = "Temp group, duplicate to save"))
         }
       }
+    }
+  }
+
+  private fun populatedDicesWithImages() {
+    viewModelScope.launch {
+      combine(
+              dicesStore.data,
+              imagesStore.data,
+          ) { dices, images ->
+            // Process the data from both DataStores here
+            dices to images // Pair the data for easier access
+          }
+          .collect { (dicesFlow, imagesFlow) ->
+            Log.d(
+                TAG,
+                "ViewModel populatedDicesWithImages flow: dices keys ${dicesFlow.dices.keys} images Size: ${imagesFlow.images.keys.size}")
+            dices =
+                dicesFlow.dices.mapValues { diceDTOEntry ->
+                  diceDTOEntry.value.toDice(diceDTOEntry.key, imagesFlow.images)
+                }
+            imageMap = imagesFlow.images
+          }
     }
   }
 
@@ -120,28 +146,6 @@ class DiceViewModel(
         toMutableMap[dice.id] = dice.toDiceDTO()
         it.copy(dices = toMutableMap)
       }
-    }
-  }
-
-  private fun populatedDicesWithImages() {
-    viewModelScope.launch {
-      combine(
-              dicesStore.data,
-              imagesStore.data,
-          ) { dices, images ->
-            // Process the data from both DataStores here
-            dices to images // Pair the data for easier access
-          }
-          .collect { (dicesFlow, imagesFlow) ->
-            Log.d(
-                TAG,
-                "ViewModel populatedDicesWithImages flow: dices keys ${dicesFlow.dices.keys} images Size: ${imagesFlow.images.keys.size}")
-            dices =
-                dicesFlow.dices.mapValues { diceDTOEntry ->
-                  diceDTOEntry.value.toDice(diceDTOEntry.key, imagesFlow.images)
-                }
-            imageMap = imagesFlow.images
-          }
     }
   }
 
@@ -198,6 +202,7 @@ class DiceViewModel(
   // Dice Menu Actions end
 
   fun selectDice(dice: Dice) {
+    countRolls = 0
     diceGroups[temp_group_id]?.let { saveGroup(it.copy(dices = mapOf(dice.id to 1))) }
   }
 
@@ -285,6 +290,7 @@ class DiceViewModel(
   }
 
   fun selectDiceGroup(groupId: String) {
+    countRolls = 0
     diceGroups[groupId]?.dices?.let { diceMap ->
       setNewCurrentDices(diceMap.mapKeys { dices[it.key]!! })
     }
@@ -347,6 +353,7 @@ class DiceViewModel(
   }
 
   fun rollDices() {
+    countRolls++
     currentDices =
         currentDices.map { dice ->
           if (dice.diceLockState != DiceLockState.LOCKED) {
@@ -358,6 +365,7 @@ class DiceViewModel(
   }
 
   fun resetCurrentDices() {
+    countRolls = 0
     currentDices = currentDices.map { it.reset() }
   }
 

@@ -32,7 +32,9 @@ import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Regular
 import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.regular.Save
 import compose.icons.fontawesomeicons.solid.Dice
 import compose.icons.fontawesomeicons.solid.DiceD6
 import compose.icons.fontawesomeicons.solid.Image
@@ -59,7 +61,7 @@ fun Menu(
           NavItmProps("Main Screen", Screen.MainScreen.route, Icons.Default.Home),
           NavItmProps("Dices", DicesScreen.Dices.route, FontAwesomeIcons.Solid.DiceD6),
           NavItmProps("Dice Groups", Screen.DiceGroups.route, FontAwesomeIcons.Solid.Dice),
-          NavItmProps("Upload Images", Screen.SaveImage.route, FontAwesomeIcons.Solid.Image),
+          NavItmProps("Add Images", Screen.SaveImage.route, FontAwesomeIcons.Solid.Image),
           NavItmProps("Images", Screen.Images.route, FontAwesomeIcons.Solid.Images),
       )
   ModalNavigationDrawer(
@@ -109,7 +111,7 @@ private fun Preview() {
   DynamicDicePrototypeTheme {
     Column {
       Icon(
-          imageVector = FontAwesomeIcons.Solid.Image,
+          imageVector = FontAwesomeIcons.Regular.Save,
           contentDescription = null,
           tint = MaterialTheme.colorScheme.onSurface,
           modifier = Modifier.size(24.dp))

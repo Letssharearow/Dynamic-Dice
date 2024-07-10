@@ -4,10 +4,12 @@ import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -78,7 +80,6 @@ fun LandingPage(
     onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
   }
 
-  // Your composable content goes here
   Column(
       verticalArrangement = Arrangement.SpaceBetween,
       horizontalAlignment = Alignment.CenterHorizontally,
@@ -91,7 +92,10 @@ fun LandingPage(
             CircularProgressIndicator(modifier = Modifier.wrapContentSize(align = Alignment.Center))
           }
         }
-        DiceButtonM3(onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
+        Row {
+          DiceButtonM3(onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
+          Text(text = "${viewModel?.countRolls}")
+        }
       }
 }
 

@@ -46,7 +46,6 @@ class MainActivity : ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
     PreferenceManager.init(this)
     setContent {
       DynamicDicePrototypeTheme {
@@ -54,6 +53,7 @@ class MainActivity : ComponentActivity() {
         val viewModel: DiceViewModel by viewModels {
           DiceViewModelFactory(imagesDataStore, diceDataStore, userDataStore)
         }
+        //        saveImages(resources, viewModel)
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           MyApp(viewModel)
           //          Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {

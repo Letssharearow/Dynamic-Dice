@@ -91,7 +91,7 @@ fun CreateNewItemButton(onClick: () -> Unit) {
   Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
     ContinueButton(
         onClick = onClick, // TODO Better handling?
-        text = "Create New +",
+        text = "+",
     )
   }
 }

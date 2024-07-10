@@ -10,11 +10,11 @@ import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.ImageCreator
 import com.example.dynamicdiceprototype.R
 import com.example.dynamicdiceprototype.data.DiceGroup
+import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.USER
 
-fun saveImages(res: Resources) {
-  val firebase = FirebaseDataStore()
+fun saveImages(res: Resources, viewModel: DiceViewModel) {
   data class ImageModelSetDTO(val image: Int, val name: String)
   val images =
       arrayOf<ImageModelSetDTO>(
@@ -40,13 +40,14 @@ fun saveImages(res: Resources) {
           ImageModelSetDTO(image = R.drawable.wizard_narr, name = "wizard Narr"),
           ImageModelSetDTO(image = R.drawable.wizard_wizard, name = "wizard Wizard"),
       )
-  images.forEach {
-    var bitmap = BitmapFactory.decodeResource(res, it.image)
-    firebase.uploadImageDTO(
+
+  viewModel.saveImages(
+      images.map {
         ImageDTO(
-            contentDescription = it.name, base64String = FirebaseDataStore.bitmapToBase64(bitmap)),
-        onSuccess = {})
-  }
+            contentDescription = it.name,
+            base64String =
+                FirebaseDataStore.bitmapToBase64(BitmapFactory.decodeResource(res, it.image)))
+      })
 
   val imageCreator = ImageCreator()
 
@@ -72,15 +73,14 @@ fun saveImages(res: Resources) {
           Pair(Color.Black, "Black"),
           Pair(Color.White, "White"))
 
-  for (color in colors) {
-    val namedColor = color.second
-    val bitmap = imageCreator.getBitmap(400, color.first.toArgb())
-    firebase.uploadImageDTO(
+  viewModel.saveImages(
+      colors.map { color ->
+        val namedColor = color.second
+        val bitmap = imageCreator.getBitmap(400, color.first.toArgb())
         ImageDTO(
             contentDescription = namedColor,
-            base64String = FirebaseDataStore.bitmapToBase64(bitmap)),
-        onSuccess = {})
-  }
+            base64String = FirebaseDataStore.bitmapToBase64(bitmap))
+      })
 }
 
 fun uploadDices() {
