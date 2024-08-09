@@ -291,6 +291,9 @@ class DiceViewModel(
 
   fun selectDiceGroup(groupId: String) {
     countRolls = 0
+    if (dices.isEmpty()) {
+      return
+    }
     diceGroups[groupId]?.dices?.let { diceMap ->
       setNewCurrentDices(diceMap.mapKeys { dices[it.key]!! })
     }

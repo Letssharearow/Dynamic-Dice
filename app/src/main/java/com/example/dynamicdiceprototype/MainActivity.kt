@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
         }
         val hasOnboardingCompleted =
             PreferenceManager.getPreferenceFlow<Boolean>(PreferenceKey.hasOnboardingCompleted)
-                .collectAsState(initial = false)
+                .collectAsState(initial = true) // TODO set to false after creating onboarding
                 .value
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           if (hasOnboardingCompleted) {
