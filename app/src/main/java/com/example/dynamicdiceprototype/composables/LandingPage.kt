@@ -92,13 +92,9 @@ fun LandingPage(
             CircularProgressIndicator(modifier = Modifier.wrapContentSize(align = Alignment.Center))
           }
         }
-        Row(horizontalArrangement = Arrangement.SpaceAround) {
-          Text(text = "Sum: ${viewModel?.currentSum}")
-          Row {
-            DiceButtonM3(
-                onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
-            Text(text = "${viewModel?.countRolls}")
-          }
+        Row {
+          DiceButtonM3(onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
+          Text(text = "${viewModel?.countRolls}")
         }
       }
 }

@@ -90,7 +90,7 @@ fun EditDiceScreen(
               showAddWeights = false
             },
             getId = { face -> face.contentDescription },
-            maxSize = maxSize,
+            maxSize = 500,
             initialValue = dice.faces.associateWith { it.weight },
             modifier = Modifier.padding(0.dp),
             applyFilter = null) { item, modifier, maxWidthDp ->

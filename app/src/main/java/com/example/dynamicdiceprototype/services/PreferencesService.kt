@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.callbackFlow
 
 enum class PreferenceKey(val defaultValue: Any, val location: String = "No Steps provided") {
   ItemSelectionDiceGroupMaxSize(100),
-  ItemSelectionDiceWeightMaxSize(500),
-  ItemSelectionDiceValueMaxSize(5000),
+  ItemSelectionDiceWeightMaxSize(100),
+  ItemSelectionDiceValueMaxSize(100),
   ItemSelectionInitialSize(15),
   MenuDrawerMaxWidthFraction(75),
   ItemSelectionOneScreenGridMinWidth(400),

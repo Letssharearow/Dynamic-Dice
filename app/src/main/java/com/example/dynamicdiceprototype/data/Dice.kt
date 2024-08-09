@@ -3,7 +3,6 @@ package com.example.dynamicdiceprototype.data
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.example.dynamicdiceprototype.DTO.DiceDTO
-import com.example.dynamicdiceprototype.DTO.FaceDTO
 import com.example.dynamicdiceprototype.utils.randomItemByWeight
 import java.util.UUID
 import kotlin.math.sign
@@ -55,8 +54,5 @@ enum class DiceLockState {
 fun Dice.toDiceDTO(): DiceDTO =
     DiceDTO(
         name = name,
-        images =
-            this.faces.associate {
-              Pair(it.contentDescription, FaceDTO(weight = it.weight, value = it.value))
-            },
+        images = this.faces.associate { Pair(it.contentDescription, it.weight) },
         backgroundColor = this.backgroundColor.toArgb())
