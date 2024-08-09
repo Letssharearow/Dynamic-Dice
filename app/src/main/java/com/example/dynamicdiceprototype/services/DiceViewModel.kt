@@ -32,6 +32,7 @@ class DiceViewModel(
 ) : ViewModel() {
 
   var countRolls: Int = 0
+  var currentSum: Int = 0
 
   // dataStore
   private val imagesStore = imageDataStore // TODO make private, updateData should not be public
@@ -357,10 +358,11 @@ class DiceViewModel(
 
   fun rollDices() {
     countRolls++
+    currentSum = 0
     currentDices =
         currentDices.map { dice ->
           if (dice.diceLockState != DiceLockState.LOCKED) {
-            dice.roll()
+            dice.roll().also { currentSum += it.current?.value ?: 0 }
           } else {
             dice
           }
