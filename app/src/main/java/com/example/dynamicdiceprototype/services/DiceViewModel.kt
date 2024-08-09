@@ -129,7 +129,7 @@ class DiceViewModel(
         values.map { entry ->
           Face(
               data = FirebaseDataStore.base64ToBitmap(entry.key.base64String),
-              weight = entry.value,
+              value = entry.value,
               contentDescription =
                   entry.key.contentDescription) // TODO mapper from Face -> ImageDTO and vice versa
         }

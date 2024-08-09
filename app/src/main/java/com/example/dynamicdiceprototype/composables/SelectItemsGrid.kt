@@ -61,10 +61,12 @@ fun <T> SelectItemsGrid(
       PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionMaxSize)
           .collectAsState(initial = maxSize)
           .value
-  val oneScreenGridMinWidth = itemMinWidthPixel?:
-      PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionOneScreenGridMinWidth)
-          .collectAsState(initial = 400)
-          .value
+  val oneScreenGridMinWidth =
+      itemMinWidthPixel
+          ?: PreferenceManager.getPreferenceFlow<Int>(
+                  PreferenceKey.ItemSelectionOneScreenGridMinWidth)
+              .collectAsState(initial = 400)
+              .value
 
   var selectablesFiltered by remember { mutableStateOf(selectables) }
   val selectedItems = remember {
@@ -78,13 +80,13 @@ fun <T> SelectItemsGrid(
         if (applyFilter != null) selectables.filter { applyFilter(it, filter) } else selectables
   }
 
-  ArrangedColumn(modifier = modifier.padding(4.dp)) {
+  ArrangedColumn(modifier = modifier) {
     FilterInput(applyFilter, filter) { newFilter -> filter = newFilter }
 
     OneScreenGrid(
         items = selectablesFiltered,
         minSize = oneScreenGridMinWidth.toFloat(),
-        modifier.weight(1f)) { item, maxWidthDp ->
+        modifier = Modifier.weight(1f)) { item, maxWidthDp ->
           Box(
               contentAlignment = Alignment.Center,
               modifier =

@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 object HeaderViewModel : ViewModel() {
-  var headerText by mutableStateOf("Main Screen")
+  var headerText by mutableStateOf("Roll")
 
   fun changeHeaderText(text: String) {
     headerText = text

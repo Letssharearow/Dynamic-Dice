@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,13 +21,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.FaceView
+import com.example.dynamicdiceprototype.composables.SelectItemsGrid
 import com.example.dynamicdiceprototype.composables.SingleLineTextInput
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.common.ColorPicker
 import com.example.dynamicdiceprototype.composables.common.ContinueButton
 import com.example.dynamicdiceprototype.data.Dice
+import com.example.dynamicdiceprototype.data.Face
+import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
 fun EditDiceScreen(
@@ -69,15 +74,39 @@ fun EditDiceScreen(
           }
     }
     Box(modifier = Modifier.weight(1F)) {
-      OneScreenGrid(items = dice.faces, minSize = if (isColorPickerOpen) 2000F else 200F) {
-          item,
-          maxWidth ->
-        FaceView(
-            face = item,
-            showWeight = true,
-            spacing = maxWidth.div(10),
-            color = color,
-            modifier = Modifier.padding(maxWidth.div(20)))
+      var showAddWeights by remember { mutableStateOf(false) }
+      if (showAddWeights) {
+        SelectItemsGrid<Face>(
+            selectables = dice.faces,
+            onSaveSelection = { showAddWeights = false },
+            getId = { face -> face.contentDescription },
+            maxSize = 500,
+            initialValue = mapOf(),
+            modifier = Modifier.padding(0.dp),
+            applyFilter = null) { item, modifier, maxWidthDp ->
+              FaceView(
+                  face = item,
+                  spacing = maxWidthDp.div(10),
+                  modifier = modifier.fillMaxSize(),
+                  color = color)
+            }
+      } else {
+        ArrangedColumn {
+          OneScreenGrid(
+              items = dice.faces,
+              minSize = if (isColorPickerOpen) 2000F else 200F,
+              modifier = Modifier.weight(1f)) { item, maxWidth ->
+                FaceView(
+                    face = item,
+                    showWeight = true,
+                    spacing = maxWidth.div(10),
+                    color = color,
+                    modifier = Modifier.padding(maxWidth.div(20)))
+              }
+          ContinueButton(
+              onClick = { showAddWeights = true },
+              text = "Add weights")
+        }
       }
     }
     if (isColorPickerOpen) {
@@ -92,5 +121,23 @@ fun EditDiceScreen(
       ContinueButton(
           onClick = { if (name.isNotEmpty()) onSaveDice(name, color) }, text = "Save Dice")
     }
+  }
+}
+
+@Preview
+@Composable
+private fun Preview() {
+  DynamicDicePrototypeTheme {
+    EditDiceScreen(
+        dice =
+            Dice(
+                faces =
+                    listOf(
+                        Face(contentDescription = ""),
+                        Face(contentDescription = ""),
+                        Face(contentDescription = ""),
+                        Face(contentDescription = ""))),
+        onEdit = { a, b -> },
+        onSaveDice = { a, b -> })
   }
 }

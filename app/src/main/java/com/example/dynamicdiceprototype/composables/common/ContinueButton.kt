@@ -9,8 +9,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ContinueButton(onClick: () -> Unit, text: String, enabled: Boolean = true) {
-  Button(modifier = Modifier.padding(16.dp), onClick = onClick, enabled = enabled) {
+fun ContinueButton(
+    onClick: () -> Unit,
+    text: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+  Button(modifier = modifier.padding(16.dp), onClick = onClick, enabled = enabled) {
     Text(text, fontSize = 24.sp)
   }
 }

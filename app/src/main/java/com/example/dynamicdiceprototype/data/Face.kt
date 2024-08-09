@@ -9,7 +9,8 @@ interface Weightable {
 data class Face(
     var data: ImageBitmap? = null,
     val contentDescription: String,
-    var weight: Int = 1
+    var weight: Int = 1,
+    var value: Int = 1,
 ) : Weightable {
   override fun toString(): String {
     return contentDescription
