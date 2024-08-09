@@ -57,9 +57,9 @@ fun <T> SelectItemsGrid(
       PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionInitialSize)
           .collectAsState(initial = initialSize)
           .value
-  val maxSizeUpdated =
-      PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionMaxSize)
-          .collectAsState(initial = maxSize)
+  val debounceDelay =
+      PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelctionDebounceTime)
+          .collectAsState(initial = 1000)
           .value
   val oneScreenGridMinWidth =
       itemMinWidthPixel
@@ -93,7 +93,7 @@ fun <T> SelectItemsGrid(
                   Modifier.fillMaxWidth().padding(8.dp).clickable {
                     val selectedItem = selectedItems[item]
                     if (selectedItem == null) {
-                      if (sumOfSelection < maxSizeUpdated) selectedItems[item] = 1
+                      if (sumOfSelection < maxSize) selectedItems[item] = 1
                     } else {
                       selectedItems.remove(item)
                     }
@@ -119,7 +119,7 @@ fun <T> SelectItemsGrid(
                         var debounceJob by remember { mutableStateOf<Job?>(null) }
                         var mutableSize by remember {
                           mutableIntStateOf(
-                              initialSizeUpdated.coerceAtMost(maxSizeUpdated - sumOfSelection + it))
+                              initialSizeUpdated.coerceAtMost(maxSize - sumOfSelection + it))
                         }
 
                         Slider(
@@ -129,18 +129,18 @@ fun <T> SelectItemsGrid(
                               selectedCurrentItem?.let { currentCount ->
                                 val newCount = value.toInt()
                                 val newSum = sumOfSelection - currentCount + newCount
-                                if (newSum <= maxSizeUpdated) {
+                                if (newSum <= maxSize) {
                                   selectedItems[item] = newCount
                                 }
                                 debounceJob?.cancel()
                                 debounceJob =
                                     GlobalScope.launch {
-                                      delay(1000)
+                                      delay(debounceDelay.toLong())
                                       mutableSize =
                                           when {
                                             newCount == mutableSize -> {
                                               (mutableSize * 2).coerceAtMost(
-                                                  maxSizeUpdated - sumOfSelection + currentCount)
+                                                  maxSize - sumOfSelection + currentCount)
                                             }
                                             newCount < initialSizeUpdated -> initialSizeUpdated
                                             else -> mutableSize

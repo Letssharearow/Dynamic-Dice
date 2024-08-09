@@ -7,17 +7,22 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 enum class PreferenceKey(val defaultValue: Any, val location: String = "No Steps provided") {
-  ItemSelectionMaxSize(100),
+  ItemSelectionDiceGroupMaxSize(100),
+  ItemSelectionDiceWeightMaxSize(100),
+  ItemSelectionDiceValueMaxSize(100),
   ItemSelectionInitialSize(15),
   MenuDrawerMaxWidthFraction(75),
   ItemSelectionOneScreenGridMinWidth(400),
+  ItemSelctionDebounceTime(1000),
   SettingsHeader("Settings"),
   LastDiceGroup("Kniffel"),
   IsAddDiceCompact(true),
   IsDicesViewCompact(true),
   IsDicesGroupViewCompact(true),
   hasOnboardingCompleted(true),
-}
+} // TODO find better default value type solution to use default value when accessing it to set as
+
+// initial state
 
 object PreferenceManager {
 

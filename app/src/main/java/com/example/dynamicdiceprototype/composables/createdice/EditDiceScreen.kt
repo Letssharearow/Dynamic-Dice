@@ -31,6 +31,8 @@ import com.example.dynamicdiceprototype.composables.common.ColorPicker
 import com.example.dynamicdiceprototype.composables.common.ContinueButton
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.Face
+import com.example.dynamicdiceprototype.services.PreferenceKey
+import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 
 @Composable
@@ -42,6 +44,10 @@ fun EditDiceScreen(
   var name by remember { mutableStateOf(dice.name) }
   var color by remember { mutableStateOf(dice.backgroundColor) }
   var isColorPickerOpen by remember { mutableStateOf(false) }
+  val maxSize =
+      PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionDiceWeightMaxSize)
+          .collectAsState(initial = 500)
+          .value
 
   ArrangedColumn {
     // color picker
@@ -78,16 +84,20 @@ fun EditDiceScreen(
       if (showAddWeights) {
         SelectItemsGrid<Face>(
             selectables = dice.faces,
-            onSaveSelection = { showAddWeights = false },
+            onSaveSelection = { faceMap ->
+              dice.faces.forEach { it.weight = faceMap[it] ?: 1 }
+              showAddWeights = false
+            },
             getId = { face -> face.contentDescription },
             maxSize = 500,
-            initialValue = mapOf(),
+            initialValue = dice.faces.associateWith { it.weight },
             modifier = Modifier.padding(0.dp),
             applyFilter = null) { item, modifier, maxWidthDp ->
               FaceView(
                   face = item,
                   spacing = maxWidthDp.div(10),
                   modifier = modifier.fillMaxSize(),
+                  showWeight = false,
                   color = color)
             }
       } else {
@@ -98,14 +108,12 @@ fun EditDiceScreen(
               modifier = Modifier.weight(1f)) { item, maxWidth ->
                 FaceView(
                     face = item,
-                    showWeight = true,
+                    showWeight = false,
                     spacing = maxWidth.div(10),
                     color = color,
                     modifier = Modifier.padding(maxWidth.div(20)))
               }
-          ContinueButton(
-              onClick = { showAddWeights = true },
-              text = "Add weights")
+          ContinueButton(onClick = { showAddWeights = true }, text = "Add weights")
         }
       }
     }
