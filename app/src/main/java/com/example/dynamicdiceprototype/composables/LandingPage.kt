@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -92,10 +93,15 @@ fun LandingPage(
             CircularProgressIndicator(modifier = Modifier.wrapContentSize(align = Alignment.Center))
           }
         }
-        Row {
-          DiceButtonM3(onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
-          Text(text = "${viewModel?.countRolls}")
-        }
+        Row(
+            horizontalArrangement = Arrangement.SpaceAround,
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically) {
+              Text(text = "Sum: ${viewModel?.currentSum}")
+              DiceButtonM3(
+                  onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
+              Text(text = "Rolls: ${viewModel?.countRolls}")
+            }
       }
 }
 

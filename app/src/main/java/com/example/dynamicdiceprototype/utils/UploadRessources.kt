@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.example.dynamicdiceprototype.DTO.DiceDTO
+import com.example.dynamicdiceprototype.DTO.FaceDTO
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.DTO.UserDTO
 import com.example.dynamicdiceprototype.ImageCreator
@@ -91,33 +92,33 @@ fun uploadDices() {
               "red_and_green",
               DiceDTO(
                   mapOf(
-                      Color.Red.toArgb().toString() to 1,
-                      Color.Green.toArgb().toString() to 1,
+                      Color.Red.toArgb().toString() to FaceDTO(1, 1),
+                      Color.Green.toArgb().toString() to FaceDTO(1, 1),
                   ))),
           Pair(
               "animals",
               DiceDTO(
                   mapOf(
-                      (R.drawable.cameleon.toString() to 1),
-                      (R.drawable.elephant.toString() to 1),
-                      (R.drawable.frog.toString() to 1),
-                      (R.drawable.fish.toString() to 1),
-                      (R.drawable.lion.toString() to 1),
-                      (R.drawable.monkey.toString() to 1),
-                      (R.drawable.owl.toString() to 1),
-                      (R.drawable.parrot.toString() to 1),
-                      (R.drawable.penguin.toString() to 1),
+                      (R.drawable.cameleon.toString() to FaceDTO(1, 1)),
+                      (R.drawable.elephant.toString() to FaceDTO(1, 1)),
+                      (R.drawable.frog.toString() to FaceDTO(1, 1)),
+                      (R.drawable.fish.toString() to FaceDTO(1, 1)),
+                      (R.drawable.lion.toString() to FaceDTO(1, 1)),
+                      (R.drawable.monkey.toString() to FaceDTO(1, 1)),
+                      (R.drawable.owl.toString() to FaceDTO(1, 1)),
+                      (R.drawable.parrot.toString() to FaceDTO(1, 1)),
+                      (R.drawable.penguin.toString() to FaceDTO(1, 1)),
                   ))),
           Pair(
               "6er",
               DiceDTO(
                   mapOf(
-                      (R.drawable.six_transparent.toString() to 1),
-                      (R.drawable.five_transparent.toString() to 1),
-                      (R.drawable.four_transparent.toString() to 1),
-                      (R.drawable.three_transparent.toString() to 1),
-                      (R.drawable.two_transparent.toString() to 1),
-                      (R.drawable.one_transparent.toString() to 1),
+                      (R.drawable.six_transparent.toString() to FaceDTO(1, 1)),
+                      (R.drawable.five_transparent.toString() to FaceDTO(1, 1)),
+                      (R.drawable.four_transparent.toString() to FaceDTO(1, 1)),
+                      (R.drawable.three_transparent.toString() to FaceDTO(1, 1)),
+                      (R.drawable.two_transparent.toString() to FaceDTO(1, 1)),
+                      (R.drawable.one_transparent.toString() to FaceDTO(1, 1)),
                   ))))
   images.forEach { firbase.uploadDice(it.first, it.second, onSuccess = {}) }
 }
