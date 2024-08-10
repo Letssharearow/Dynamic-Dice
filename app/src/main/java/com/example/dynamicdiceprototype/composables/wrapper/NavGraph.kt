@@ -106,6 +106,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           // better handling for that, because "image" seems to be hardcoded
           color = Color.Transparent,
           initialValue = emptyMap(),
+          addNumber = false,
           onFacesSelectionClick = { // TODO Consider using same datatype (map probably) for
             // everything)
             viewModel.changeSelectedImages(it)
@@ -206,6 +207,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           // a
           // better handling for that, because "image" seems to be hardcoded
           color = Color.Transparent,
+          addNumber = false,
           initialValue =
               viewModel.groupInEdit
                   ?.states

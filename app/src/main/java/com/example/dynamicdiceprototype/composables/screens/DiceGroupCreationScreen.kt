@@ -44,7 +44,7 @@ fun DiceGroupCreationScreen(
         onSaveSelection = { if (name.isNotEmpty()) onSaveSelection(name, it) },
         getId = { it.name },
         initialValue = transformDiceGroup(initialValue, dices),
-    ) { dice, modifier, maxWidth ->
+    ) { dice, modifier, maxWidth, _ ->
       DicePreview(dice = dice, facesSum = dice.faces.sumOf { it.weight }, Modifier.size(maxWidth))
     }
   }

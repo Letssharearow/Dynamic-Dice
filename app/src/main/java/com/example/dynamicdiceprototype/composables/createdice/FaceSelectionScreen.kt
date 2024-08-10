@@ -24,6 +24,7 @@ fun SelectFacesScreen(
     faces: List<ImageDTO>,
     initialValue: Map<ImageDTO, Int>,
     color: Color = Color.Gray,
+    addNumber: Boolean = true,
     onFacesSelectionClick: (Map<ImageDTO, Int>) -> Unit
 ) {
   val maxSize =
@@ -34,7 +35,10 @@ fun SelectFacesScreen(
     mutableStateOf(
         faces
             .toMutableList()
-            .apply { add(0, ImageDTO(contentDescription = "number", base64String = "number")) }
+            .apply {
+              if (addNumber)
+                  add(0, ImageDTO(contentDescription = "number", base64String = "number"))
+            }
             .toList())
   }
   SelectItemsGrid<ImageDTO>(
@@ -48,7 +52,7 @@ fun SelectFacesScreen(
             image.tags.find { it.contains(filter, ignoreCase = true) } != null
       },
       handleItemClick = { image ->
-        if (image == mutableFaces.first()) {
+        if (image == mutableFaces.first() && addNumber) {
           val mutableList = mutableFaces.toMutableList()
           mutableList.add(
               0,
@@ -58,12 +62,13 @@ fun SelectFacesScreen(
                   base64String = image.base64String))
           mutableFaces = mutableList
         }
-      }) { item, modifier, maxWidthDp ->
+      }) { item, modifier, maxWidthDp, value ->
         FaceView(
             face =
                 Face(
                     contentDescription = item.contentDescription,
-                    data = FirebaseDataStore.base64ToBitmap(item.base64String)),
+                    data = FirebaseDataStore.base64ToBitmap(item.base64String),
+                    value = value ?: 1),
             spacing = maxWidthDp.div(10),
             size = maxWidthDp.div(3),
             modifier = modifier.fillMaxSize(),

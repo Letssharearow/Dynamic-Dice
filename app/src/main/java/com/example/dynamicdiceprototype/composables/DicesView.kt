@@ -144,7 +144,7 @@ fun ItemSelectionDialog(
               getId = { it.name },
               initialValue = initialValueMapped,
               itemMinWidthPixel = 200f,
-          ) { dice, modifier, maxWidth ->
+          ) { dice, modifier, maxWidth, _ ->
             DicePreview(
                 dice = dice, facesSum = dice.faces.sumOf { it.weight }, Modifier.size(maxWidth))
           }

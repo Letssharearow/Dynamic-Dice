@@ -52,7 +52,7 @@ fun <T> SelectItemsGrid(
     itemMinWidthPixel: Float? = null,
     initialValue: Map<T, Int> = mapOf(),
     handleItemClick: ((T) -> Unit)? = null,
-    view: @Composable (item: T, modifier: Modifier, size: Dp) -> Unit,
+    view: @Composable (item: T, modifier: Modifier, size: Dp, value: Int?) -> Unit,
 ) {
   val initialSizeUpdated =
       PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionInitialSize)
@@ -106,7 +106,7 @@ fun <T> SelectItemsGrid(
                   }) {
                 val selectedItem = selectedItems[item]
 
-                view(item, Modifier, maxWidthDp)
+                view(item, Modifier, maxWidthDp, selectedItem)
                 selectedItem?.let {
                   NumberCircle(
                       text = selectedItem.toString(),
@@ -189,7 +189,7 @@ private fun SelectItemsGridPreview() {
         onSaveSelection = {},
         getId = { dice -> dice.name },
         initialSize = 2,
-        initialValue = mutableMapOf(Dice() to 4)) { item, modifier, maxWidthDp ->
+        initialValue = mutableMapOf(Dice() to 4)) { item, modifier, maxWidthDp, value ->
           DiceView(dice = item, size = maxWidthDp, modifier = modifier.fillMaxSize())
         }
   }

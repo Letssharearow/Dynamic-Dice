@@ -11,6 +11,7 @@ import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.HeaderViewModel
+import com.example.dynamicdiceprototype.utils.imageDTO_number_contentDescription
 
 fun NavGraphBuilder.diceGraph(
     diceViewModel: DiceViewModel,
@@ -64,14 +65,34 @@ fun NavGraphBuilder.diceGraph(
               )) // TODO implement undoing feature, haha
     }
     composable(route = DicesScreen.SelectFaces.route) {
+      val facesWithNumber =
+          diceViewModel.diceInEdit.faces
+              .filter { it.contentDescription == imageDTO_number_contentDescription }
+              .map {
+                Pair(
+                    ImageDTO(
+                        contentDescription = imageDTO_number_contentDescription,
+                        base64String = imageDTO_number_contentDescription),
+                    it.value)
+              }
+
+      val selectableImages =
+          diceViewModel.imageMap.values.filter { it.contentDescription != "image" }.toMutableList()
+      selectableImages.addAll(0, facesWithNumber.map { it.first })
+
+      val initialSelection =
+          diceViewModel.diceInEdit.faces
+              .filter { it.contentDescription != imageDTO_number_contentDescription }
+              .associateBy(
+                  { diceViewModel.imageMap[it.contentDescription] ?: ImageDTO() }, { it.value })
+              .toMutableMap()
+      initialSelection.putAll(facesWithNumber)
+
       SelectFacesScreen(
-          faces = diceViewModel.imageMap.values.filter { it.contentDescription != "image" },
+          faces = selectableImages,
           color = diceViewModel.diceInEdit.backgroundColor,
-          initialValue =
-              diceViewModel.diceInEdit.faces.associateBy(
-                  { diceViewModel.imageMap[it.contentDescription] ?: ImageDTO() }, { it.weight }),
-          onFacesSelectionClick = { // TODO Consider using same datatype (map probably) for
-            // everything)
+          initialValue = initialSelection,
+          onFacesSelectionClick = {
             diceViewModel.setSelectedFaces(it)
             navController.navigate(DicesScreen.EditDice.route)
             headerViewModel.changeHeaderText("Make Final changes")
