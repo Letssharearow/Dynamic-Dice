@@ -37,8 +37,8 @@ import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceLockState
 import com.example.dynamicdiceprototype.data.Face
-import com.example.dynamicdiceprototype.services.getFaces
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import com.example.dynamicdiceprototype.utils.imageDTO_number_contentDescription
 
 @Composable
 fun ImageBitmap(image: ImageBitmap, contentDescription: String, modifier: Modifier = Modifier) {
@@ -67,6 +67,7 @@ fun DiceView(
               face = dice.current,
               showWeight = showWeight,
               spacing = spacing.coerceAtMost(24.dp),
+              size = size.div(3),
               color = dice.backgroundColor)
           NumberCircle(
               text = "${dice.faces.sumOf { it.weight }}",
@@ -98,24 +99,48 @@ fun NumberCircle(text: String, modifier: Modifier = Modifier, fontSize: TextUnit
 }
 
 @Composable
+fun NumberCircle2(text: String, modifier: Modifier = Modifier, fontSize: TextUnit = 36.sp) {
+  Box(
+      modifier =
+          modifier
+              .fillMaxSize(0.9f)
+              .padding(8.dp)
+              .background(MaterialTheme.colorScheme.onTertiary, CircleShape)
+              .border(BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary), CircleShape)) {
+        Text(
+            text = text,
+            fontSize = fontSize,
+            modifier = Modifier.align(Alignment.Center).padding(8.dp))
+      }
+}
+
+@Composable
 fun FaceView(
     face: Face?,
     spacing: Dp,
     modifier: Modifier = Modifier,
+    size: Dp = 24.dp,
     color: Color = Color.Transparent,
     showWeight: Boolean = true
 ) {
   val spacingMax = spacing.coerceAtMost(24.dp) // TODO refactor or not?
 
   Box(modifier = modifier.aspectRatio(1f).background(color, RoundedCornerShape(spacingMax))) {
-    SizedImage(
-        image = face,
-        Modifier.fillMaxSize().padding(spacingMax).clip(RoundedCornerShape(spacingMax)))
-    if (showWeight && face != null && face.weight > 1) {
-      NumberCircle(
-          face.weight.toString(),
-          fontSize = spacingMax.value.sp,
-          modifier = Modifier.align(Alignment.TopEnd))
+    if (face?.contentDescription == imageDTO_number_contentDescription) {
+      NumberCircle2(
+          face.value.toString(),
+          fontSize = size.value.sp,
+          modifier = Modifier.align(Alignment.Center))
+    } else {
+      SizedImage(
+          image = face,
+          Modifier.fillMaxSize().padding(spacingMax).clip(RoundedCornerShape(spacingMax)))
+      if (showWeight && face != null && face.weight > 1) {
+        NumberCircle(
+            face.weight.toString(),
+            fontSize = spacingMax.value.sp,
+            modifier = Modifier.align(Alignment.TopEnd))
+      }
     }
   }
 }
@@ -144,8 +169,14 @@ fun SizedImage(image: Face?, modifier: Modifier = Modifier) {
 private fun Preview() {
 
   DynamicDicePrototypeTheme {
-    //    FaceView(face = Face(weight = 20), showWeight = true, spacing = 36.dp, color = Color.Cyan)
-    DiceView(dice = Dice(faces = getFaces(5)), size = 300.dp)
+    FaceView(
+        face = Face(contentDescription = "number", weight = 20),
+        showWeight = true,
+        spacing = 36.dp,
+        size = 85.dp,
+        color = Color.Cyan)
+    // DiceView(dice = Dice(faces = getFaces(5)), size = 300.dp)
+    // NumberCircle2(          "1",          fontSize = 36.sp,)
   }
 }
 

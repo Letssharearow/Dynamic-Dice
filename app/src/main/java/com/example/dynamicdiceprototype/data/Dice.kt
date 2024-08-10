@@ -56,7 +56,8 @@ fun Dice.toDiceDTO(): DiceDTO =
     DiceDTO(
         name = name,
         images =
-            this.faces.associate {
-              Pair(it.contentDescription, FaceDTO(weight = it.weight, value = it.value))
+            this.faces.map {
+              FaceDTO(
+                  contentDescription = it.contentDescription, weight = it.weight, value = it.value)
             },
         backgroundColor = this.backgroundColor.toArgb())

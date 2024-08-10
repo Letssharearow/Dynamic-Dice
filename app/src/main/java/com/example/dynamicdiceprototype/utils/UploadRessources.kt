@@ -15,6 +15,10 @@ import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.USER
 
+fun numberImages(viewModel: DiceViewModel) {
+  viewModel.saveImages(listOf(ImageDTO(contentDescription = "number", base64String = "number")))
+}
+
 fun saveImages(res: Resources, viewModel: DiceViewModel) {
   data class ImageModelSetDTO(val image: Int, val name: String)
   val images =
@@ -91,34 +95,34 @@ fun uploadDices() {
           Pair(
               "red_and_green",
               DiceDTO(
-                  mapOf(
-                      Color.Red.toArgb().toString() to FaceDTO(1, 1),
-                      Color.Green.toArgb().toString() to FaceDTO(1, 1),
+                  listOf(
+                      FaceDTO(Color.Red.toArgb().toString(), 1, 1),
+                      FaceDTO(Color.Green.toArgb().toString(), 1, 1),
                   ))),
           Pair(
               "animals",
               DiceDTO(
-                  mapOf(
-                      (R.drawable.cameleon.toString() to FaceDTO(1, 1)),
-                      (R.drawable.elephant.toString() to FaceDTO(1, 1)),
-                      (R.drawable.frog.toString() to FaceDTO(1, 1)),
-                      (R.drawable.fish.toString() to FaceDTO(1, 1)),
-                      (R.drawable.lion.toString() to FaceDTO(1, 1)),
-                      (R.drawable.monkey.toString() to FaceDTO(1, 1)),
-                      (R.drawable.owl.toString() to FaceDTO(1, 1)),
-                      (R.drawable.parrot.toString() to FaceDTO(1, 1)),
-                      (R.drawable.penguin.toString() to FaceDTO(1, 1)),
+                  listOf(
+                      (FaceDTO(R.drawable.cameleon.toString(), 1, 1)),
+                      (FaceDTO(R.drawable.elephant.toString(), 1, 1)),
+                      (FaceDTO(R.drawable.frog.toString(), 1, 1)),
+                      (FaceDTO(R.drawable.fish.toString(), 1, 1)),
+                      (FaceDTO(R.drawable.lion.toString(), 1, 1)),
+                      (FaceDTO(R.drawable.monkey.toString(), 1, 1)),
+                      (FaceDTO(R.drawable.owl.toString(), 1, 1)),
+                      (FaceDTO(R.drawable.parrot.toString(), 1, 1)),
+                      (FaceDTO(R.drawable.penguin.toString(), 1, 1)),
                   ))),
           Pair(
               "6er",
               DiceDTO(
-                  mapOf(
-                      (R.drawable.six_transparent.toString() to FaceDTO(1, 1)),
-                      (R.drawable.five_transparent.toString() to FaceDTO(1, 1)),
-                      (R.drawable.four_transparent.toString() to FaceDTO(1, 1)),
-                      (R.drawable.three_transparent.toString() to FaceDTO(1, 1)),
-                      (R.drawable.two_transparent.toString() to FaceDTO(1, 1)),
-                      (R.drawable.one_transparent.toString() to FaceDTO(1, 1)),
+                  listOf(
+                      (FaceDTO(contentDescription = R.drawable.six_transparent.toString(), 1, 1)),
+                      (FaceDTO(contentDescription = R.drawable.five_transparent.toString(), 1, 1)),
+                      (FaceDTO(contentDescription = R.drawable.four_transparent.toString(), 1, 1)),
+                      (FaceDTO(contentDescription = R.drawable.three_transparent.toString(), 1, 1)),
+                      (FaceDTO(contentDescription = R.drawable.two_transparent.toString(), 1, 1)),
+                      (FaceDTO(contentDescription = R.drawable.one_transparent.toString(), 1, 1)),
                   ))))
   images.forEach { firbase.uploadDice(it.first, it.second, onSuccess = {}) }
 }

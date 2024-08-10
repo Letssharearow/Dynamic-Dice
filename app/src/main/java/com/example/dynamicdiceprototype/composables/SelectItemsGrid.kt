@@ -51,6 +51,7 @@ fun <T> SelectItemsGrid(
     applyFilter: ((T, String) -> Boolean)? = null,
     itemMinWidthPixel: Float? = null,
     initialValue: Map<T, Int> = mapOf(),
+    handleItemClick: ((T) -> Unit)? = null,
     view: @Composable (item: T, modifier: Modifier, size: Dp) -> Unit,
 ) {
   val initialSizeUpdated =
@@ -93,7 +94,12 @@ fun <T> SelectItemsGrid(
                   Modifier.fillMaxWidth().padding(8.dp).clickable {
                     val selectedItem = selectedItems[item]
                     if (selectedItem == null) {
-                      if (sumOfSelection < maxSize) selectedItems[item] = 1
+                      if (sumOfSelection < maxSize) {
+                        selectedItems[item] = 1
+                        if (handleItemClick != null) {
+                          handleItemClick(item)
+                        }
+                      }
                     } else {
                       selectedItems.remove(item)
                     }

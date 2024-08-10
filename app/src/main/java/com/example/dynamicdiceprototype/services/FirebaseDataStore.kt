@@ -168,7 +168,7 @@ class FirebaseDataStore {
   companion object {
 
     @OptIn(ExperimentalEncodingApi::class)
-    fun base64ToBitmap(base64String: String): ImageBitmap {
+    fun base64ToBitmap(base64String: String): ImageBitmap? {
       return try {
         val decodedBytes = Base64.decode(base64String)
         val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
@@ -176,9 +176,10 @@ class FirebaseDataStore {
       } catch (e: Exception) {
         e.printStackTrace()
         Log.e(TAG, e.message ?: "No message")
-        val decodedBytes = Base64.decode(mockImage)
-        val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
-        bitmap.asImageBitmap()
+        null
+        //        val decodedBytes = Base64.decode(mockImage)
+        //        val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+        //        bitmap.asImageBitmap()
       }
     }
 

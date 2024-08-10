@@ -97,6 +97,7 @@ fun EditDiceScreen(
               FaceView(
                   face = item,
                   spacing = maxWidthDp.div(10),
+                  size = maxWidthDp.div(3),
                   modifier = modifier.fillMaxSize(),
                   showWeight = false,
                   color = color)
@@ -111,6 +112,9 @@ fun EditDiceScreen(
                     face = item,
                     showWeight = false,
                     spacing = maxWidth.div(10),
+                    size =
+                        maxWidth.div(
+                            3), // TODO: get rid of this duplicate code, also in FaceSelectionScreen
                     color = color,
                     modifier = Modifier.padding(maxWidth.div(20)))
               }

@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DiceDTO(
-    val images: Map<String, FaceDTO> = mapOf(),
+    val images: List<FaceDTO> = listOf(),
     var backgroundColor: Int = Color(0xFFCCCCCC).toArgb(),
     val name: String = "diceDTOName"
 )
@@ -17,7 +17,10 @@ data class DiceDTO(
 fun DiceDTO.toDice(id: String): Dice {
   val faces =
       this.images.map { image ->
-        Face(contentDescription = image.key, weight = image.value.weight, value = image.value.value)
+        Face(
+            contentDescription = image.contentDescription,
+            weight = image.weight,
+            value = image.value)
       }
 
   return Dice(
@@ -31,10 +34,13 @@ fun DiceDTO.toDice(id: String, images: Map<String, ImageDTO>): Dice {
   val faces =
       this.images.map { image ->
         Face(
-            contentDescription = image.key,
-            weight = image.value.weight,
-            value = image.value.value,
-            data = images[image.key]?.let { FirebaseDataStore.base64ToBitmap(it.base64String) })
+            contentDescription = image.contentDescription,
+            weight = image.weight,
+            value = image.value,
+            data =
+                images[image.contentDescription]?.let {
+                  FirebaseDataStore.base64ToBitmap(it.base64String)
+                })
       }
 
   return Dice(
