@@ -17,7 +17,9 @@ import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.data.DiceLockState
+import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
+import com.example.dynamicdiceprototype.data.RollState
 import com.example.dynamicdiceprototype.data.toDiceDTO
 import com.example.dynamicdiceprototype.services.serializer.DiceDTOMap
 import com.example.dynamicdiceprototype.services.serializer.ImageDTOMap
@@ -38,6 +40,7 @@ class DiceViewModel(
 
   var countRolls: Int = 0
   var currentSum: Int = 0
+  val history: MutableList<RollState> = mutableListOf()
 
   // dataStore
   private val imagesStore = imageDataStore // TODO make private, updateData should not be public
@@ -345,15 +348,6 @@ class DiceViewModel(
     addToCurrentDices(currentDices, newDices)
   }
 
-  fun rollSingleDice(dice: Dice) {
-    currentDices =
-        currentDices.map {
-          if (it === dice) {
-            it.roll()
-          } else it
-        }
-  }
-
   fun lockDice(dice: Dice) {
     currentDices =
         // use Map function to trigger recomposition
@@ -380,6 +374,40 @@ class DiceViewModel(
         }
   }
 
+  fun saveToHistory(rollId: Int, sum: Int, dices: List<Dice>) {
+    history.add(
+        0,
+        RollState(
+            rollId = rollId,
+            sum = sum,
+            unlockedDicesCount =
+                dices.sumOf {
+                  if (it.diceLockState == DiceLockState.UNLOCKED) 1.toInt() else 0.toInt()
+                },
+            diceStates =
+                dices.map {
+                  DiceState(
+                      dice = it.name,
+                      faceName = it.current?.contentDescription ?: "",
+                      value = it.current?.value ?: -1,
+                      locked = it.diceLockState == DiceLockState.LOCKED,
+                      state = it.state?.contentDescription)
+                }))
+  }
+
+  fun rollSingleDice(dice: Dice) {
+    currentSum = 0
+    currentDices =
+        currentDices.map { currentDice ->
+          if (dice == currentDice && dice.diceLockState != DiceLockState.LOCKED) {
+            dice.roll().also { currentSum += it.current?.value ?: 0 }
+          } else {
+            currentDice.also { currentSum += it.current?.value ?: 0 }
+          }
+        }
+    saveToHistory(countRolls, currentSum, currentDices)
+  }
+
   fun rollDices() {
     countRolls++
     currentSum = 0
@@ -388,9 +416,10 @@ class DiceViewModel(
           if (dice.diceLockState != DiceLockState.LOCKED) {
             dice.roll().also { currentSum += it.current?.value ?: 0 }
           } else {
-            dice
+            dice.also { currentSum += it.current?.value ?: 0 }
           }
         }
+    saveToHistory(countRolls, currentSum, currentDices)
   }
 
   fun resetCurrentDices() {
