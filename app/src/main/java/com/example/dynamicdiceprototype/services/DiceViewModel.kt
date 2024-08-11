@@ -1,5 +1,6 @@
 package com.example.dynamicdiceprototype.services
 
+import android.content.res.Resources
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +21,9 @@ import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.toDiceDTO
 import com.example.dynamicdiceprototype.services.serializer.DiceDTOMap
 import com.example.dynamicdiceprototype.services.serializer.ImageDTOMap
+import com.example.dynamicdiceprototype.utils.getInitialDiceGroups
+import com.example.dynamicdiceprototype.utils.getInitialDices
+import com.example.dynamicdiceprototype.utils.getInitialImages
 import com.example.dynamicdiceprototype.utils.temp_group_id
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -28,7 +32,8 @@ import kotlinx.coroutines.launch
 class DiceViewModel(
     imageDataStore: DataStore<ImageDTOMap>,
     diceDataStore: DataStore<DiceDTOMap>,
-    userDataStore: DataStore<UserDTO>
+    userDataStore: DataStore<UserDTO>,
+    resources: Resources
 ) : ViewModel() {
 
   var countRolls: Int = 0
@@ -38,6 +43,8 @@ class DiceViewModel(
   private val imagesStore = imageDataStore // TODO make private, updateData should not be public
   private val dicesStore = diceDataStore
   private val userConfigStore = userDataStore
+
+  private val resourcesForBitmap = resources
 
   val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
@@ -76,7 +83,9 @@ class DiceViewModel(
         diceGroups = it.diceGroups
         hasLoadedUser = true
         if (!it.diceGroups.keys.contains(temp_group_id)) {
-          saveGroup(DiceGroup(id = temp_group_id, name = "Temp group, duplicate to save"))
+          initiateImages()
+          initiateDices()
+          initiateDiceGroups()
         }
       }
     }
@@ -102,6 +111,21 @@ class DiceViewModel(
             imageMap = imagesFlow.images
           }
     }
+  }
+
+  private fun initiateDices() {
+    val initialDices = getInitialDices()
+    initialDices.forEach { addDice(it) }
+  }
+
+  private fun initiateImages() {
+    val images = getInitialImages(resourcesForBitmap)
+    saveImages(images)
+  }
+
+  private fun initiateDiceGroups() {
+    val groups = getInitialDiceGroups()
+    groups.forEach { saveGroup(it) }
   }
 
   private fun generateUniqueName(baseName: String, keys: List<String>): String {
@@ -418,13 +442,14 @@ class DiceViewModel(
 class DiceViewModelFactory(
     private val imageDataStore: DataStore<ImageDTOMap>,
     private val diceDataStore: DataStore<DiceDTOMap>,
-    private val userDataStore: DataStore<UserDTO>
+    private val userDataStore: DataStore<UserDTO>,
+    private val resources: Resources
 ) : ViewModelProvider.Factory {
 
   override fun <T : ViewModel> create(modelClass: Class<T>): T {
     if (modelClass.isAssignableFrom(DiceViewModel::class.java)) {
       @Suppress("UNCHECKED_CAST")
-      return DiceViewModel(imageDataStore, diceDataStore, userDataStore) as T
+      return DiceViewModel(imageDataStore, diceDataStore, userDataStore, resources) as T
     }
     throw IllegalArgumentException("Unknown ViewModel class")
   }

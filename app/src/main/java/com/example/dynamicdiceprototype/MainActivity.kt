@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
       DynamicDicePrototypeTheme {
         // A surface container using the 'background' color from the theme
         val viewModel: DiceViewModel by viewModels {
-          DiceViewModelFactory(imagesDataStore, diceDataStore, userDataStore)
+          DiceViewModelFactory(imagesDataStore, diceDataStore, userDataStore, resources)
         }
         val hasOnboardingCompleted =
             PreferenceManager.getPreferenceFlow<Boolean>(PreferenceKey.hasOnboardingCompleted)

@@ -4,20 +4,10 @@ import android.content.res.Resources
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.example.dynamicdiceprototype.DTO.DiceDTO
-import com.example.dynamicdiceprototype.DTO.FaceDTO
 import com.example.dynamicdiceprototype.DTO.ImageDTO
-import com.example.dynamicdiceprototype.DTO.UserDTO
-import com.example.dynamicdiceprototype.ImageCreator
 import com.example.dynamicdiceprototype.R
-import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
-import com.example.dynamicdiceprototype.services.USER
-
-fun numberImages(viewModel: DiceViewModel) {
-  viewModel.saveImages(listOf(ImageDTO(contentDescription = "number", base64String = "number")))
-}
 
 fun saveImages(res: Resources, viewModel: DiceViewModel) {
   data class ImageModelSetDTO(val image: Int, val name: String)
@@ -86,56 +76,4 @@ fun saveImages(res: Resources, viewModel: DiceViewModel) {
             contentDescription = namedColor,
             base64String = FirebaseDataStore.bitmapToBase64(bitmap))
       })
-}
-
-fun uploadDices() {
-  val firbase = FirebaseDataStore()
-  val images =
-      arrayOf(
-          Pair(
-              "red_and_green",
-              DiceDTO(
-                  listOf(
-                      FaceDTO(Color.Red.toArgb().toString(), 1, 1),
-                      FaceDTO(Color.Green.toArgb().toString(), 1, 1),
-                  ))),
-          Pair(
-              "animals",
-              DiceDTO(
-                  listOf(
-                      (FaceDTO(R.drawable.cameleon.toString(), 1, 1)),
-                      (FaceDTO(R.drawable.elephant.toString(), 1, 1)),
-                      (FaceDTO(R.drawable.frog.toString(), 1, 1)),
-                      (FaceDTO(R.drawable.fish.toString(), 1, 1)),
-                      (FaceDTO(R.drawable.lion.toString(), 1, 1)),
-                      (FaceDTO(R.drawable.monkey.toString(), 1, 1)),
-                      (FaceDTO(R.drawable.owl.toString(), 1, 1)),
-                      (FaceDTO(R.drawable.parrot.toString(), 1, 1)),
-                      (FaceDTO(R.drawable.penguin.toString(), 1, 1)),
-                  ))),
-          Pair(
-              "6er",
-              DiceDTO(
-                  listOf(
-                      (FaceDTO(contentDescription = R.drawable.six_transparent.toString(), 1, 1)),
-                      (FaceDTO(contentDescription = R.drawable.five_transparent.toString(), 1, 1)),
-                      (FaceDTO(contentDescription = R.drawable.four_transparent.toString(), 1, 1)),
-                      (FaceDTO(contentDescription = R.drawable.three_transparent.toString(), 1, 1)),
-                      (FaceDTO(contentDescription = R.drawable.two_transparent.toString(), 1, 1)),
-                      (FaceDTO(contentDescription = R.drawable.one_transparent.toString(), 1, 1)),
-                  ))))
-  images.forEach { firbase.uploadDice(it.first, it.second, onSuccess = {}) }
-}
-
-fun uploadUser() {
-  val firbase = FirebaseDataStore()
-
-  val diceGroups =
-      mapOf(
-          "Kniffel" to DiceGroup(dices = mapOf("6er" to 5)),
-          "animals count" to DiceGroup(dices = mapOf("6er" to 1, "animals" to 5)),
-      )
-  val dices = listOf("random", "6er", "animals")
-
-  firbase.uploadUserConfig(USER, UserDTO(dices = dices, diceGroups = diceGroups), onSuccess = {})
 }

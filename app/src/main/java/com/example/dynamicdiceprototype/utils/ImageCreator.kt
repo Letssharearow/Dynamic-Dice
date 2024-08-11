@@ -1,4 +1,4 @@
-package com.example.dynamicdiceprototype
+package com.example.dynamicdiceprototype.utils
 
 import android.content.Context
 import android.graphics.Bitmap
