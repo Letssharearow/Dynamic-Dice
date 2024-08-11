@@ -320,7 +320,7 @@ class DiceViewModel(
       return
     }
     diceGroups[groupId]?.dices?.let { diceMap ->
-      setNewCurrentDices(diceMap.mapKeys { dices[it.key]!! })
+      setNewCurrentDices(diceMap.mapKeys { dices[it.key] ?: Dice() })
     }
   }
 

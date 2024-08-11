@@ -2,6 +2,7 @@ package com.example.dynamicdiceprototype.composables
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,13 +11,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -95,12 +100,28 @@ fun LandingPage(
         }
         Row(
             horizontalArrangement = Arrangement.SpaceAround,
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer) // Light gray background
+            ,
             verticalAlignment = Alignment.CenterVertically) {
-              Text(text = "Sum: ${viewModel?.currentSum}")
+              Text(
+                  text = "Sum: ${viewModel?.currentSum}",
+                  style =
+                      TextStyle(
+                          color = Color.DarkGray, // Darker text color
+                          fontWeight = FontWeight.Bold,
+                          fontSize = MaterialTheme.typography.bodyLarge.fontSize))
               DiceButtonM3(
                   onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
-              Text(text = "Rolls: ${viewModel?.countRolls}")
+              Text(
+                  text = "Rolls: ${viewModel?.countRolls}",
+                  style =
+                      TextStyle(
+                          color = Color.DarkGray, // Darker text color
+                          fontWeight = FontWeight.Bold,
+                          fontSize = MaterialTheme.typography.bodyLarge.fontSize))
             }
       }
 }
