@@ -129,8 +129,8 @@ fun ItemSelectionDialog(
     val initialValueMapped by remember {
       val newDices = mutableMapOf<Dice, Int>()
       initialValue.forEach { multibleDice ->
-        val actualDice = selectables.find { it.id == multibleDice.id }!!
-        newDices[actualDice] = newDices[actualDice]?.plus(1) ?: 1
+        val actualDice = selectables.find { it.id == multibleDice.id }
+        if (actualDice != null) newDices[actualDice] = newDices[actualDice]?.plus(1) ?: 1
       }
       mutableStateOf(newDices.toMap())
     }

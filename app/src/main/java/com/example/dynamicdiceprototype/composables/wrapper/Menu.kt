@@ -57,7 +57,7 @@ fun Menu(
           .value
   val navItems =
       listOf(
-          NavItmProps("Test Screen", Screen.TestScreen.route, Icons.Default.Info),
+          // NavItmProps("Test Screen", Screen.TestScreen.route, Icons.Default.Info),
           NavItmProps("Roll", Screen.MainScreen.route, Icons.Default.Home),
           NavItmProps("Dices", DicesScreen.Dices.route, FontAwesomeIcons.Solid.DiceD6),
           NavItmProps("Dice Groups", Screen.DiceGroups.route, FontAwesomeIcons.Solid.Dice),

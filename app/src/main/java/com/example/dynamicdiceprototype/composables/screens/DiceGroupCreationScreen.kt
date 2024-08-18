@@ -41,7 +41,7 @@ fun DiceGroupCreationScreen(
     // way they were selected)
     SelectItemsGrid<Dice>(
         selectables = dices,
-        onSaveSelection = { if (name.isNotEmpty()) onSaveSelection(name, it) },
+        onSaveSelection = { if (name.isNotEmpty() && it.isNotEmpty()) onSaveSelection(name, it) },
         getId = { it.name },
         initialValue = transformDiceGroup(initialValue, dices),
     ) { dice, modifier, maxWidth, _ ->
