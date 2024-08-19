@@ -101,7 +101,7 @@ fun DicePreview(dice: Dice, facesSum: Int, modifier: Modifier = Modifier) {
         var items =
             dice.faces.flatMap { face ->
               val list = mutableListOf<Face>()
-              repeat(face.weight) { list.add(face) }
+              repeat(face.weight.coerceAtMost(MAX_FACES_IN_DICE_PREV)) { list.add(face) }
               list
             }
         items =
