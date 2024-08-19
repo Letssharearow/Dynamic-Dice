@@ -43,9 +43,5 @@ fun DiceDTO.toDice(id: String, images: Map<String, ImageDTO>): Dice {
                 })
       }
 
-  return Dice(
-      id = id,
-      name = name, // Replace with actual logic to determine the name
-      faces = faces,
-      backgroundColor = Color(this.backgroundColor))
+  return Dice(id = id, name = name, faces = faces, backgroundColor = Color(this.backgroundColor))
 }

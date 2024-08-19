@@ -26,6 +26,7 @@ import com.example.dynamicdiceprototype.services.serializer.ImageDTOMap
 import com.example.dynamicdiceprototype.utils.getInitialDiceGroups
 import com.example.dynamicdiceprototype.utils.getInitialDices
 import com.example.dynamicdiceprototype.utils.getInitialImages
+import com.example.dynamicdiceprototype.utils.imageDTO_number_contentDescription
 import com.example.dynamicdiceprototype.utils.temp_group_id
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -38,12 +39,13 @@ class DiceViewModel(
     resources: Resources
 ) : ViewModel() {
 
+  var showRerollButton: Boolean = false
   var countRolls: Int = 0
   var currentSum: Int = 0
   val history: MutableList<RollState> = mutableListOf()
 
   // dataStore
-  private val imagesStore = imageDataStore // TODO make private, updateData should not be public
+  private val imagesStore = imageDataStore
   private val dicesStore = diceDataStore
   private val userConfigStore = userDataStore
 
@@ -150,6 +152,20 @@ class DiceViewModel(
   fun createNewDice() {
     diceInEdit = Dice(name = "Change Later")
     isDiceEditMode = false
+    showRerollButton = false
+  }
+
+  fun createRandomDice() {
+    diceInEdit =
+        Dice.random(
+            imageMap.toMutableMap().also {
+              it[imageDTO_number_contentDescription] =
+                  ImageDTO(
+                      contentDescription = imageDTO_number_contentDescription,
+                      base64String = "",
+                  )
+            })
+    showRerollButton = true
   }
 
   fun setSelectedFaces(values: Map<ImageDTO, Int>) {
@@ -178,6 +194,7 @@ class DiceViewModel(
   }
 
   fun saveDice() {
+    showRerollButton = false
     addDice(if (isDiceEditMode) diceInEdit else diceInEdit.copy(id = ""))
   }
 

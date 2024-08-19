@@ -1,9 +1,11 @@
 package com.example.dynamicdiceprototype.utils
 
 import getMaxGridWidth
+import getWeightsInRange
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.*
 import selectNext
+import weightedRandom
 
 class UtilsKtTest {
 
@@ -63,5 +65,42 @@ class UtilsKtTest {
     val currentIndex = 1
     val nextIndex = list.selectNext(currentIndex)
     assertEquals(2, nextIndex)
+  }
+
+  @org.junit.jupiter.api.Test
+  @Test
+  fun getRandomElementTest() {
+    val list = listOf(0.0, 0.0, 0.0, 1.0)
+    val result = weightedRandom(list)
+    assertEquals(3, result)
+  }
+
+  @org.junit.jupiter.api.Test
+  @Test
+  fun getRandomElementFirstTest() {
+    val list = listOf(1.0, 0.0, 0.0, 0.0)
+    val result = weightedRandom(list)
+    assertEquals(0, result)
+  }
+
+  @org.junit.jupiter.api.Test
+  @Test
+  fun getWeightsInRangeTest() {
+    val result = getWeightsInRange(4, 6, 9, addLeadingZeros = false)
+    assertEquals(listOf(0.25, 0.5, 1.0, 0.5, 0.25, 0.125), result)
+  }
+
+  @org.junit.jupiter.api.Test
+  @Test
+  fun getWeightsInRangeCurveTest() {
+    val result = getWeightsInRange(4, 6, 9, 1.0, addLeadingZeros = false)
+    assertEquals(listOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0), result)
+  }
+
+  @org.junit.jupiter.api.Test
+  @Test
+  fun getWeightsInRangeLeadingZerosTest() {
+    val result = getWeightsInRange(4, 6, 9, 1.0, true)
+    assertEquals(listOf(0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0), result)
   }
 }

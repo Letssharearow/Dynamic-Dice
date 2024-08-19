@@ -14,7 +14,8 @@ fun TemplateSelectionScreen(
     dices: List<Dice>,
     onSelectTemplate: (dice: Dice) -> Unit,
     menuActions: List<MenuItem<Dice>>,
-    onCreateNewDice: () -> Unit
+    onCreateNewDice: () -> Unit,
+    onCreateRandomDice: () -> Unit,
 ) {
   ItemListScreen(
       items = dices.sortedBy { it.name.uppercase() },
@@ -22,7 +23,8 @@ fun TemplateSelectionScreen(
       menuActions = menuActions,
       getKey = { it.id },
       preferenceView = PreferenceKey.IsDicesViewCompact,
-      onCreateItem = onCreateNewDice) { item, isCompact, modifier ->
+      onCreateItem = onCreateNewDice,
+      onRandomItem = onCreateRandomDice) { item, isCompact, modifier ->
         DiceCard(item, isCompact, modifier)
       }
 }
@@ -31,8 +33,11 @@ fun TemplateSelectionScreen(
 @Composable
 private fun Preview() {
   DynamicDicePrototypeTheme {
-    TemplateSelectionScreen(dices = getDices(4), onSelectTemplate = {}, menuActions = listOf()) {
-      //
-    }
+    TemplateSelectionScreen(
+        dices = getDices(4),
+        onSelectTemplate = {},
+        onCreateNewDice = {},
+        onCreateRandomDice = {},
+        menuActions = listOf())
   }
 }

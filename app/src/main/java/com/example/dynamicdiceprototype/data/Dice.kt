@@ -4,10 +4,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.example.dynamicdiceprototype.DTO.DiceDTO
 import com.example.dynamicdiceprototype.DTO.FaceDTO
+import com.example.dynamicdiceprototype.DTO.ImageDTO
+import com.example.dynamicdiceprototype.DTO.toDice
 import com.example.dynamicdiceprototype.utils.randomItemByWeight
+import getWeightsInRange
 import java.util.UUID
 import kotlin.math.sign
 import kotlin.random.Random
+import weightedRandom
 
 data class Dice(
     var id: String = "",
@@ -41,6 +45,39 @@ data class Dice(
 
   fun reset(): Dice =
       this.copy(current = null, rotation = 0f, diceLockState = DiceLockState.UNLOCKED, state = null)
+
+  companion object {
+
+    fun random(images: Map<String, ImageDTO>): Dice {
+      val faces = mutableListOf<FaceDTO>()
+
+      val range = weightedRandom(getWeightsInRange(2, 6, 50, curve = 0.75))
+      for (i in 1..range) {
+        faces.add(
+            FaceDTO(
+                contentDescription = images.values.random().contentDescription,
+                weight =
+                    if (Random.nextInt(10) == 0) weightedRandom(getWeightsInRange(1, 1, 50, 1.0))
+                    else 1,
+                value = weightedRandom(getWeightsInRange(0, 6, 50, 0.999))))
+      }
+
+      val name =
+          listOf(
+                  "Brillant idea",
+                  "Grandpa's heritage",
+                  "The Truth Speaker",
+                  "Unfair Dice",
+                  "Random Die",
+                  "Random",
+                  "Some Die",
+                  "Result of Spamclick")
+              .random()
+      val backgroundColor = Random.nextInt()
+      return DiceDTO(name = name, backgroundColor = backgroundColor, images = faces)
+          .toDice("", images)
+    }
+  }
 }
 
 fun generateUniqueID(): String {

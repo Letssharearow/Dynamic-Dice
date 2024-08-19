@@ -1,6 +1,8 @@
 package com.example.dynamicdiceprototype.composables.createdice
 
 import OneScreenGrid
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -35,13 +41,19 @@ import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.Random
 
 @Composable
 fun EditDiceScreen(
     dice: Dice,
     onSaveDice: (name: String, color: Color) -> Unit,
+    onRerollDice: () -> Unit,
+    showRerollButton: Boolean = false,
     onEdit: (name: String, color: Color) -> Unit
 ) {
+  Log.d("EditDiceScreen", "dice: $dice")
   var name by remember { mutableStateOf(dice.name) }
   var color by remember { mutableStateOf(dice.backgroundColor) }
   var isColorPickerOpen by remember { mutableStateOf(false) }
@@ -118,7 +130,30 @@ fun EditDiceScreen(
                     color = color,
                     modifier = Modifier.padding(maxWidth.div(20)))
               }
-          ContinueButton(onClick = { showAddWeights = true }, text = "Add weights")
+          Row(
+              horizontalArrangement = Arrangement.SpaceAround,
+              verticalAlignment = Alignment.CenterVertically) {
+                if (showRerollButton) {
+                  Button(
+                      onClick = {
+                        onRerollDice()
+                        name = dice.name
+                        color = dice.backgroundColor
+                      },
+                      border =
+                          BorderStroke(
+                              width = 2.dp, color = MaterialTheme.colorScheme.secondaryContainer),
+                      colors =
+                          ButtonDefaults.buttonColors(
+                              containerColor = MaterialTheme.colorScheme.secondary),
+                      modifier = Modifier.height(48.dp)) {
+                        Icon(
+                            imageVector = FontAwesomeIcons.Solid.Random,
+                            contentDescription = "random")
+                      }
+                }
+                ContinueButton(onClick = { showAddWeights = true }, text = "Add weights")
+              }
         }
       }
     }
@@ -151,6 +186,7 @@ private fun Preview() {
                         Face(contentDescription = ""),
                         Face(contentDescription = ""))),
         onEdit = { a, b -> },
+        onRerollDice = {},
         onSaveDice = { a, b -> })
   }
 }

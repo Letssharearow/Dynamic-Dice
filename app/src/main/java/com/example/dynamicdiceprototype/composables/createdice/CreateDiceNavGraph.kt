@@ -32,6 +32,11 @@ fun NavGraphBuilder.diceGraph(
             navController.navigate(DicesScreen.SelectFaces.route)
             headerViewModel.changeHeaderText("Select faces of Dice")
           },
+          onCreateRandomDice = {
+            diceViewModel.createRandomDice()
+            navController.navigate(DicesScreen.EditDice.route)
+            headerViewModel.changeHeaderText("Select faces of Dice")
+          },
           menuActions =
               listOf(
                   MenuItem(
@@ -106,6 +111,8 @@ fun NavGraphBuilder.diceGraph(
             diceViewModel.setColor(color)
             navController.navigate(DicesScreen.SelectFaces.route)
           },
+          showRerollButton = diceViewModel.showRerollButton,
+          onRerollDice = { diceViewModel.createRandomDice() },
           onSaveDice = { name, color ->
             diceViewModel.setDiceName(name)
             diceViewModel.setColor(color)
