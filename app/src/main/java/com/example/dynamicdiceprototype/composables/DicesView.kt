@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.example.dynamicdiceprototype.composables.common.PupMenuWithAlert
 import com.example.dynamicdiceprototype.composables.createdice.DicePreview
 import com.example.dynamicdiceprototype.data.Dice
@@ -136,21 +137,24 @@ fun ItemSelectionDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = "Select an Item") },
+        title = { Text(text = "Add or Remove dice") },
         text = {
           SelectItemsGrid<Dice>(
               selectables = selectables,
               onSaveSelection = onItemSelected,
               getId = { it.name },
+              itemMinWidthPixel = 400f,
               initialValue = initialValueMapped,
-              itemMinWidthPixel = 200f,
-          ) { dice, modifier, maxWidth, _ ->
-            DicePreview(
-                dice = dice, facesSum = dice.faces.sumOf { it.weight }, Modifier.size(maxWidth))
-          }
+              view = { dice, modifier, maxWidth, _ ->
+                DicePreview(
+                    dice = dice, facesSum = dice.faces.sumOf { it.weight }, Modifier.size(maxWidth))
+              },
+              minValue = 1,
+          )
         },
-        confirmButton = { Button(onClick = onDismiss) { Text("Close") } },
-        modifier = Modifier.fillMaxHeight(0.95f).fillMaxWidth(1f))
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        confirmButton = { Button(onClick = onDismiss) { Text("Cancel") } },
+        modifier = Modifier.fillMaxHeight(0.95f).fillMaxWidth(0.98f))
   }
 }
 
