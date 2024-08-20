@@ -57,7 +57,7 @@ data class Dice(
             FaceDTO(
                 contentDescription = images.values.random().contentDescription,
                 weight =
-                    if (Random.nextInt(10) == 0) weightedRandom(getWeightsInRange(1, 1, 50, 1.0))
+                    if (Random.nextInt(10) == 0) weightedRandom(getWeightsInRange(1, 1, 50, 0.75))
                     else 1,
                 value = weightedRandom(getWeightsInRange(0, 6, 50, 0.999))))
       }

@@ -102,10 +102,11 @@ fun EditDiceScreen(
               showAddWeights = false
             },
             getId = { face -> face.contentDescription },
-            maxSize = maxSize,
-            initialValue = dice.faces.associateWith { it.weight },
             modifier = Modifier.padding(0.dp),
-            applyFilter = null) { item, modifier, maxWidthDp, _ ->
+            maxSize = maxSize,
+            applyFilter = null,
+            initialValue = dice.faces.associateWith { it.weight },
+            view = { item, modifier, maxWidthDp, _ ->
               FaceView(
                   face = item,
                   spacing = maxWidthDp.div(10),
@@ -113,7 +114,8 @@ fun EditDiceScreen(
                   modifier = modifier.fillMaxSize(),
                   showWeight = false,
                   color = color)
-            }
+            },
+            minValue = 1)
       } else {
         ArrangedColumn {
           OneScreenGrid(

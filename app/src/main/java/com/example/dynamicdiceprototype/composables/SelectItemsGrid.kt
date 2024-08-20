@@ -52,6 +52,7 @@ fun <T> SelectItemsGrid(
     itemMinWidthPixel: Float? = null,
     initialValue: Map<T, Int> = mapOf(),
     handleItemClick: ((T) -> Unit)? = null,
+    minValue: Int = 1,
     view: @Composable (item: T, modifier: Modifier, size: Dp, value: Int?) -> Unit,
 ) {
   val initialSizeUpdated =
@@ -95,7 +96,7 @@ fun <T> SelectItemsGrid(
                     val selectedItem = selectedItems[item]
                     if (selectedItem == null) {
                       if (sumOfSelection < maxSize) {
-                        selectedItems[item] = 1
+                        selectedItems[item] = minValue
                         if (handleItemClick != null) {
                           handleItemClick(item)
                         }
@@ -155,7 +156,7 @@ fun <T> SelectItemsGrid(
                               }
                             },
                             valueRange = 1f..mutableSize.toFloat().coerceAtLeast(1f),
-                            steps = (mutableSize - 1).coerceAtLeast(1))
+                            steps = (mutableSize - minValue).coerceAtLeast(minValue))
                       }
                           ?: Text(
                               text = getId(item),
@@ -189,8 +190,10 @@ private fun SelectItemsGridPreview() {
         onSaveSelection = {},
         getId = { dice -> dice.name },
         initialSize = 2,
-        initialValue = mutableMapOf(Dice() to 4)) { item, modifier, maxWidthDp, value ->
+        initialValue = mutableMapOf(Dice() to 4),
+        view = { item, modifier, maxWidthDp, value ->
           DiceView(dice = item, size = maxWidthDp, modifier = modifier.fillMaxSize())
-        }
+        },
+        minValue = 1)
   }
 }

@@ -46,11 +46,11 @@ fun SelectFacesScreen(
       onSaveSelection = onFacesSelectionClick,
       getId = { face -> face.contentDescription },
       maxSize = maxSize,
-      initialValue = initialValue,
       applyFilter = { image, filter ->
         image.contentDescription.contains(filter, ignoreCase = true) ||
             image.tags.find { it.contains(filter, ignoreCase = true) } != null
       },
+      initialValue = initialValue,
       handleItemClick = { image ->
         if (image == mutableFaces.first() && addNumber) {
           val mutableList = mutableFaces.toMutableList()
@@ -62,7 +62,8 @@ fun SelectFacesScreen(
                   base64String = image.base64String))
           mutableFaces = mutableList
         }
-      }) { item, modifier, maxWidthDp, value ->
+      },
+      view = { item, modifier, maxWidthDp, value ->
         FaceView(
             face =
                 Face(
@@ -73,7 +74,8 @@ fun SelectFacesScreen(
             size = maxWidthDp.div(3),
             modifier = modifier.fillMaxSize(),
             color = color)
-      }
+      },
+      minValue = 0)
 }
 
 @Preview(device = Devices.PIXEL_TABLET)
