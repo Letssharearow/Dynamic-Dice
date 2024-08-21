@@ -6,6 +6,7 @@ import com.example.dynamicdiceprototype.DTO.DiceDTO
 import com.example.dynamicdiceprototype.DTO.FaceDTO
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.DTO.toDice
+import com.example.dynamicdiceprototype.utils.imageDTO_number_contentDescription
 import com.example.dynamicdiceprototype.utils.randomItemByWeight
 import getWeightsInRange
 import java.util.UUID
@@ -76,6 +77,15 @@ data class Dice(
       val backgroundColor = Random.nextInt()
       return DiceDTO(name = name, backgroundColor = backgroundColor, images = faces)
           .toDice("", images)
+    }
+
+    fun numbered(start: Int, end: Int): Dice {
+      return Dice(
+          name = "numbered",
+          faces =
+              (start..end).map {
+                Face(contentDescription = imageDTO_number_contentDescription, value = it)
+              })
     }
   }
 }

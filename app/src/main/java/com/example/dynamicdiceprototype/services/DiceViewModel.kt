@@ -168,6 +168,10 @@ class DiceViewModel(
     showRerollButton = true
   }
 
+  fun createNumberedDice(start: Int, end: Int) {
+    diceInEdit = Dice.numbered(start, end)
+  }
+
   fun setSelectedFaces(values: Map<ImageDTO, Int>) {
     diceInEdit.faces =
         values.map { entry ->

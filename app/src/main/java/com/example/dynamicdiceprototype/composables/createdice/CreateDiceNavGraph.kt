@@ -35,7 +35,10 @@ fun NavGraphBuilder.diceGraph(
           onCreateRandomDice = {
             diceViewModel.createRandomDice()
             navController.navigate(DicesScreen.EditDice.route)
-            headerViewModel.changeHeaderText("Select faces of Dice")
+          },
+          onCreateNumberedDice = { start, end ->
+            diceViewModel.createNumberedDice(start, end)
+            navController.navigate(DicesScreen.EditDice.route)
           },
           menuActions =
               listOf(

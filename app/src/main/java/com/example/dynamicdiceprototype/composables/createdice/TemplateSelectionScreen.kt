@@ -1,6 +1,17 @@
 package com.example.dynamicdiceprototype.composables.createdice
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.dynamicdiceprototype.composables.ItemListScreen
 import com.example.dynamicdiceprototype.data.Dice
@@ -15,8 +26,51 @@ fun TemplateSelectionScreen(
     onSelectTemplate: (dice: Dice) -> Unit,
     menuActions: List<MenuItem<Dice>>,
     onCreateNewDice: () -> Unit,
+    onCreateNumberedDice: (start: Int, end: Int) -> Unit,
     onCreateRandomDice: () -> Unit,
 ) {
+  var showAlert by remember { mutableStateOf(false) }
+  var startValue by remember { mutableStateOf("1") }
+  var endValue by remember { mutableStateOf("") }
+
+  if (showAlert) {
+    AlertDialog(
+        onDismissRequest = { showAlert = false },
+        title = { Text("Create Numbered Dice") },
+        text = {
+          Column {
+            Text("Enter the range for the numbered dice:")
+
+            OutlinedTextField(
+                value = startValue,
+                onValueChange = { startValue = it },
+                label = { Text("Start Value") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+            OutlinedTextField(
+                value = endValue,
+                onValueChange = { endValue = it },
+                label = { Text("End Value") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+          }
+        },
+        confirmButton = {
+          Button(
+              onClick = {
+                val start = startValue.toIntOrNull()
+                val end = endValue.toIntOrNull()
+                if (start != null && end != null) {
+                  onCreateNumberedDice(start, end)
+                  showAlert = false
+                } else {
+                  // TODO You might want to show an error message or handle invalid input here
+                }
+              }) {
+                Text("Create")
+              }
+        },
+        dismissButton = { Button(onClick = { showAlert = false }) { Text("Cancel") } })
+  }
+
   ItemListScreen(
       items = dices.sortedBy { it.name.uppercase() },
       onSelect = onSelectTemplate,
@@ -24,6 +78,7 @@ fun TemplateSelectionScreen(
       getKey = { it.id },
       preferenceView = PreferenceKey.IsDicesViewCompact,
       onCreateItem = onCreateNewDice,
+      onSecondaryAction = { showAlert = true },
       onRandomItem = onCreateRandomDice) { item, isCompact, modifier ->
         DiceCard(item, isCompact, modifier)
       }
@@ -38,6 +93,7 @@ private fun Preview() {
         onSelectTemplate = {},
         onCreateNewDice = {},
         onCreateRandomDice = {},
+        onCreateNumberedDice = { _, _ -> },
         menuActions = listOf())
   }
 }

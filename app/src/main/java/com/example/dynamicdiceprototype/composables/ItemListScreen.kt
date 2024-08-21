@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -44,8 +44,9 @@ import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.DiceD6
 import compose.icons.fontawesomeicons.solid.Plus
-import compose.icons.fontawesomeicons.solid.Random
+import compose.icons.fontawesomeicons.solid.Subscript
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -57,6 +58,7 @@ fun <T> ItemListScreen(
     onCreateItem: (() -> Unit)?,
     modifier: Modifier = Modifier,
     onRandomItem: (() -> Unit)? = null,
+    onSecondaryAction: (() -> Unit)? = null,
     preferenceView: PreferenceKey = PreferenceKey.IsDicesViewCompact,
     view: @Composable (item: T, isCompact: Boolean, modifier: Modifier) -> Unit,
 ) {
@@ -100,12 +102,10 @@ fun <T> ItemListScreen(
     }
     if (onRandomItem != null || onCreateItem != null) {
       Row(
-          modifier =
-              Modifier.fillMaxWidth()
-                  .height(48.dp)
-                  .background(Color.Transparent)
-                  .align(Alignment.BottomCenter)
-                  .padding(bottom = 8.dp),
+          Modifier.fillMaxWidth()
+              .background(Color.Transparent)
+              .align(Alignment.BottomCenter)
+              .padding(bottom = 8.dp),
           horizontalArrangement = Arrangement.Center,
           verticalAlignment = Alignment.CenterVertically) {
             onRandomItem?.let {
@@ -117,7 +117,10 @@ fun <T> ItemListScreen(
                   colors =
                       ButtonDefaults.buttonColors(
                           containerColor = MaterialTheme.colorScheme.secondary)) {
-                    Icon(imageVector = FontAwesomeIcons.Solid.Random, contentDescription = "random")
+                    Icon(
+                        imageVector = FontAwesomeIcons.Solid.DiceD6,
+                        contentDescription = "random",
+                        modifier = Modifier.size(24.dp))
                   }
             }
             Spacer(modifier = modifier.width(24.dp))
@@ -127,7 +130,26 @@ fun <T> ItemListScreen(
                       BorderStroke(
                           width = 2.dp, color = MaterialTheme.colorScheme.primaryContainer),
                   onClick = it) {
-                    Icon(imageVector = FontAwesomeIcons.Solid.Plus, contentDescription = "random")
+                    Icon(
+                        imageVector = FontAwesomeIcons.Solid.Plus,
+                        contentDescription = "random",
+                        modifier = Modifier.size(36.dp))
+                  }
+            }
+            Spacer(modifier = modifier.width(24.dp))
+            onSecondaryAction?.let {
+              Button(
+                  border =
+                      BorderStroke(
+                          width = 2.dp, color = MaterialTheme.colorScheme.secondaryContainer),
+                  onClick = it,
+                  colors =
+                      ButtonDefaults.buttonColors(
+                          containerColor = MaterialTheme.colorScheme.secondary)) {
+                    Icon(
+                        imageVector = FontAwesomeIcons.Solid.Subscript,
+                        contentDescription = "random",
+                        modifier = Modifier.size(24.dp))
                   }
             }
           }
@@ -171,6 +193,7 @@ private fun Preview2() {
         menuActions = listOf(),
         onCreateItem = {},
         onRandomItem = {},
+        onSecondaryAction = {},
         getKey = { it }) { item, isCompact, modifier ->
           DiceGroupItem(item = item, isCompact = isCompact, modifier = modifier)
         }

@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dynamicdiceprototype.R
@@ -129,7 +130,7 @@ fun FaceView(
     if (face?.contentDescription == imageDTO_number_contentDescription) {
       NumberCircle2(
           face.value.toString(),
-          fontSize = size.value.sp,
+          fontSize = size.coerceAtMost(100.dp).value.sp,
           modifier = Modifier.align(Alignment.Center))
     } else {
       SizedImage(

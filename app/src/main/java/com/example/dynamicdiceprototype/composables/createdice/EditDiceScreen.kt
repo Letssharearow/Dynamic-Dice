@@ -43,7 +43,7 @@ import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.solid.Random
+import compose.icons.fontawesomeicons.solid.DiceD6
 
 @Composable
 fun EditDiceScreen(
@@ -150,7 +150,7 @@ fun EditDiceScreen(
                               containerColor = MaterialTheme.colorScheme.secondary),
                       modifier = Modifier.height(48.dp)) {
                         Icon(
-                            imageVector = FontAwesomeIcons.Solid.Random,
+                            imageVector = FontAwesomeIcons.Solid.DiceD6,
                             contentDescription = "random")
                       }
                 }

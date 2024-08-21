@@ -1,15 +1,19 @@
 package com.example.dynamicdiceprototype
 
+import OneScreenGrid
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.datastore.dataStore
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -39,6 +44,8 @@ import com.example.dynamicdiceprototype.services.serializer.DiceSerializer
 import com.example.dynamicdiceprototype.services.serializer.ImageSerializer
 import com.example.dynamicdiceprototype.services.serializer.UserConfigSerializer
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
+import compose.icons.AllIcons
+import compose.icons.FontAwesomeIcons
 import kotlinx.coroutines.launch
 
 val Context.diceDataStore by dataStore("dices-settings.json", DiceSerializer)
@@ -70,6 +77,19 @@ class MainActivity : ComponentActivity() {
       }
     }
   }
+}
+
+@Composable
+fun Icons(modifier: Modifier = Modifier) {
+    OneScreenGrid(items = FontAwesomeIcons.AllIcons, minSize = 200f) { item, maxSize ->
+        Button(
+            border =
+            BorderStroke(
+                width = 2.dp, color = MaterialTheme.colorScheme.secondaryContainer),
+            onClick = {}) {
+            Icon(imageVector = item, contentDescription = item.name)
+        }
+    }
 }
 
 @Composable
