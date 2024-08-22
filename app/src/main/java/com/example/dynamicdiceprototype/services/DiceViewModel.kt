@@ -264,6 +264,12 @@ class DiceViewModel(
     isGroupEditMode = false
   }
 
+  fun setTempGroupRandom(): String {
+    val randomGroup = DiceGroup.random(dices = dices.keys)
+    saveDiceGroup(randomGroup)
+    return randomGroup.name
+  }
+
   fun setGroupInEditDices(name: String, dices: Map<Dice, Int>) {
     groupInEdit =
         groupInEdit?.copy(

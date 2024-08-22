@@ -54,9 +54,10 @@ data class Dice(
 
       val range = weightedRandom(getWeightsInRange(2, 6, 50, curve = 0.75))
       for (i in 1..range) {
+        val contentDescription = images.values.random().contentDescription
         faces.add(
             FaceDTO(
-                contentDescription = images.values.random().contentDescription,
+                contentDescription = contentDescription,
                 weight =
                     if (Random.nextInt(10) == 0) weightedRandom(getWeightsInRange(1, 1, 50, 0.75))
                     else 1,

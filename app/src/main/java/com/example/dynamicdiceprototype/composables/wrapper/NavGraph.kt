@@ -163,6 +163,11 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
                               "Cofirm Deletion",
                               "Pressing Confirm will Remove the Group entirely, there is no undoing")),
               ),
+          onCreateRandomGroup = {
+            val name = viewModel.setTempGroupRandom()
+            navController.navigate(Screen.MainScreen.route)
+            headerViewModel.changeHeaderText(name)
+          },
           onCreateNewGroup = {
             viewModel.createNewGroup()
             navController.navigate(Screen.CreateDiceGroup.route)

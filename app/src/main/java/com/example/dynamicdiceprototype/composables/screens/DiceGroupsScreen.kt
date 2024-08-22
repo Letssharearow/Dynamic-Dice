@@ -32,7 +32,8 @@ fun DiceGroupsScreen(
     groups: List<DiceGroup>,
     onSelectGroup: (groupName: DiceGroup) -> Unit,
     menuActions: List<MenuItem<DiceGroup>>,
-    onCreateNewGroup: () -> Unit
+    onCreateNewGroup: () -> Unit,
+    onCreateRandomGroup: () -> Unit,
 ) {
   ItemListScreen(
       items = groups.sortedBy { it.name.uppercase() },
@@ -40,6 +41,7 @@ fun DiceGroupsScreen(
       menuActions = menuActions,
       onCreateItem = onCreateNewGroup,
       getKey = { it.id },
+      onRandomItem = onCreateRandomGroup,
       preferenceView = PreferenceKey.IsDicesGroupViewCompact) { item, isCompact, modifier ->
         DiceGroupItem(item = item.name, isCompact = isCompact, modifier = modifier)
       }

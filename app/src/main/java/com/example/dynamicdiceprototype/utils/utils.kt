@@ -54,18 +54,31 @@ fun <T> List<T>.selectNext(currentStateIndex: Int?): Int? {
   return ((currentStateIndex ?: -1) + 1).takeIf { it >= 0 && it < this.size }
 }
 
-fun weightedRandom(weights: List<Double>): Int {
-  val totalWeight = weights.sum()
-  val randomValue = Random.nextDouble(totalWeight)
-  var accumulatedWeight = 0.0
+fun List<Double>.binarySearchCeiling(target: Double): Int {
+  var left = 0
+  var right = this.size - 1
 
-  for (i in weights.indices) {
-    accumulatedWeight += weights[i]
-    if (randomValue < accumulatedWeight) {
-      return i
+  while (left <= right) {
+    val mid = (left + right) / 2
+    when {
+      this[mid] == target -> return mid
+      this[mid] < target -> left = mid + 1
+      else -> {
+        right = mid - 1
+        if (right < 0 || this[right] <= target) {
+          return mid
+        }
+      }
     }
   }
-  return weights.lastIndex
+
+  return -1 // Element not found
+}
+
+fun weightedRandom(weights: List<Double>): Int {
+  val cumulativeWeights = weights.runningFold(0.0) { acc, weight -> acc + weight }.drop(1)
+  val randomValue = Random.nextDouble(cumulativeWeights.last())
+  return cumulativeWeights.binarySearchCeiling(randomValue)
 }
 
 /**
