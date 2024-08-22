@@ -65,7 +65,7 @@ fun weightedRandom(weights: List<Double>): Int {
       return i
     }
   }
-  return weights.lastIndex // Should not happen, but just in case
+  return weights.lastIndex
 }
 
 /**
@@ -83,24 +83,15 @@ fun getWeightsInRange(
     curve: Double = 0.5,
     addLeadingZeros: Boolean = true
 ): List<Double> {
-  if (start >= end || start > base || end < base) {
-    return listOf()
+  if (start > base) {
+    return emptyList()
   }
-  val list = mutableListOf<Double>()
-  if (addLeadingZeros) {
-    for (i in 0..end) {
-      if (i < start) {
-        list.add(0.0)
-        continue
-      }
-      list.add(curve.pow(abs(base - i)))
-    }
+  val weights = (start..end).map { curve.pow(abs(base - it)) }
+  return if (addLeadingZeros && start > 0) {
+    List(start) { 0.0 } + weights
   } else {
-    for (i in start..end) {
-      list.add(curve.pow(abs(base - i)))
-    }
+    weights
   }
-  return list
 }
 
 fun main() {
