@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.dynamicdiceprototype.utils.UtilsKtTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2024-08-22T10:18:41" hostname="DESKTOP-L845247" time="12.835">
+  <properties/>
+  <testcase name="selectNextIndexIncrementTest" classname="com.example.dynamicdiceprototype.utils.UtilsKtTest" time="0.022"/>
+  <testcase name="getRandomElementTest" classname="com.example.dynamicdiceprototype.utils.UtilsKtTest" time="10.261"/>
+  <testcase name="getWeightsInRangeTest" classname="com.example.dynamicdiceprototype.utils.UtilsKtTest" time="0.003"/>
+  <testcase name="selectNextIndexSetNullIfLastIndexTest" classname="com.example.dynamicdiceprototype.utils.UtilsKtTest" time="0.0"/>
+  <testcase name="getRandomElementFirstTest" classname="com.example.dynamicdiceprototype.utils.UtilsKtTest" time="2.546"/>
+  <testcase name="getWeightsInRangeLeadingZerosTest" classname="com.example.dynamicdiceprototype.utils.UtilsKtTest" time="0.0"/>
+  <testcase name="getMaxGridWidthTest" classname="com.example.dynamicdiceprototype.utils.UtilsKtTest" time="0.0"/>
+  <testcase name="selectNextIndexSetNullIfListEmptyTest" classname="com.example.dynamicdiceprototype.utils.UtilsKtTest" time="0.001"/>
+  <testcase name="selectNextIndexSetFirstElementTest" classname="com.example.dynamicdiceprototype.utils.UtilsKtTest" time="0.0"/>
+  <testcase name="getWeightsInRangeCurveTest" classname="com.example.dynamicdiceprototype.utils.UtilsKtTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
