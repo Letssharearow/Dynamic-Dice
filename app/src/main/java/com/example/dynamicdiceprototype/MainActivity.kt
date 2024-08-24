@@ -81,15 +81,16 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Icons(modifier: Modifier = Modifier) {
-    OneScreenGrid(items = FontAwesomeIcons.AllIcons, minSize = 200f) { item, maxSize ->
-        Button(
-            border =
-            BorderStroke(
-                width = 2.dp, color = MaterialTheme.colorScheme.secondaryContainer),
-            onClick = {}) {
+  OneScreenGrid(items = FontAwesomeIcons.AllIcons, minSize = 200f) { item, maxSize ->
+    Button(
+        border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.secondaryContainer),
+        onClick = {}) {
+          Column {
             Icon(imageVector = item, contentDescription = item.name)
+            Text(text = item.name)
+          }
         }
-    }
+  }
 }
 
 @Composable
