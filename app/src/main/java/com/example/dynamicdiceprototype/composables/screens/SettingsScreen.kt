@@ -84,7 +84,7 @@ fun PreferenceText(preference: PreferenceKey) {
       },
       state = tooltipState) {
         Text(
-            text = preference.name,
+            text = preference.uiName,
             modifier =
                 Modifier.fillMaxWidth(0.33f).clickable { scope.launch { tooltipState.show() } },
             style = MaterialTheme.typography.bodyLarge)

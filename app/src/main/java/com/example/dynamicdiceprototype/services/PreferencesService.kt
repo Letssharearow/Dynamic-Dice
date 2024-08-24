@@ -6,20 +6,23 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-enum class PreferenceKey(val defaultValue: Any, val location: String = "No Steps provided") {
-  ItemSelectionDiceGroupMaxSize(100),
-  ItemSelectionDiceWeightMaxSize(500),
-  ItemSelectionDiceValueMaxSize(5000),
-  ItemSelectionInitialSize(15),
-  MenuDrawerMaxWidthFraction(75),
-  ItemSelectionOneScreenGridMinWidth(400),
-  ItemSelctionDebounceTime(1000),
-  SettingsHeader("Settings"),
-  LastDiceGroup("Kniffel"),
-  IsAddDiceCompact(true),
-  IsDicesViewCompact(true),
-  IsDicesGroupViewCompact(true),
-  hasOnboardingCompleted(true),
+enum class PreferenceKey(
+    val defaultValue: Any,
+    val uiName: String,
+    val location: String = "No Steps provided"
+) {
+  ItemSelectionDiceGroupMaxSize(100, "Max Dice Groups"),
+  ItemSelectionDiceWeightMaxSize(500, "Max Dice Weights"),
+  ItemSelectionDiceValueMaxSize(5000, "Max Dice Values"),
+  ItemSelectionInitialSize(15, "Inital Size on Item selection"),
+  MenuDrawerMaxWidthFraction(75, "Menu Drawer Max Width Fraction"),
+  ItemSelectionOneScreenGridMinWidth(400, "One Screen Grid Min Width"),
+  ItemSelctionDebounceTime(1000, "Debounce Time for Item Selection"),
+  SettingsHeader("Settings", "SettingsHeader"),
+  LastDiceGroup("Kniffel", "Last Dice Group"),
+  IsDicesViewCompact(true, "Is Dices View Compact"),
+  IsDicesGroupViewCompact(true, "Is Dices Group View Compact"),
+  hasOnboardingCompleted(true, "Has Onboarding Completed"),
 } // TODO find better default value type solution to use default value when accessing it to set as
 
 // initial state
