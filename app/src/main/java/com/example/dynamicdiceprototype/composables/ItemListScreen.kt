@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -34,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.widget.NestedScrollView
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
 import com.example.dynamicdiceprototype.composables.common.PupMenuWithAlert
 import com.example.dynamicdiceprototype.composables.createdice.DiceCard
@@ -76,34 +76,34 @@ fun <T> ItemListScreen(
           checked = isCompact,
           onChecked = { PreferenceManager.saveData(preferenceView, !isCompact) })
 
-      ArrangedColumn(Modifier.weight(1f)) {
-        LazyColumn {
-          items(items = items, key = getKey) { item ->
-            var showMenu by remember { mutableStateOf(false) }
-            Box(
-                modifier =
-                    Modifier.combinedClickable(
-                            onClick = { onSelect(item) }, onLongClick = { showMenu = true })
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)) {
-                  view(item, isCompact, Modifier.fillMaxSize())
+      {
+        ArrangedColumn(Modifier.weight(1f)) {
+            NestedScrollView (
+            items(items = items, key = getKey) { item ->
+              var showMenu by remember { mutableStateOf(false) }
+              Box(
+                  modifier =
+                      Modifier.combinedClickable(
+                              onClick = { onSelect(item) }, onLongClick = { showMenu = true })
+                          .fillMaxWidth()
+                          .padding(bottom = 8.dp)) {
+                    view(item, isCompact, Modifier.fillMaxSize())
 
-                  Box(Modifier.align(Alignment.BottomEnd)) {
-                    PupMenuWithAlert(
-                        actionItem = item,
-                        items = menuActions,
-                        showMenu = showMenu,
-                        onDismiss = { showMenu = false },
-                    )
-                  }
-                }
+                    Box(Modifier.align(Alignment.BottomEnd)) {
+                      PupMenuWithAlert(
+                          actionItem = item,
+                          items = menuActions,
+                          showMenu = showMenu,
+                          onDismiss = { showMenu = false },
+                      )
+                    }
+                  })
+
           }
         }
       }
     }
     if (onRandomItem != null || onCreateItem != null) {
-      Spacer(modifier = modifier.height(500.dp))
-
       Row(
           Modifier.fillMaxWidth()
               .background(Color.Transparent)
