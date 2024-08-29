@@ -13,8 +13,15 @@ import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceGroup
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 
-private const val dice_standard = "Standard Dice"
-private const val dice_20 = "20 sided"
+private const val dice_standard = "Classic Die"
+private const val dice_20 = "D20"
+private const val dice_4 = "D4"
+private const val dice_8 = "D8"
+private const val dice_10 = "D10"
+private const val dice_12 = "D12"
+private const val dice_6_biased = "D6 Biased"
+private const val dice_animals = "Die with Animals"
+private const val dice_colors = "Die with Colors"
 
 private const val image_frog = "Frog"
 private const val image_lion = "Lion"
@@ -94,36 +101,32 @@ fun getInitialDices(): List<Dice> {
     if (i == 4) {
       dices.add(
           Pair(
-              "4 sided",
+              dice_4,
               DiceDTO(
-                  name = "4 sided",
-                  backgroundColor = Color.Green.toArgb(),
-                  images = list.toList())))
+                  name = dice_4, backgroundColor = Color.Green.toArgb(), images = list.toList())))
     }
     if (i == 8) {
       dices.add(
           Pair(
-              "8 sided",
+              dice_8,
               DiceDTO(
-                  name = "8 sided",
-                  backgroundColor = Color.Magenta.toArgb(),
-                  images = list.toList())))
+                  name = dice_8, backgroundColor = Color.Magenta.toArgb(), images = list.toList())))
     }
     if (i == 10) {
       dices.add(
           Pair(
-              "10 sided",
+              dice_10,
               DiceDTO(
-                  name = "10 sided",
+                  name = dice_10,
                   backgroundColor = Color(0xFFFF0099).toArgb(),
                   images = list.toList())))
     }
     if (i == 12) {
       dices.add(
           Pair(
-              "12 sided",
+              dice_12,
               DiceDTO(
-                  name = "12 sided", backgroundColor = Color.Red.toArgb(), images = list.toList())))
+                  name = dice_12, backgroundColor = Color.Red.toArgb(), images = list.toList())))
     }
     if (i == 20) {
       dices.add(
@@ -139,9 +142,9 @@ fun getInitialDices(): List<Dice> {
   dices.addAll(
       listOf(
           Pair(
-              "Animals",
+              dice_animals,
               DiceDTO(
-                  name = "Animals",
+                  name = dice_animals,
                   images =
                       listOf(
                           (FaceDTO(image_monkey, 1, 1)),
@@ -149,9 +152,9 @@ fun getInitialDices(): List<Dice> {
                           (FaceDTO(image_frog, 1, 1)),
                       ))),
           Pair(
-              "Colors",
+              dice_colors,
               DiceDTO(
-                  name = "Colors",
+                  name = dice_colors,
                   images =
                       listOf(
                           (FaceDTO(image_red, 1, 1)),
@@ -175,9 +178,9 @@ fun getInitialDices(): List<Dice> {
                           (FaceDTO(contentDescription = image_one, 1, 1)),
                       ))),
           Pair(
-              "Biased Dice",
+              dice_6_biased,
               DiceDTO(
-                  name = "Biased Dice",
+                  name = dice_6_biased,
                   images =
                       listOf(
                           (FaceDTO(contentDescription = image_six, 5, 6)),

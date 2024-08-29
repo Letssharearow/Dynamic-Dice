@@ -4,8 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ImageDTO(
-    var base64String: String = "",
     val contentDescription: String = "image",
+    var base64String: String = "",
     val tags: List<String> = listOf(),
 ) {
   override fun equals(other: Any?): Boolean {

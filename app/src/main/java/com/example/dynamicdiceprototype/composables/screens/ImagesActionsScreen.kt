@@ -16,7 +16,7 @@ import com.example.dynamicdiceprototype.DTO.ImageDTO
 fun ImagesActionsScreen(
     images: Map<ImageDTO, Int>,
     onDeleteImages: (Map<ImageDTO, Int>) -> Unit,
-    onCreateDice: () -> Unit
+    onCreateDice: (Map<ImageDTO, Int>) -> Unit,
 ) {
   Column(
       modifier = Modifier.fillMaxSize(),
@@ -32,7 +32,7 @@ fun ImagesActionsScreen(
         }
 
         Button(
-            onClick = onCreateDice,
+            onClick = { onCreateDice(images) },
             modifier = Modifier.padding(top = 16.dp),
         ) {
           Text(text = "Create Dice", color = Color.White)

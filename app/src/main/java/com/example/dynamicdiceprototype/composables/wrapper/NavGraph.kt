@@ -102,13 +102,12 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           faces =
               viewModel.imageMap.values.filter {
                 it.contentDescription != "image"
-              }, // TODO this filters images that were null or threw an error on firebase, maybe a
-          // better handling for that, because "image" seems to be hardcoded
+              }, // TODO this filters images that were null in datastore "image" is the default
+          // value
           color = Color.Transparent,
           initialValue = emptyMap(),
           addNumber = false,
-          onFacesSelectionClick = { // TODO Consider using same datatype (map probably) for
-            // everything)
+          onFacesSelectionClick = {
             viewModel.changeSelectedImages(it)
             navController.navigate(Screen.ImagesActions.route)
             headerViewModel.changeHeaderText("Image actions")
@@ -117,10 +116,19 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
     composable(route = Screen.ImagesActions.route) {
       ImagesActionsScreen(
           images = viewModel.selectedImages,
-          onCreateDice = {},
+          onCreateDice = {
+            viewModel.createNewDice()
+            viewModel.setSelectedFaces(it)
+            navController.navigate(DicesScreen.EditDice.route)
+            headerViewModel.changeHeaderText(
+                "Make Final changes") // TODO find better way to handle HeaderText, because this is
+            // duplicate code from CreateDiceNavGraph
+          },
           onDeleteImages = {
             viewModel.deleteImages(it)
-            navController.navigate(Screen.Images.route)
+            navController.navigate(Screen.SaveImage.route)
+            Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show()
+            headerViewModel.changeHeaderText("Add Images")
           })
     }
     composable(route = Screen.DiceGroups.route) {
