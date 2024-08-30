@@ -251,8 +251,11 @@ class DiceViewModel(
   // Dice Menu Actions end
 
   fun selectDice(dice: Dice) {
-    countRolls = 0
-    diceGroups[temp_group_id]?.let { saveGroup(it.copy(dices = mapOf(dice.id to 1))) }
+    resetRollingScreen()
+    diceGroups[temp_group_id]?.let {
+      saveGroup(it.copy(dices = mapOf(dice.id to 1)))
+      setNewCurrentDices(mapOf(dice to 1))
+    }
   }
 
   // Dice end
@@ -266,7 +269,7 @@ class DiceViewModel(
 
   fun setTempGroupRandom(): String {
     val randomGroup = DiceGroup.random(dices = dices.keys)
-    saveDiceGroup(randomGroup)
+    setTempGroup(randomGroup)
     return randomGroup.name
   }
 
@@ -339,19 +342,23 @@ class DiceViewModel(
 
   // group Menu Actions end
 
-  fun saveDiceGroup(group: DiceGroup) {
+  fun setTempGroup(group: DiceGroup) {
     val tempGroup = diceGroups[temp_group_id]!!
     saveGroup(group.copy(id = tempGroup.id, name = tempGroup.name))
   }
 
   fun selectDiceGroup(groupId: String) {
-    countRolls = 0
+    val diceGroup = diceGroups[groupId]
+    diceGroup?.let { selectDiceGroup(it) }
+  }
+
+  fun selectDiceGroup(group: DiceGroup) {
+    resetRollingScreen()
     if (dices.isEmpty()) {
       return
     }
-    diceGroups[groupId]?.dices?.let { diceMap ->
-      setNewCurrentDices(diceMap.mapKeys { dices[it.key] ?: Dice() })
-    }
+    setTempGroup(group)
+    setNewCurrentDices(group.dices.mapKeys { dices[it.key] ?: Dice() })
   }
 
   // Dice Group end
@@ -426,7 +433,7 @@ class DiceViewModel(
     currentSum = 0
     currentDices =
         currentDices.map { currentDice ->
-          if (dice == currentDice && dice.diceLockState != DiceLockState.LOCKED) {
+          if (dice === currentDice && dice.diceLockState != DiceLockState.LOCKED) {
             dice.roll().also { currentSum += it.current?.value ?: 0 }
           } else {
             currentDice.also { currentSum += it.current?.value ?: 0 }
@@ -449,8 +456,11 @@ class DiceViewModel(
     saveToHistory(countRolls, currentSum, currentDices)
   }
 
-  fun resetCurrentDices() {
+  fun resetRollingScreen() {
+    history.add(
+        0, RollState(rollId = -1, sum = 0, unlockedDicesCount = 0, diceStates = emptyList()))
     countRolls = 0
+    currentSum = 0
     currentDices = currentDices.map { it.reset() }
   }
 

@@ -28,14 +28,14 @@ fun ImagesActionsScreen(
             onClick = { onDeleteImages(images) },
             modifier = Modifier.padding(top = 16.dp),
         ) {
-          Text(text = "Delete Images", color = Color.White)
+          Text(text = "Delete Selection", color = Color.White)
         }
 
         Button(
             onClick = { onCreateDice(images) },
             modifier = Modifier.padding(top = 16.dp),
         ) {
-          Text(text = "Create die", color = Color.White)
+          Text(text = "Create die from Selection", color = Color.White)
         }
       }
 }

@@ -33,7 +33,7 @@ fun AlertBox(
 }
 
 @Composable
-fun <T> PupMenuWithAlert(
+fun <T> PopMenuWithAlert(
     actionItem: T,
     items: List<MenuItem<T>>,
     showMenu: Boolean,

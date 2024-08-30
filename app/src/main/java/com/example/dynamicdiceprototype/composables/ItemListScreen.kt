@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.common.ArrangedColumn
-import com.example.dynamicdiceprototype.composables.common.PupMenuWithAlert
+import com.example.dynamicdiceprototype.composables.common.PopMenuWithAlert
 import com.example.dynamicdiceprototype.composables.createdice.DiceCard
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupItem
 import com.example.dynamicdiceprototype.data.Dice
@@ -89,7 +89,7 @@ fun <T> ItemListScreen(
                   view(item, isCompact, Modifier.fillMaxSize())
 
                   Box(Modifier.align(Alignment.BottomEnd)) {
-                    PupMenuWithAlert(
+                    PopMenuWithAlert(
                         actionItem = item,
                         items = menuActions,
                         showMenu = showMenu,

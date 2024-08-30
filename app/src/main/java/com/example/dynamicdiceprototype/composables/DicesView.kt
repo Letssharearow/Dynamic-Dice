@@ -6,15 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,9 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
-import com.example.dynamicdiceprototype.composables.common.PupMenuWithAlert
-import com.example.dynamicdiceprototype.composables.createdice.DicePreview
+import com.example.dynamicdiceprototype.composables.common.PopMenuWithAlert
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceLockState
 import com.example.dynamicdiceprototype.data.Face
@@ -46,7 +40,6 @@ fun DicesView(
     states: List<Face> = listOf(), // TODO: append CurrentDices Class with States List
     viewModel: DiceViewModel? = null
 ) {
-  var showAddDiceDialog by remember { mutableStateOf(false) }
   OneScreenGrid<Dice>(dices, minSize = MAIN_SCREEN_DICE_MIN_SIZE, modifier) { dice, maxSize ->
     var showMenu by remember { mutableStateOf(false) }
     Box(
@@ -74,7 +67,7 @@ fun DicesView(
             }
           }
           Box(Modifier.align(Alignment.Center)) {
-            PupMenuWithAlert(
+            PopMenuWithAlert(
                 actionItem = dice,
                 items =
                     listOf(
@@ -89,71 +82,12 @@ fun DicesView(
                         MenuItem(
                             text = "Duplicate this die",
                             callBack = { viewModel?.duplicateToCurrentDices(mapOf(it to 1)) }),
-                        MenuItem(
-                            text = "Add / Remove dice", callBack = { showAddDiceDialog = true }),
-                        MenuItem(
-                            text = "Lock all dice",
-                            callBack = { viewModel?.setCurrentDicesState(DiceLockState.LOCKED) }),
-                        MenuItem(
-                            text = "Unlock all dice",
-                            callBack = { viewModel?.setCurrentDicesState(DiceLockState.UNLOCKED) }),
-                        MenuItem(
-                            text = "Reset all dice", callBack = { viewModel?.resetCurrentDices() }),
                     ),
                 showMenu = showMenu,
                 onDismiss = { showMenu = false },
             )
           }
         }
-  }
-  ItemSelectionDialog(
-      showDialog = showAddDiceDialog,
-      selectables = viewModel?.dices?.values?.toList() ?: listOf(),
-      onDismiss = { showAddDiceDialog = false },
-      onItemSelected = {
-        viewModel?.setNewCurrentDices(it)
-        showAddDiceDialog = false
-      },
-      initialValue = viewModel?.currentDices ?: listOf())
-}
-
-@Composable
-fun ItemSelectionDialog(
-    showDialog: Boolean,
-    selectables: List<Dice>,
-    onDismiss: () -> Unit,
-    initialValue: List<Dice>,
-    onItemSelected: (Map<Dice, Int>) -> Unit
-) {
-  if (showDialog) {
-    val initialValueMapped by remember {
-      val newDices = mutableMapOf<Dice, Int>()
-      initialValue.forEach { multibleDice ->
-        val actualDice = selectables.find { it.id == multibleDice.id }
-        if (actualDice != null) newDices[actualDice] = newDices[actualDice]?.plus(1) ?: 1
-      }
-      mutableStateOf(newDices.toMap())
-    }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = "Add or Remove dice") },
-        text = {
-          SelectItemsGrid<Dice>(
-              selectables = selectables,
-              onSaveSelection = onItemSelected,
-              getId = { it.name },
-              itemMinWidthPixel = 400f,
-              initialValue = initialValueMapped,
-              view = { dice, modifier, maxWidth, _ ->
-                DicePreview(
-                    dice = dice, facesSum = dice.faces.sumOf { it.weight }, Modifier.size(maxWidth))
-              },
-              minValue = 1,
-          )
-        },
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-        confirmButton = { Button(onClick = onDismiss) { Text("Cancel") } },
-        modifier = Modifier.fillMaxHeight(0.95f).fillMaxWidth(0.98f))
   }
 }
 

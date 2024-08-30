@@ -7,7 +7,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -72,7 +71,9 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
       }
 
       LaunchedEffect(viewModel.dices, viewModel.diceGroups) {
-        viewModel.selectDiceGroup(temp_group_id)
+        if (viewModel.currentDices.isEmpty()) {
+          viewModel.selectDiceGroup(temp_group_id)
+        }
       }
       LandingPage(
           dices = viewModel.currentDices,
@@ -105,6 +106,8 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           color = Color.Transparent,
           initialValue = emptyMap(),
           addNumber = false,
+          minValue = 1,
+          showSlider = false,
           onFacesSelectionClick = {
             viewModel.changeSelectedImages(it)
             navController.navigate(Screen.ImagesActions.route)
@@ -135,7 +138,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           groups = viewModel.diceGroups.values.toList(),
           onSelectGroup = { group ->
             try {
-              viewModel.saveDiceGroup(group)
+              viewModel.selectDiceGroup(group)
               navController.navigate(Screen.MainScreen.route)
               headerViewModel.changeHeaderText(group.name)
             } catch (e: NullPointerException) {
