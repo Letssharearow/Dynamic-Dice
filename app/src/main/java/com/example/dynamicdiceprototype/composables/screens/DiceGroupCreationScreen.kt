@@ -61,7 +61,7 @@ fun transformDiceGroup(diceGroupPair: DiceGroup?, dices: List<Dice>): Map<Dice, 
     val dice =
         dices.find { it.id == diceId }
             ?: throw DiceNotFoundException(
-                "Dice with id $diceId could not be found in the dices List $dices")
+                "Die with id $diceId could not be found in the dice List $dices")
     diceMap[dice] = count
   }
 

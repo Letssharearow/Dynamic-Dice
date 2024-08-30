@@ -37,15 +37,11 @@ fun DiceButtonM3(onRollClicked: () -> Unit, modifier: Modifier = Modifier) {
       modifier = modifier) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(50.dp)
-                .background(MaterialTheme.colorScheme.primary)) {
+            modifier = Modifier.size(50.dp).background(MaterialTheme.colorScheme.primary)) {
               Image(
                   painter = painterResource(id = R.drawable.rolling_dices_transparent),
-                  contentDescription = "rolling dices button",
-                  modifier = Modifier
-                      .size(100.dp)
-                      .graphicsLayer { rotationZ = rotation })
+                  contentDescription = "rolling dice button",
+                  modifier = Modifier.size(100.dp).graphicsLayer { rotationZ = rotation })
             }
       }
 }
@@ -53,7 +49,5 @@ fun DiceButtonM3(onRollClicked: () -> Unit, modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun Preview() {
-    DynamicDicePrototypeTheme {
-        DiceButtonM3(onRollClicked = {})
-    }
+  DynamicDicePrototypeTheme { DiceButtonM3(onRollClicked = {}) }
 }

@@ -170,7 +170,7 @@ fun SaveImageScreen(
                           disabledContentColor = MaterialTheme.colorScheme.onError),
                   onClick = onNavigateToDiceCreation,
                   modifier = Modifier.padding(16.dp)) {
-                    Text("Create Dice")
+                    Text("Create die")
                   }
             }
           }

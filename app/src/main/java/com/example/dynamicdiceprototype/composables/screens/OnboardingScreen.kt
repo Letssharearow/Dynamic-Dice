@@ -22,8 +22,8 @@ fun OnboardingScreen(modifier: Modifier = Modifier) {
   val textHeader = arrayOf("Getting Started", "Getting Started", "Getting Started", "done")
   val textDescription =
       arrayOf(
-          "make dices with custom images, roll them and create your own game ideas",
-          "Try holding actions to edit, duplicate or delete dices and dice groups",
+          "make dice with custom images, roll them and create your own game ideas",
+          "Try holding actions to edit, duplicate or delete dice and dice groups",
           "Customize your group with states",
           "")
   val pagerState = rememberPagerState(pageCount = { textHeader.size })

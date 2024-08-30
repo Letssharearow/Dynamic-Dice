@@ -141,7 +141,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
               navController.navigate(Screen.MainScreen.route)
               headerViewModel.changeHeaderText(group.name)
             } catch (e: NullPointerException) {
-              Log.e(TAG, "One Dice is probably not found in the global dices ${e.message}")
+              Log.e(TAG, "One die is probably not found in the global dice ${e.message}")
             }
           },
           menuActions =

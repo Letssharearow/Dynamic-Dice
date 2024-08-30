@@ -36,7 +36,7 @@ fun TemplateSelectionScreen(
   if (showAlert) {
     AlertDialog(
         onDismissRequest = { showAlert = false },
-        title = { Text("Create Numbered Dice") },
+        title = { Text("Create Numbered dice") },
         text = {
           Column {
             Text("Enter the range for the numbered dice:")

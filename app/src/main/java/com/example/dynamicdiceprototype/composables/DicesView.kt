@@ -79,27 +79,26 @@ fun DicesView(
                 items =
                     listOf(
                         MenuItem(
-                            text = "Roll This Dice", callBack = { viewModel?.rollSingleDice(it) }),
+                            text = "Roll This die", callBack = { viewModel?.rollSingleDice(it) }),
                         MenuItem(
                             text =
                                 (if (dice.diceLockState == DiceLockState.UNLOCKED) "Lock"
                                     else "Unlock")
-                                    .plus(" this Dice"),
+                                    .plus(" this die"),
                             callBack = { viewModel?.lockDice(dice) }),
                         MenuItem(
-                            text = "Duplicate this Dice",
+                            text = "Duplicate this die",
                             callBack = { viewModel?.duplicateToCurrentDices(mapOf(it to 1)) }),
                         MenuItem(
-                            text = "Add / Remove Dices", callBack = { showAddDiceDialog = true }),
+                            text = "Add / Remove dice", callBack = { showAddDiceDialog = true }),
                         MenuItem(
-                            text = "Lock all Dices",
+                            text = "Lock all dice",
                             callBack = { viewModel?.setCurrentDicesState(DiceLockState.LOCKED) }),
                         MenuItem(
-                            text = "Unlock all Dices",
+                            text = "Unlock all dice",
                             callBack = { viewModel?.setCurrentDicesState(DiceLockState.UNLOCKED) }),
                         MenuItem(
-                            text = "Reset all Dices",
-                            callBack = { viewModel?.resetCurrentDices() }),
+                            text = "Reset all dice", callBack = { viewModel?.resetCurrentDices() }),
                     ),
                 showMenu = showMenu,
                 onDismiss = { showMenu = false },

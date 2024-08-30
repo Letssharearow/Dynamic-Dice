@@ -53,7 +53,7 @@ fun EditDiceScreen(
     showRerollButton: Boolean = false,
     onEdit: (name: String, color: Color) -> Unit
 ) {
-  Log.d("EditDiceScreen", "dice: $dice")
+  Log.d("EditDiceScreen", "die: $dice")
   var name by remember { mutableStateOf(dice.name) }
   var color by remember { mutableStateOf(dice.backgroundColor) }
   var isColorPickerOpen by remember { mutableStateOf(false) }
@@ -74,7 +74,7 @@ fun EditDiceScreen(
               SingleLineTextInput(
                   text = name,
                   onValueChange = { name = it },
-                  label = "Dice Name",
+                  label = "Die Name",
                   isReadOnly = false,
                   isError = name.isEmpty(),
                   modifier = Modifier.padding(8.dp).fillMaxWidth(0.5F))
@@ -169,7 +169,7 @@ fun EditDiceScreen(
     Row(horizontalArrangement = Arrangement.SpaceAround) {
       ContinueButton(onClick = { if (name.isNotEmpty()) onEdit(name, color) }, text = "Edit Faces")
       ContinueButton(
-          onClick = { if (name.isNotEmpty()) onSaveDice(name, color) }, text = "Save Dice")
+          onClick = { if (name.isNotEmpty()) onSaveDice(name, color) }, text = "Save die")
     }
   }
 }

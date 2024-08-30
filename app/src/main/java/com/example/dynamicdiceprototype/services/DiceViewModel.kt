@@ -108,7 +108,7 @@ class DiceViewModel(
           .collect { (dicesFlow, imagesFlow) ->
             Log.d(
                 TAG,
-                "ViewModel populatedDicesWithImages flow: dices keys ${dicesFlow.dices.keys} images Size: ${imagesFlow.images.keys.size}")
+                "ViewModel populatedDicesWithImages flow: dice keys ${dicesFlow.dices.keys} images Size: ${imagesFlow.images.keys.size}")
             dices =
                 dicesFlow.dices.mapValues { diceDTOEntry ->
                   diceDTOEntry.value.toDice(diceDTOEntry.key, imagesFlow.images)

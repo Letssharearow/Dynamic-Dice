@@ -20,8 +20,8 @@ enum class PreferenceKey(
   ItemSelctionDebounceTime(1000, "Debounce Time for Item Selection"),
   SettingsHeader("Settings", "SettingsHeader"),
   LastDiceGroup("Kniffel", "Last Dice Group"),
-  IsDicesViewCompact(false, "Is Dices View Compact"),
-  IsDicesGroupViewCompact(true, "Is Dices Group View Compact"),
+  IsDicesViewCompact(false, "Is Dice View Compact"),
+  IsDicesGroupViewCompact(true, "Is Dice Groups View Compact"),
   hasOnboardingCompleted(true, "Has Onboarding Completed"),
 } // TODO find better default value type solution to use default value when accessing it to set as
 

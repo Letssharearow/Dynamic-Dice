@@ -193,7 +193,7 @@ fun RollStateRow(rollState: RollState) {
                     Text(text = "${rollState.rollId}")
                   }
               Text(text = "Sum: ${rollState.sum}")
-              Text(text = "dices: ${rollState.unlockedDicesCount}")
+              Text(text = "Dice: ${rollState.unlockedDicesCount}")
               IconButton(
                   onClick = { expanded = !expanded },
                   modifier = Modifier.padding(end = 8.dp) // Add padding for IconButton
@@ -217,24 +217,26 @@ fun RollStateRow(rollState: RollState) {
                   Row(
                       modifier = Modifier.fillMaxWidth(),
                       horizontalArrangement = Arrangement.SpaceBetween) {
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier =  Modifier.weight(2f)) {
-                          if (diceState.locked)
-                              Icon(
-                                  imageVector = FontAwesomeIcons.Solid.Lock,
-                                  contentDescription = "lock",
-                                  modifier = Modifier.size(16.dp),
-                              )
-                          else
-                              Icon(
-                                  imageVector = FontAwesomeIcons.Solid.LockOpen,
-                                  contentDescription = "lock",
-                                  modifier = Modifier.size(16.dp),
-                              )
-                          Text(
-                              text = diceState.dice.plus(": ${diceState.faceName}"),
-                              modifier = Modifier.padding(start = 2.dp),
-                              overflow = TextOverflow.Ellipsis)
-                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(2f)) {
+                              if (diceState.locked)
+                                  Icon(
+                                      imageVector = FontAwesomeIcons.Solid.Lock,
+                                      contentDescription = "lock",
+                                      modifier = Modifier.size(16.dp),
+                                  )
+                              else
+                                  Icon(
+                                      imageVector = FontAwesomeIcons.Solid.LockOpen,
+                                      contentDescription = "lock",
+                                      modifier = Modifier.size(16.dp),
+                                  )
+                              Text(
+                                  text = diceState.dice.plus(": ${diceState.faceName}"),
+                                  modifier = Modifier.padding(start = 2.dp),
+                                  overflow = TextOverflow.Ellipsis)
+                            }
                         if (diceState.value != null)
                             Text(
                                 text = "${diceState.value} (value)",

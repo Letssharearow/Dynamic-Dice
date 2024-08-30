@@ -30,7 +30,7 @@ fun NavGraphBuilder.diceGraph(
           onCreateNewDice = {
             diceViewModel.createNewDice()
             navController.navigate(DicesScreen.SelectFaces.route)
-            headerViewModel.changeHeaderText("Select faces of Dice")
+            headerViewModel.changeHeaderText("Select faces of die")
           },
           onCreateRandomDice = {
             diceViewModel.createRandomDice()
@@ -43,7 +43,7 @@ fun NavGraphBuilder.diceGraph(
           menuActions =
               listOf(
                   MenuItem(
-                      text = "Edit dice",
+                      text = "Edit die",
                       callBack = {
                         try {
                           diceViewModel.editDice(it)
@@ -54,11 +54,11 @@ fun NavGraphBuilder.diceGraph(
                       },
                   ),
                   MenuItem(
-                      text = "Duplicate dice",
+                      text = "Duplicate die",
                       callBack = { diceViewModel.duplicateDice(it) },
                   ),
                   MenuItem(
-                      text = "Delete dice",
+                      text = "Delete die",
                       callBack = {
                         try {
                           diceViewModel.removeDice(it)
@@ -69,7 +69,7 @@ fun NavGraphBuilder.diceGraph(
                       alert =
                           AlterBoxProperties(
                               description =
-                                  "Pressing Confirm will Delete the Dice and remove all occurences in any dice Group")),
+                                  "Pressing Confirm will Delete the die and remove all occurences in any dice Group")),
               )) // TODO implement undoing feature, haha
     }
     composable(route = DicesScreen.SelectFaces.route) {

@@ -35,7 +35,7 @@ fun ImagesActionsScreen(
             onClick = { onCreateDice(images) },
             modifier = Modifier.padding(top = 16.dp),
         ) {
-          Text(text = "Create Dice", color = Color.White)
+          Text(text = "Create die", color = Color.White)
         }
       }
 }

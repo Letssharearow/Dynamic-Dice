@@ -204,8 +204,8 @@ fun getInitialDiceGroups(): List<DiceGroup> {
               dices = mapOf(dice_standard to 5),
           ),
           DiceGroup(
-              name = "3 dice with states (click dice)",
-              id = "3 dice with states click dice",
+              name = "3 dice with states (click die)",
+              id = "3 dice with states click die",
               states = listOf(image_frog, image_lion, image_monkey),
               dices = mapOf(dice_20 to 3),
           ),
