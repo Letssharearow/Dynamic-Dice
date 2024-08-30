@@ -14,6 +14,7 @@ enum class PreferenceKey(
   ItemSelectionDiceGroupMaxSize(100, "Max Dice Groups"),
   ItemSelectionDiceWeightMaxSize(500, "Max Dice Weights"),
   ItemSelectionDiceValueMaxSize(5000, "Max Dice Values"),
+  CreateNumberedDiceMaxEndValue(100, "Numbered Die Max End Value"),
   ItemSelectionInitialSize(15, "Inital Size on Item selection"),
   MenuDrawerMaxWidthFraction(75, "Menu Drawer Max Width Fraction"),
   ItemSelectionOneScreenGridMinWidth(400, "One Screen Grid Min Width"),
