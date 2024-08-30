@@ -49,6 +49,7 @@ import com.example.dynamicdiceprototype.composables.SingleLineTextInput
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Regular
 import compose.icons.fontawesomeicons.regular.Images
+import compose.icons.fontawesomeicons.regular.PlusSquare
 import java.io.InputStream
 
 @Composable
@@ -146,12 +147,15 @@ fun SaveImageScreen(
           Column(horizontalAlignment = Alignment.CenterHorizontally) {
             IconButton(
                 onClick = { imagePickerLauncher.launch("image/*") },
-                modifier =
-                    Modifier.padding(16.dp).weight(1f).fillMaxWidth(0.66f).fillMaxWidth(0.66f)) {
+                modifier = Modifier.padding(16.dp).weight(1f).fillMaxWidth(0.66f)) {
                   Icon(
                       imageVector = FontAwesomeIcons.Regular.Images,
                       contentDescription = "Save Image",
-                  )
+                      modifier =
+                          Modifier.fillMaxWidth(0.66f)
+                              .background(
+                                  MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp))
+                              .padding(horizontal = 16.dp, vertical = 6.dp))
                 }
             Spacer(modifier = Modifier.height(16.dp))
             Row(
