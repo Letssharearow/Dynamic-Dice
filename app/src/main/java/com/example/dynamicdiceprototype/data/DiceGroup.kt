@@ -8,7 +8,7 @@ import weightedRandom
 @Serializable
 data class DiceGroup(
     var id: String = "",
-    var name: String = "group",
+    var name: String = "",
     val dices: Map<String, Int> = mapOf(),
     val states: List<String> = listOf()
 ) {

@@ -84,7 +84,7 @@ class DiceViewModel(
       userConfigStore.data.collect {
         Log.d(
             TAG,
-            "ViewModel collectUserConfig flow: groups key ${it.diceGroups.values.map { group -> group.name }}")
+            "ViewModel collectUserConfig flow: group names ${it.diceGroups.values.map { group -> group.name }}")
         diceGroups = it.diceGroups
         hasLoadedUser = true
         if (!it.diceGroups.keys.contains(temp_group_id)) {
@@ -150,7 +150,7 @@ class DiceViewModel(
   }
 
   fun createNewDice() {
-    diceInEdit = Dice(name = "Change Later")
+    diceInEdit = Dice(name = "")
     isDiceEditMode = false
     showRerollButton = false
   }

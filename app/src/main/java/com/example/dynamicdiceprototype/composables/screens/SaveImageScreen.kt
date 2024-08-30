@@ -118,6 +118,7 @@ fun SaveImageScreen(
                                           })
                                     },
                                     label = "Name",
+                                    isError = imageDTO.contentDescription.isEmpty(),
                                     modifier = Modifier.weight(1f))
                               } else {
                                 Text(text = imageDTO.contentDescription)

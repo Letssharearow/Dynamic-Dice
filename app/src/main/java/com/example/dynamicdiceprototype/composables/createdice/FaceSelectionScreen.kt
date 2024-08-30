@@ -25,6 +25,9 @@ fun SelectFacesScreen(
     initialValue: Map<ImageDTO, Int>,
     color: Color = Color.Gray,
     addNumber: Boolean = true,
+    showSlider: Boolean = true,
+    showNumberCircle: Boolean = true,
+    minValue: Int = 0,
     onFacesSelectionClick: (Map<ImageDTO, Int>) -> Unit
 ) {
   val maxSize =
@@ -51,6 +54,8 @@ fun SelectFacesScreen(
             image.tags.find { it.contains(filter, ignoreCase = true) } != null
       },
       initialValue = initialValue,
+      showSlider = showSlider,
+      showNumberCircle = showNumberCircle,
       handleItemClick = { image ->
         if (image == mutableFaces.first() && addNumber) {
           val mutableList = mutableFaces.toMutableList()
@@ -75,7 +80,7 @@ fun SelectFacesScreen(
             modifier = modifier.fillMaxSize(),
             color = color)
       },
-      minValue = 0)
+      minValue = minValue)
 }
 
 @Preview(device = Devices.PIXEL_TABLET)

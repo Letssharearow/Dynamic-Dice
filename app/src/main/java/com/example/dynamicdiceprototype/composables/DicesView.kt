@@ -79,7 +79,7 @@ fun DicesView(
                 items =
                     listOf(
                         MenuItem(
-                            text = "Roll This die", callBack = { viewModel?.rollSingleDice(it) }),
+                            text = "Roll this die", callBack = { viewModel?.rollSingleDice(it) }),
                         MenuItem(
                             text =
                                 (if (dice.diceLockState == DiceLockState.UNLOCKED) "Lock"

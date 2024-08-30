@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -18,7 +17,6 @@ import androidx.navigation.compose.composable
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.composables.LandingPage
-import com.example.dynamicdiceprototype.composables.common.AlertBox
 import com.example.dynamicdiceprototype.composables.createdice.DicesScreen
 import com.example.dynamicdiceprototype.composables.createdice.SelectFacesScreen
 import com.example.dynamicdiceprototype.composables.createdice.diceGraph
@@ -182,7 +180,6 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           })
     }
     composable(route = Screen.CreateDiceGroup.route) {
-      var openDialog by remember { mutableStateOf(false) }
       LaunchedEffect(true) { headerViewModel.changeHeaderText("Create New Group") }
       DiceGroupCreationScreen(
           dices = viewModel.dices.values.toList(),
@@ -193,21 +190,13 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
                 viewModel.diceGroups
                     .filter { it.value.name.equals(name, ignoreCase = true) }
                     .isNotEmpty()) {
-              openDialog = true
+              viewModel.saveGroupInEdit()
+              navController.navigate(Screen.CreateDiceGroupStates.route)
             } else {
               navController.navigate(Screen.CreateDiceGroupStates.route)
             }
           },
       )
-      AlertBox(
-          isOpen = openDialog,
-          text = "Name Already Exists, are you sure you want to overwrite it?",
-          onDismiss = { openDialog = false },
-          conConfirm = {
-            viewModel.saveGroupInEdit()
-            openDialog = false
-            navController.navigate(Screen.CreateDiceGroupStates.route)
-          })
     }
     composable(route = Screen.CreateDiceGroupStates.route) {
       LaunchedEffect(true) { headerViewModel.changeHeaderText("Select optional Cycling State") }
@@ -221,6 +210,8 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           // better handling for that, because "image" seems to be hardcoded
           color = Color.Transparent,
           addNumber = false,
+          showSlider = false,
+          minValue = 1,
           initialValue =
               viewModel.groupInEdit
                   ?.states

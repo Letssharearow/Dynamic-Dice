@@ -35,6 +35,7 @@ fun DiceGroupCreationScreen(
         onValueChange = { name = it },
         label = "Dice Group Name",
         isReadOnly = false,
+        isError = name.isEmpty(),
         modifier = Modifier.padding(8.dp))
 
     // TODO Improve so that the user can create a sorting for the dices (e.g. they are sorted the

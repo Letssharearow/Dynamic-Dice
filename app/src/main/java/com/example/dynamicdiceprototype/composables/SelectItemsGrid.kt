@@ -48,6 +48,9 @@ fun <T> SelectItemsGrid(
     modifier: Modifier = Modifier,
     initialSize: Int = 10,
     maxSize: Int = 100,
+    showSlider: Boolean = true,
+    showNumberCircle: Boolean = true,
+    buttonText: String = "continue",
     applyFilter: ((T, String) -> Boolean)? = null,
     itemMinWidthPixel: Float? = null,
     initialValue: Map<T, Int> = mapOf(),
@@ -109,10 +112,12 @@ fun <T> SelectItemsGrid(
 
                 view(item, Modifier, maxWidthDp, selectedItem)
                 selectedItem?.let {
-                  NumberCircle(
-                      text = selectedItem.toString(),
-                      fontSize = 24.sp,
-                      modifier = Modifier.align(Alignment.TopStart))
+                  if (showNumberCircle) {
+                    NumberCircle(
+                        text = selectedItem.toString(),
+                        fontSize = 24.sp,
+                        modifier = Modifier.align(Alignment.TopStart))
+                  }
                 }
                 Box(
                     Modifier.align(Alignment.BottomCenter)
@@ -129,44 +134,48 @@ fun <T> SelectItemsGrid(
                               initialSizeUpdated.coerceAtMost(maxSize - sumOfSelection + it))
                         }
 
-                        Slider(
-                            value = it.toFloat(),
-                            onValueChange = { value ->
-                              val selectedCurrentItem = selectedItems[item]
-                              selectedCurrentItem?.let { currentCount ->
-                                val newCount = value.toInt()
-                                val newSum = sumOfSelection - currentCount + newCount
-                                if (newSum <= maxSize) {
-                                  selectedItems[item] = newCount
-                                }
-                                debounceJob?.cancel()
-                                debounceJob =
-                                    GlobalScope.launch {
-                                      delay(debounceDelay.toLong())
-                                      mutableSize =
-                                          when {
-                                            newCount == mutableSize -> {
-                                              (mutableSize * 2).coerceAtMost(
-                                                  maxSize - sumOfSelection + currentCount)
+                        if (showSlider) {
+                          Slider(
+                              value = it.toFloat(),
+                              onValueChange = { value ->
+                                val selectedCurrentItem = selectedItems[item]
+                                selectedCurrentItem?.let { currentCount ->
+                                  val newCount = value.toInt()
+                                  val newSum = sumOfSelection - currentCount + newCount
+                                  if (newSum <= maxSize) {
+                                    selectedItems[item] = newCount
+                                  }
+                                  debounceJob?.cancel()
+                                  debounceJob =
+                                      GlobalScope.launch {
+                                        delay(debounceDelay.toLong())
+                                        mutableSize =
+                                            when {
+                                              newCount == mutableSize -> {
+                                                (mutableSize * 2).coerceAtMost(
+                                                    maxSize - sumOfSelection + currentCount)
+                                              }
+                                              newCount < initialSizeUpdated -> initialSizeUpdated
+                                              else -> mutableSize
                                             }
-                                            newCount < initialSizeUpdated -> initialSizeUpdated
-                                            else -> mutableSize
-                                          }
-                                    }
-                              }
-                            },
-                            valueRange = 1f..mutableSize.toFloat().coerceAtLeast(1f),
-                            steps = (mutableSize - minValue).coerceAtLeast(minValue))
+                                      }
+                                }
+                              },
+                              valueRange = 1f..mutableSize.toFloat().coerceAtLeast(1f),
+                              steps = (mutableSize - minValue).coerceAtLeast(minValue))
+                        }
                       }
-                          ?: Text(
-                              text = getId(item),
-                              style = MaterialTheme.typography.bodyLarge,
-                              modifier = Modifier.align(Alignment.Center))
+                      if (!showSlider || selectedItem == null) {
+                        Text(
+                            text = getId(item),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.align(Alignment.Center))
+                      }
                     }
               }
         }
     ContinueButton(
-        onClick = { onSaveSelection(selectedItems) }, text = "Save Selection ($sumOfSelection)")
+        onClick = { onSaveSelection(selectedItems) }, text = "$buttonText ($sumOfSelection)")
   }
 }
 
@@ -177,7 +186,12 @@ private fun <T> FilterInput(
     onFilterChange: (String) -> Unit
 ) {
   applyFilter?.let { _ ->
-    SingleLineTextInput(text = filter, onValueChange = onFilterChange, label = "Filter")
+    SingleLineTextInput(
+        text = filter,
+        onValueChange = onFilterChange,
+        label = "Filter",
+        isError = false,
+        modifier = Modifier.padding(horizontal = 8.dp))
   }
 }
 

@@ -23,6 +23,6 @@ fun SingleLineTextInput(
       singleLine = true,
       readOnly = isReadOnly,
       modifier = modifier.fillMaxWidth(),
-      isError = isError || text.isEmpty(),
+      isError = isError,
   )
 }
