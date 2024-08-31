@@ -55,9 +55,13 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
     composable(route = Screen.TestScreen.route) { TestScreen() }
     composable(route = Screen.Settings.route) { SettingsScreen() }
     composable(route = Screen.Profile.route) {
+      LaunchedEffect(true) { headerViewModel.changeHeaderText("Profile") }
       ProfileScreen { navController.navigate(Screen.Settings.route) }
     }
     composable(route = Screen.MainScreen.route) {
+      LaunchedEffect(true) {
+        headerViewModel.changeHeaderText(viewModel.currentDiceGroupName ?: "Roll Dice")
+      }
       val states by remember {
         derivedStateOf {
           viewModel.diceGroups[temp_group_id]?.states?.map { imageKey ->
@@ -90,6 +94,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
     }
     diceGraph(viewModel, navController, headerViewModel)
     composable(route = Screen.SaveImage.route) {
+      LaunchedEffect(true) { headerViewModel.changeHeaderText("Add Images") }
       SaveImageScreen(
           context = context,
           onImagesSelected = { images ->
@@ -102,6 +107,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           })
     }
     composable(route = Screen.Images.route) {
+      LaunchedEffect(true) { headerViewModel.changeHeaderText("Images") }
       SelectFacesScreen(
           faces =
               viewModel.imageMap.values.filter {
@@ -116,25 +122,21 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           onFacesSelectionClick = {
             viewModel.changeSelectedImages(it)
             navController.navigate(Screen.ImagesActions.route)
-            headerViewModel.changeHeaderText("Image actions")
           })
     }
     composable(route = Screen.ImagesActions.route) {
+      LaunchedEffect(true) { headerViewModel.changeHeaderText("Images Actions") }
       ImagesActionsScreen(
           images = viewModel.selectedImages,
           onCreateDice = {
             viewModel.createNewDice()
             viewModel.setSelectedFaces(it)
             navController.navigate(DicesScreen.EditDice.route)
-            headerViewModel.changeHeaderText(
-                "Make Final changes") // TODO find better way to handle HeaderText, because this is
-            // duplicate code from CreateDiceNavGraph
           },
           onDeleteImages = {
             viewModel.deleteImages(it)
             navController.navigate(Screen.SaveImage.route)
             Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show()
-            headerViewModel.changeHeaderText("Add Images")
           })
     }
     composable(route = Screen.DiceGroups.route) {
@@ -145,7 +147,6 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
             try {
               viewModel.selectDiceGroup(group)
               navController.navigate(Screen.MainScreen.route)
-              headerViewModel.changeHeaderText(group.name)
             } catch (e: NullPointerException) {
               Log.e(TAG, "One die is probably not found in the global dice ${e.message}")
             }
@@ -158,7 +159,6 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
                         try {
                           viewModel.setGroupInEdit(it.id)
                           navController.navigate(Screen.CreateDiceGroup.route)
-                          headerViewModel.changeHeaderText(it.name)
                         } catch (e: DiceNotFoundException) {
                           e.printStackTrace()
                           Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
@@ -178,9 +178,8 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
                               "Pressing Confirm will Remove the Group entirely, there is no undoing")),
               ),
           onCreateRandomGroup = {
-            val name = viewModel.setTempGroupRandom()
+            viewModel.setTempGroupRandom()
             navController.navigate(Screen.MainScreen.route)
-            headerViewModel.changeHeaderText(name)
           },
           onCreateNewGroup = {
             viewModel.createNewGroup()
@@ -188,7 +187,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
           })
     }
     composable(route = Screen.CreateDiceGroup.route) {
-      LaunchedEffect(true) { headerViewModel.changeHeaderText("Create New Group") }
+      LaunchedEffect(true) { headerViewModel.changeHeaderText("Create Dice Group") }
       DiceGroupCreationScreen(
           dices = viewModel.dices.values.toList(),
           initialValue = viewModel.groupInEdit,

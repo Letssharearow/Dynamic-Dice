@@ -1,5 +1,6 @@
 package com.example.dynamicdiceprototype.composables.createdice
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -22,6 +23,7 @@ fun NavGraphBuilder.diceGraph(
 ) {
   navigation(route = DicesScreen.Dices.route, startDestination = DicesScreen.DicesList.route) {
     composable(route = DicesScreen.DicesList.route) {
+      LaunchedEffect(true) { headerViewModel.changeHeaderText("Dice") }
       TemplateSelectionScreen(
           dices = diceViewModel.dices.values.toList(),
           onSelectTemplate = {
@@ -32,7 +34,6 @@ fun NavGraphBuilder.diceGraph(
           onCreateNewDice = {
             diceViewModel.createNewDice()
             navController.navigate(DicesScreen.SelectFaces.route)
-            headerViewModel.changeHeaderText("Select faces of die")
           },
           onCreateRandomDice = {
             diceViewModel.createRandomDice()
@@ -75,6 +76,7 @@ fun NavGraphBuilder.diceGraph(
               )) // TODO implement undoing feature, haha
     }
     composable(route = DicesScreen.SelectFaces.route) {
+      LaunchedEffect(true) { headerViewModel.changeHeaderText("Set Faces and Values") }
       val facesWithNumber =
           diceViewModel.diceInEdit.faces
               .filter { it.contentDescription == imageDTO_number_contentDescription }
@@ -105,10 +107,10 @@ fun NavGraphBuilder.diceGraph(
           onFacesSelectionClick = {
             diceViewModel.setSelectedFaces(it)
             navController.navigate(DicesScreen.EditDice.route)
-            headerViewModel.changeHeaderText("Make Final changes")
           })
     }
     composable(route = DicesScreen.EditDice.route) {
+      LaunchedEffect(true) { headerViewModel.changeHeaderText("Edit Die") }
       EditDiceScreen(
           diceViewModel.diceInEdit,
           onEditFaces = { name, color ->

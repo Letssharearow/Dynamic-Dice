@@ -58,9 +58,9 @@ class DiceViewModel(
 
   private val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
+  var currentDiceGroupName by mutableStateOf<String?>(null)
 
   var imageMap by mutableStateOf<Map<String, ImageDTO>>(emptyMap())
-  var hasLoadedUser by mutableStateOf(false)
 
   // create Dice
   var diceInEdit by mutableStateOf<Dice>(Dice()) // TODO make nullable
@@ -264,6 +264,7 @@ class DiceViewModel(
   // Dice Menu Actions end
 
   fun selectDice(dice: Dice) {
+    currentDiceGroupName = dice.name
     resetRollingScreen()
     diceGroups[temp_group_id]?.let {
       saveGroup(it.copy(dices = mapOf(dice.id to 1)))
@@ -366,6 +367,7 @@ class DiceViewModel(
   }
 
   fun selectDiceGroup(group: DiceGroup) {
+    currentDiceGroupName = group.name
     resetRollingScreen()
     if (dices.isEmpty()) {
       return
