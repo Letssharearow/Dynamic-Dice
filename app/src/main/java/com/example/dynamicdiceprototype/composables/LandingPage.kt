@@ -18,10 +18,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,7 +44,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -113,14 +114,15 @@ fun LandingPage(
         var showAddDiceDialog by remember { mutableStateOf(false) }
         var showMenu by remember { mutableStateOf(false) }
         Column(modifier = if (showHistory) modifier.weight(1f) else Modifier) {
-          Row(
-              horizontalArrangement = Arrangement.SpaceAround,
+          Box(
               modifier =
                   Modifier.fillMaxWidth()
                       .background(color = MaterialTheme.colorScheme.primaryContainer)
-                      .padding(vertical = 8.dp),
-              verticalAlignment = Alignment.CenterVertically) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                      .padding(vertical = 8.dp, horizontal = 8.dp),
+          ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.align(Alignment.CenterStart)) {
                   Text(
                       text = "Sum: ${viewModel?.currentSum}",
                       style =
@@ -128,33 +130,40 @@ fun LandingPage(
                               color = Color.DarkGray,
                               fontWeight = FontWeight.Bold,
                               fontSize = MaterialTheme.typography.bodyLarge.fontSize))
-                  Text(
-                      text = if (showHistory) "hide history" else "show history",
-                      style =
-                          TextStyle(
-                              color = Color.DarkGray, textDecoration = TextDecoration.Underline),
-                      modifier = Modifier.padding(top = 2.dp).clickable { showMenu = true })
+                  Button(
+                      onClick = { showMenu = true },
+                      shape = RoundedCornerShape(12.dp),
+                      colors =
+                          ButtonDefaults.buttonColors(
+                              containerColor = MaterialTheme.colorScheme.secondary)) {
+                        Text(text = "Actions", modifier = Modifier.padding(top = 2.dp))
+                      }
                 }
-
-                DiceButtonM3(
-                    onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                  Text(
-                      text = "Rolls: ${viewModel?.countRolls}",
-                      style =
-                          TextStyle(
-                              color = Color.DarkGray,
-                              fontWeight = FontWeight.Bold,
-                              fontSize = MaterialTheme.typography.bodyLarge.fontSize))
-                  Text(
-                      text = if (showHistory) "hide history" else "show history",
-                      style =
-                          TextStyle(
-                              color = Color.DarkGray, textDecoration = TextDecoration.Underline),
-                      modifier =
-                          Modifier.padding(top = 2.dp).clickable { showHistory = !showHistory })
-                }
-              }
+            Box(modifier = Modifier.align(Alignment.Center), contentAlignment = Alignment.Center) {
+              DiceButtonM3(
+                  onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.CenterEnd)) {
+              Text(
+                  text = "Rolls: ${viewModel?.countRolls}",
+                  style =
+                      TextStyle(
+                          color = Color.DarkGray,
+                          fontWeight = FontWeight.Bold,
+                          fontSize = MaterialTheme.typography.bodyLarge.fontSize))
+              Button(
+                  onClick = { showMenu = true },
+                  shape = RoundedCornerShape(12.dp),
+                  colors =
+                      ButtonDefaults.buttonColors(
+                          containerColor = MaterialTheme.colorScheme.secondary)) {
+                    Text(
+                        text = "History",
+                        modifier =
+                            Modifier.padding(top = 2.dp).clickable { showHistory = !showHistory })
+                  }
+            }
+          }
           PopMenuWithAlert(
               actionItem = Dice(),
               items =
@@ -241,16 +250,11 @@ fun RollStateRow(rollState: RollState) {
       modifier = Modifier.fillMaxWidth(),
       border = BorderStroke(width = 1.dp, Color.Black),
       shape = RectangleShape,
-      elevation =
-          CardDefaults.cardElevation(
-              defaultElevation = 4.dp)
-      ) {
+      elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            modifier =
-                Modifier.fillMaxWidth()
-            ) {
+            modifier = Modifier.fillMaxWidth()) {
               if (isEmptyState) {
                 Row(
                     modifier =

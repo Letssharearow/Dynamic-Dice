@@ -457,8 +457,10 @@ class DiceViewModel(
   }
 
   fun resetRollingScreen() {
-    history.add(
-        0, RollState(rollId = -1, sum = 0, unlockedDicesCount = 0, diceStates = emptyList()))
+    if (history.isNotEmpty()) {
+      history.add(
+          0, RollState(rollId = -1, sum = 0, unlockedDicesCount = 0, diceStates = emptyList()))
+    }
     countRolls = 0
     currentSum = 0
     currentDices = currentDices.map { it.reset() }
