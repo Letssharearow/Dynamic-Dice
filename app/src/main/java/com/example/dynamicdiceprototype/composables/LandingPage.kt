@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -74,6 +73,7 @@ fun LandingPage(
     isLoading: Boolean,
     onRollClicked: () -> Unit,
     onClose: () -> Unit,
+    onEditDice: (Dice) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DiceViewModel? = null
 ) {
@@ -104,7 +104,7 @@ fun LandingPage(
       modifier = modifier.fillMaxSize()) {
         Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)) {
           AnimatedVisibility(visible = !isLoading) {
-            DiceBundle(dices = dices, states = states, viewModel = viewModel)
+            DicesView(dices = dices, states = states, editDice = onEditDice, viewModel = viewModel)
           }
           AnimatedVisibility(visible = isLoading) {
             CircularProgressIndicator(modifier = Modifier.wrapContentSize(align = Alignment.Center))
@@ -143,26 +143,25 @@ fun LandingPage(
               DiceButtonM3(
                   onRollClicked = onRollClicked, modifier = Modifier.padding(vertical = 16.dp))
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.CenterEnd)) {
-              Text(
-                  text = "Rolls: ${viewModel?.countRolls}",
-                  style =
-                      TextStyle(
-                          color = Color.DarkGray,
-                          fontWeight = FontWeight.Bold,
-                          fontSize = MaterialTheme.typography.bodyLarge.fontSize))
-              Button(
-                  onClick = { showMenu = true },
-                  shape = RoundedCornerShape(12.dp),
-                  colors =
-                      ButtonDefaults.buttonColors(
-                          containerColor = MaterialTheme.colorScheme.secondary)) {
-                    Text(
-                        text = "History",
-                        modifier =
-                            Modifier.padding(top = 2.dp).clickable { showHistory = !showHistory })
-                  }
-            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.align(Alignment.CenterEnd)) {
+                  Text(
+                      text = "Rolls: ${viewModel?.countRolls}",
+                      style =
+                          TextStyle(
+                              color = Color.DarkGray,
+                              fontWeight = FontWeight.Bold,
+                              fontSize = MaterialTheme.typography.bodyLarge.fontSize))
+                  Button(
+                      onClick = { showHistory = !showHistory },
+                      shape = RoundedCornerShape(12.dp),
+                      colors =
+                          ButtonDefaults.buttonColors(
+                              containerColor = MaterialTheme.colorScheme.secondary)) {
+                        Text(text = "History", modifier = Modifier.padding(top = 2.dp))
+                      }
+                }
           }
           PopMenuWithAlert(
               actionItem = Dice(),
@@ -339,6 +338,7 @@ private fun Prev() {
         isLoading = false,
         states = listOf(),
         onRollClicked = { /*TODO*/ },
+        onEditDice = {},
         onClose = {})
   }
 }

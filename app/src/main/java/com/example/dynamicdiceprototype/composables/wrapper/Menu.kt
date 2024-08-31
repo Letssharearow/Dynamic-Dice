@@ -25,11 +25,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.dynamicdiceprototype.composables.createdice.DicesScreen
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.DicesScreen
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.PreferenceManager
+import com.example.dynamicdiceprototype.services.Screen
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Regular

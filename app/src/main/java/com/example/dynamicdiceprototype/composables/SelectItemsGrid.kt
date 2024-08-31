@@ -175,7 +175,9 @@ fun <T> SelectItemsGrid(
               }
         }
     ContinueButton(
-        onClick = { onSaveSelection(selectedItems) }, text = "$buttonText ($sumOfSelection)")
+        onClick = { onSaveSelection(selectedItems) },
+        text = "$buttonText ($sumOfSelection)",
+        modifier = Modifier.padding(16.dp))
   }
 }
 

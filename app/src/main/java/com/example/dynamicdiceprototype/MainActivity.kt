@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
@@ -34,12 +33,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.dynamicdiceprototype.composables.screens.OnboardingScreen
 import com.example.dynamicdiceprototype.composables.wrapper.Menu
-import com.example.dynamicdiceprototype.composables.wrapper.Screen
 import com.example.dynamicdiceprototype.services.DiceViewModel
 import com.example.dynamicdiceprototype.services.DiceViewModelFactory
 import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.PreferenceKey
 import com.example.dynamicdiceprototype.services.PreferenceManager
+import com.example.dynamicdiceprototype.services.Screen
 import com.example.dynamicdiceprototype.services.serializer.DiceSerializer
 import com.example.dynamicdiceprototype.services.serializer.ImageSerializer
 import com.example.dynamicdiceprototype.services.serializer.UserConfigSerializer

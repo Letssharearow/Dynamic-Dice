@@ -31,7 +31,12 @@ import com.example.dynamicdiceprototype.utils.temp_group_id
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
-// extend ViewModel to survive configuration change (landscape mode)
+enum class DieEditMode {
+  EDIT_DIE_DICE,
+  EDIT_DIE_ROLL,
+  CREATE,
+}
+
 class DiceViewModel(
     imageDataStore: DataStore<ImageDTOMap>,
     diceDataStore: DataStore<DiceDTOMap>,
@@ -51,7 +56,7 @@ class DiceViewModel(
 
   private val resourcesForBitmap = resources
 
-  val firebase = FirebaseDataStore()
+  private val firebase = FirebaseDataStore()
   var currentDices by mutableStateOf(listOf<Dice>())
 
   var imageMap by mutableStateOf<Map<String, ImageDTO>>(emptyMap())
@@ -59,7 +64,7 @@ class DiceViewModel(
 
   // create Dice
   var diceInEdit by mutableStateOf<Dice>(Dice()) // TODO make nullable
-  var isDiceEditMode by mutableStateOf<Boolean>(false) //
+  var dieEditMode by mutableStateOf<DieEditMode>(DieEditMode.CREATE)
 
   // create Dice Group
   var groupInEdit by mutableStateOf<DiceGroup?>(null)
@@ -68,7 +73,6 @@ class DiceViewModel(
   // User Config
   var diceGroups by mutableStateOf<Map<String, DiceGroup>>(emptyMap())
   var dices by mutableStateOf<Map<String, Dice>>(emptyMap())
-  var lastDiceGroup by mutableStateOf("Red flag or Green flag")
 
   var toastMessageText by mutableStateOf<String?>(null)
 
@@ -86,7 +90,6 @@ class DiceViewModel(
             TAG,
             "ViewModel collectUserConfig flow: group names ${it.diceGroups.values.map { group -> group.name }}")
         diceGroups = it.diceGroups
-        hasLoadedUser = true
         if (!it.diceGroups.keys.contains(temp_group_id)) {
           initiateImages()
           initiateDices()
@@ -151,7 +154,7 @@ class DiceViewModel(
 
   fun createNewDice() {
     diceInEdit = Dice(name = "")
-    isDiceEditMode = false
+    dieEditMode = DieEditMode.CREATE
     showRerollButton = false
   }
 
@@ -197,9 +200,14 @@ class DiceViewModel(
     }
   }
 
-  fun saveDice() {
+  fun saveDieInEdit() {
     showRerollButton = false
-    addDice(if (isDiceEditMode) diceInEdit else diceInEdit.copy(id = ""))
+    if (dieEditMode == DieEditMode.EDIT_DIE_ROLL) {
+      currentDices = currentDices.map { if (it.id == diceInEdit.id) diceInEdit else it }
+      addDice(diceInEdit)
+    } else {
+      addDice(if (dieEditMode == DieEditMode.CREATE) diceInEdit.copy(id = "") else diceInEdit)
+    }
   }
 
   // end create dice
@@ -239,8 +247,13 @@ class DiceViewModel(
   fun editDice(dice: Dice) {
     if (nonMutableDices.contains(dice.name))
         throw PermittedActionException("Can not make changes to Dice: ${dice.name}")
-    isDiceEditMode = true
+    dieEditMode = DieEditMode.EDIT_DIE_DICE
     diceInEdit = dice
+  }
+
+  fun editRollingDie(die: Dice) {
+    dieEditMode = DieEditMode.EDIT_DIE_ROLL
+    diceInEdit = die
   }
 
   fun duplicateDice(it: Dice) {
@@ -358,7 +371,12 @@ class DiceViewModel(
       return
     }
     setTempGroup(group)
-    setNewCurrentDices(group.dices.mapKeys { dices[it.key] ?: Dice() })
+
+    try {
+      setNewCurrentDices(group.dices.mapKeys { dices[it.key]!! })
+    } catch (e: Exception) {
+      Log.d(TAG, "Dice is null ${group.dices.keys}")
+    }
   }
 
   // Dice Group end

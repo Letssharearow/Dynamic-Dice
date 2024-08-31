@@ -36,6 +36,7 @@ import selectNext
 @Composable
 fun DicesView(
     dices: List<Dice>,
+    editDice: (Dice) -> Unit,
     modifier: Modifier = Modifier,
     states: List<Face> = listOf(), // TODO: append CurrentDices Class with States List
     viewModel: DiceViewModel? = null
@@ -82,6 +83,7 @@ fun DicesView(
                         MenuItem(
                             text = "Duplicate this die",
                             callBack = { viewModel?.duplicateToCurrentDices(mapOf(it to 1)) }),
+                        MenuItem(text = "Edit die", callBack = editDice),
                     ),
                 showMenu = showMenu,
                 onDismiss = { showMenu = false },
@@ -101,6 +103,7 @@ private fun Preview() {
         DicesView(
             dices = getDices(8),
             states = listOf(Face(contentDescription = "hi")),
+            editDice = {},
             modifier = Modifier.weight(1f))
 
         Box(modifier = Modifier.fillMaxWidth().height(40.dp).background(Color.Cyan))

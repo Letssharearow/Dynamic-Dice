@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -28,6 +29,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.composables.FaceView
@@ -51,12 +54,14 @@ fun EditDiceScreen(
     onSaveDice: (name: String, color: Color) -> Unit,
     onRerollDice: () -> Unit,
     showRerollButton: Boolean = false,
-    onEdit: (name: String, color: Color) -> Unit
+    onEditFaces: (name: String, color: Color) -> Unit
 ) {
   Log.d("EditDiceScreen", "die: $dice")
   var name by remember { mutableStateOf(dice.name) }
   var color by remember { mutableStateOf(dice.backgroundColor) }
   var isColorPickerOpen by remember { mutableStateOf(false) }
+  val inPreviewMode = LocalInspectionMode.current
+  if (inPreviewMode) PreferenceManager.init(context = LocalContext.current)
   val maxSize =
       PreferenceManager.getPreferenceFlow<Int>(PreferenceKey.ItemSelectionDiceWeightMaxSize)
           .collectAsState(initial = 500)
@@ -117,45 +122,62 @@ fun EditDiceScreen(
             },
             minValue = 1)
       } else {
-        ArrangedColumn {
-          OneScreenGrid(
-              items = dice.faces,
-              minSize = if (isColorPickerOpen) 2000F else 200F,
-              modifier = Modifier.weight(1f)) { item, maxWidth ->
-                FaceView(
-                    face = item,
-                    showWeight = false,
-                    spacing = maxWidth.div(10),
-                    size =
-                        maxWidth.div(
-                            3), // TODO: get rid of this duplicate code, also in FaceSelectionScreen
-                    color = color,
-                    modifier = Modifier.padding(maxWidth.div(20)))
-              }
-          Row(
-              horizontalArrangement = Arrangement.SpaceAround,
-              verticalAlignment = Alignment.CenterVertically) {
-                if (showRerollButton) {
-                  Button(
-                      onClick = {
-                        onRerollDice()
-                        name = dice.name
-                        color = dice.backgroundColor
-                      },
-                      border =
-                          BorderStroke(
-                              width = 2.dp, color = MaterialTheme.colorScheme.secondaryContainer),
-                      colors =
-                          ButtonDefaults.buttonColors(
-                              containerColor = MaterialTheme.colorScheme.secondary),
-                      modifier = Modifier.height(48.dp)) {
-                        Icon(
-                            imageVector = FontAwesomeIcons.Solid.DiceD6,
-                            contentDescription = "random")
-                      }
+        Box(Modifier.fillMaxSize()) {
+          OneScreenGrid(items = dice.faces, minSize = if (isColorPickerOpen) 2000F else 200F) {
+              item,
+              maxWidth ->
+            FaceView(
+                face = item,
+                showWeight = false,
+                spacing = maxWidth.div(10),
+                size =
+                    maxWidth.div(
+                        3), // TODO: get rid of this duplicate code, also in FaceSelectionScreen
+                color = color,
+                modifier = Modifier.padding(maxWidth.div(20)))
+          }
+          if (!isColorPickerOpen) {
+            Column(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                  Row(
+                      horizontalArrangement = Arrangement.SpaceAround,
+                      verticalAlignment = Alignment.CenterVertically,
+                  ) {
+                    if (showRerollButton) {
+                      Button(
+                          onClick = {
+                            onRerollDice()
+                            name = dice.name
+                            color = dice.backgroundColor
+                          },
+                          border =
+                              BorderStroke(
+                                  width = 2.dp,
+                                  color = MaterialTheme.colorScheme.secondaryContainer),
+                          colors =
+                              ButtonDefaults.buttonColors(
+                                  containerColor = MaterialTheme.colorScheme.secondary),
+                          modifier = Modifier.height(48.dp)) {
+                            Icon(
+                                imageVector = FontAwesomeIcons.Solid.DiceD6,
+                                contentDescription = "random")
+                          }
+                    }
+                    ContinueButton(onClick = { showAddWeights = true }, text = "Add weights")
+                  }
+                  Row(horizontalArrangement = Arrangement.SpaceAround) {
+                    ContinueButton(
+                        onClick = { if (name.isNotEmpty()) onEditFaces(name, color) },
+                        text = "Edit Faces",
+                        modifier = Modifier.padding(8.dp))
+                    ContinueButton(
+                        onClick = { if (name.isNotEmpty()) onSaveDice(name, color) },
+                        text = "Save die",
+                        modifier = Modifier.padding(8.dp))
+                  }
                 }
-                ContinueButton(onClick = { showAddWeights = true }, text = "Add weights")
-              }
+          }
         }
       }
     }
@@ -165,11 +187,6 @@ fun EditDiceScreen(
           onColorChange = { color = if (it.fromUser) it.color else color },
           onDismiss = { isColorPickerOpen = false },
           modifier = Modifier.fillMaxHeight(0.4F))
-    }
-    Row(horizontalArrangement = Arrangement.SpaceAround) {
-      ContinueButton(onClick = { if (name.isNotEmpty()) onEdit(name, color) }, text = "Edit Faces")
-      ContinueButton(
-          onClick = { if (name.isNotEmpty()) onSaveDice(name, color) }, text = "Save die")
     }
   }
 }
@@ -187,7 +204,7 @@ private fun Preview() {
                         Face(contentDescription = ""),
                         Face(contentDescription = ""),
                         Face(contentDescription = ""))),
-        onEdit = { a, b -> },
+        onEditFaces = { a, b -> },
         onRerollDice = {},
         onSaveDice = { a, b -> })
   }

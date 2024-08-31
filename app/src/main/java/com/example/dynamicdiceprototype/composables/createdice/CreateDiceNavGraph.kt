@@ -6,11 +6,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.Exceptions.PermittedActionException
-import com.example.dynamicdiceprototype.composables.wrapper.Screen
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.DicesScreen
+import com.example.dynamicdiceprototype.services.DieEditMode
 import com.example.dynamicdiceprototype.services.HeaderViewModel
+import com.example.dynamicdiceprototype.services.Screen
 import com.example.dynamicdiceprototype.utils.imageDTO_number_contentDescription
 
 fun NavGraphBuilder.diceGraph(
@@ -109,7 +111,7 @@ fun NavGraphBuilder.diceGraph(
     composable(route = DicesScreen.EditDice.route) {
       EditDiceScreen(
           diceViewModel.diceInEdit,
-          onEdit = { name, color ->
+          onEditFaces = { name, color ->
             diceViewModel.setDiceName(name)
             diceViewModel.setColor(color)
             navController.navigate(DicesScreen.SelectFaces.route)
@@ -119,22 +121,13 @@ fun NavGraphBuilder.diceGraph(
           onSaveDice = { name, color ->
             diceViewModel.setDiceName(name)
             diceViewModel.setColor(color)
-            diceViewModel.saveDice()
-            navController.navigate(DicesScreen.DicesList.route)
+            diceViewModel.saveDieInEdit()
+            if (diceViewModel.dieEditMode == DieEditMode.EDIT_DIE_ROLL) {
+              navController.navigate(Screen.MainScreen.route)
+            } else {
+              navController.navigate(DicesScreen.DicesList.route)
+            }
           })
     }
   }
-}
-
-private const val createDiceRoute = "dices"
-
-sealed class DicesScreen(val route: String) {
-
-  object Dices : DicesScreen(createDiceRoute)
-
-  object DicesList : DicesScreen("$createDiceRoute/templates")
-
-  object SelectFaces : DicesScreen("$createDiceRoute/faces")
-
-  object EditDice : DicesScreen("$createDiceRoute/templates/edit")
 }

@@ -16,7 +16,6 @@ import androidx.navigation.compose.composable
 import com.example.dynamicdiceprototype.DTO.ImageDTO
 import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.composables.LandingPage
-import com.example.dynamicdiceprototype.composables.createdice.DicesScreen
 import com.example.dynamicdiceprototype.composables.createdice.SelectFacesScreen
 import com.example.dynamicdiceprototype.composables.createdice.diceGraph
 import com.example.dynamicdiceprototype.composables.screens.DiceGroupCreationScreen
@@ -30,8 +29,10 @@ import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.services.DicesScreen
 import com.example.dynamicdiceprototype.services.FirebaseDataStore
 import com.example.dynamicdiceprototype.services.HeaderViewModel
+import com.example.dynamicdiceprototype.services.Screen
 import com.example.dynamicdiceprototype.services.TAG
 import com.example.dynamicdiceprototype.utils.temp_group_id
 
@@ -77,10 +78,14 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
       }
       LandingPage(
           dices = viewModel.currentDices,
-          isLoading = !viewModel.hasLoadedUser,
+          isLoading = viewModel.currentDices.isEmpty(),
           states = states,
           onRollClicked = { viewModel.rollDices() },
           viewModel = viewModel,
+          onEditDice = {
+            viewModel.editRollingDie(it)
+            navController.navigate(DicesScreen.EditDice.route)
+          },
           onClose = { viewModel.saveCurrentDices() })
     }
     diceGraph(viewModel, navController, headerViewModel)
@@ -224,38 +229,6 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
             viewModel.saveGroupInEdit()
             navController.navigate(Screen.DiceGroups.route)
           })
-    }
-  }
-}
-
-sealed class Screen(val route: String) {
-
-  object Onboarding : Screen("onboarding")
-
-  object MainScreen : Screen("home")
-
-  object TestScreen : Screen("Test")
-
-  object DiceGroups : Screen("dice_groups")
-
-  object CreateDiceGroup : Screen("dice_groups/create")
-
-  object CreateDiceGroupStates : Screen("dice_groups/create/states")
-
-  object SaveImage : Screen("save")
-
-  object Profile : Screen("profile")
-
-  object Settings : Screen("settings")
-
-  object Images : Screen("images")
-
-  object ImagesActions : Screen("images/action")
-
-  fun withArgs(vararg args: String): String {
-    return buildString {
-      append(route)
-      args.forEach { append("/${it.replace(" ", "-").lowercase()}") }
     }
   }
 }
