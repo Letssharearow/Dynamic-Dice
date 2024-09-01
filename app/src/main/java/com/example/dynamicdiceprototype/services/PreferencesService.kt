@@ -23,7 +23,7 @@ enum class PreferenceKey(
   LastDiceGroup("Kniffel", "Last Dice Group"),
   IsDicesViewCompact(false, "Is Dice View Compact"),
   IsDicesGroupViewCompact(true, "Is Dice Groups View Compact"),
-  hasOnboardingCompleted(true, "Has Onboarding Completed"),
+  HasOnboardingCompleted(false, "Has Onboarding Completed"),
 } // TODO find better default value type solution to use default value when accessing it to set as
 
 // initial state

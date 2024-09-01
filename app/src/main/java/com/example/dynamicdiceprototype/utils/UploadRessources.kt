@@ -13,27 +13,15 @@ fun saveImages(res: Resources, viewModel: DiceViewModel) {
   data class ImageModelSetDTO(val image: Int, val name: String)
   val images =
       arrayOf<ImageModelSetDTO>(
-          ImageModelSetDTO(image = R.drawable.cameleon, name = "Cameleon"),
-          ImageModelSetDTO(image = R.drawable.elephant, name = "Elephant"),
-          ImageModelSetDTO(image = R.drawable.fish, name = "Fish"),
           ImageModelSetDTO(image = R.drawable.frog, name = "Frog"),
           ImageModelSetDTO(image = R.drawable.lion, name = "Lion"),
           ImageModelSetDTO(image = R.drawable.monkey, name = "Monkey"),
-          ImageModelSetDTO(image = R.drawable.owl, name = "Owl"),
-          ImageModelSetDTO(image = R.drawable.parrot, name = "Parrot"),
-          ImageModelSetDTO(image = R.drawable.penguin, name = "Penguin"),
           ImageModelSetDTO(image = R.drawable.one_transparent, name = "one"),
           ImageModelSetDTO(image = R.drawable.two_transparent, name = "two"),
           ImageModelSetDTO(image = R.drawable.three_transparent, name = "three"),
           ImageModelSetDTO(image = R.drawable.four_transparent, name = "four"),
           ImageModelSetDTO(image = R.drawable.five_transparent, name = "five"),
           ImageModelSetDTO(image = R.drawable.six_transparent, name = "six"),
-          ImageModelSetDTO(image = R.drawable.wizard_blue, name = "Wizard Blue"),
-          ImageModelSetDTO(image = R.drawable.wizard_green, name = "Wizard Green"),
-          ImageModelSetDTO(image = R.drawable.wizard_red, name = "Wizard Red"),
-          ImageModelSetDTO(image = R.drawable.wizard_yellow, name = "Wizard Yellow"),
-          ImageModelSetDTO(image = R.drawable.wizard_narr, name = "wizard Narr"),
-          ImageModelSetDTO(image = R.drawable.wizard_wizard, name = "wizard Wizard"),
       )
 
   viewModel.saveImages(

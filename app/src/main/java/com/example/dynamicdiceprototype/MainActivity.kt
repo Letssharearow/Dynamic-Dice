@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
           DiceViewModelFactory(imagesDataStore, diceDataStore, userDataStore, resources)
         }
         val hasOnboardingCompleted =
-            PreferenceManager.getPreferenceFlow<Boolean>(PreferenceKey.hasOnboardingCompleted)
+            PreferenceManager.getPreferenceFlow<Boolean>(PreferenceKey.HasOnboardingCompleted)
                 .collectAsState(initial = true) // TODO set to false after creating onboarding
                 .value
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
