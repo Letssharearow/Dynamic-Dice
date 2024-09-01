@@ -127,7 +127,6 @@ fun LandingPage(
                       text = "Sum: ${viewModel?.currentSum}",
                       style =
                           TextStyle(
-                              color = Color.DarkGray,
                               fontWeight = FontWeight.Bold,
                               fontSize = MaterialTheme.typography.bodyLarge.fontSize))
                   Button(
@@ -150,7 +149,6 @@ fun LandingPage(
                       text = "Rolls: ${viewModel?.countRolls}",
                       style =
                           TextStyle(
-                              color = Color.DarkGray,
                               fontWeight = FontWeight.Bold,
                               fontSize = MaterialTheme.typography.bodyLarge.fontSize))
                   Button(

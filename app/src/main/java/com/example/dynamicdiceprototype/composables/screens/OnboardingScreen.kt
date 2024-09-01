@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dynamicdiceprototype.R
@@ -39,9 +41,18 @@ fun OnboardingScreen(modifier: Modifier = Modifier) {
 
   val textHeader =
       arrayOf(
-          "Customize", "Create Die", "Create Dice Groups", "Configure", "Roll", "Manage", "Done")
+          "Welcome\nto Dynamic Dice",
+          "Customize",
+          "Create Die",
+          "Create Dice Groups",
+          "Configure",
+          "Roll",
+          "Manage",
+          "Begin",
+      )
   val textDescription =
       arrayOf(
+          "Discover the flexible dice game tool",
           "Add images from your device for your dice\nTag images that you want to use together",
           "Create a die with images or numbers\nSet values for each face of the die",
           "Combine different dice to a group of dice",
@@ -51,6 +62,7 @@ fun OnboardingScreen(modifier: Modifier = Modifier) {
           "")
   val images =
       arrayOf(
+          R.drawable.applogo_toolbox,
           R.drawable.onboarding_add_images,
           R.drawable.onboarding_create_die,
           R.drawable.onboarding_create_dice_group,
@@ -69,12 +81,27 @@ fun OnboardingScreen(modifier: Modifier = Modifier) {
                 .padding(8.dp)
                 .clip(RoundedCornerShape(36.dp))
                 .background(Color(0x85FFAF72))) {
-          Text(text = textHeader[page], style = Typography.headlineMedium)
-          Image(
-              painter = painterResource(id = images[page]),
-              contentDescription = "Add images",
-              modifier = Modifier.fillMaxSize(0.75f))
-          Text(text = textDescription[page])
+          Text(
+              text = textHeader[page],
+              style = Typography.headlineMedium,
+              textAlign = TextAlign.Center)
+          Box(
+              modifier = Modifier.clip(RoundedCornerShape(16.dp)),
+              contentAlignment = Alignment.Center) {
+                if (page == 0)
+                    Image(
+                        painter = painterResource(id = images[page]),
+                        contentDescription = "Add images",
+                        modifier = Modifier.fillMaxWidth(0.75f).aspectRatio(1f),
+                    )
+                else
+                    Image(
+                        painter = painterResource(id = images[page]),
+                        contentDescription = "Add images",
+                        modifier = Modifier.fillMaxSize(0.75f),
+                    )
+              }
+          Text(text = textDescription[page], textAlign = TextAlign.Center)
           if (pagerState.currentPage == textHeader.size - 1) {
             Button(
                 onClick = {

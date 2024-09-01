@@ -34,8 +34,6 @@ enum class PreferenceKey(
   HasOnboardingCompleted(false, "Has Onboarding Completed"),
 } // TODO find better default value type solution to use default value when accessing it to set as
 
-// initial state
-
 object PreferenceManager {
 
   private lateinit var appContext: Context
