@@ -11,16 +11,24 @@ enum class PreferenceKey(
     val uiName: String,
     val location: String = "No Steps provided"
 ) {
-  ItemSelectionDiceGroupMaxSize(100, "Max Dice Groups"),
-  ItemSelectionDiceWeightMaxSize(500, "Max Dice Weights"),
-  ItemSelectionDiceValueMaxSize(5000, "Max Dice Values"),
-  CreateNumberedDiceMaxEndValue(100, "Numbered Die Max End Value"),
-  ItemSelectionInitialSize(15, "Inital Size on Item selection"),
-  MenuDrawerMaxWidthFraction(75, "Menu Drawer Max Width Fraction"),
-  ItemSelectionOneScreenGridMinWidth(400, "One Screen Grid Min Width"),
-  ItemSelctionDebounceTime(1000, "Debounce Time for Item Selection"),
-  SettingsHeader("Settings", "SettingsHeader"),
-  LastDiceGroup("Kniffel", "Last Dice Group"),
+  ItemSelectionDiceGroupMaxSize(
+      100, "Max Dice Groups", "Create a Dice Group and add more Dice to it"),
+  ItemSelectionDiceWeightMaxSize(500, "Max Dice Weights", "Create a Die and max out it's weight"),
+  ItemSelectionDiceValueMaxSize(5000, "Max Dice Values", "Create a Die and max out it's value"),
+  CreateNumberedDiceMaxEndValue(
+      100, "Numbered Die Max End Value", "Create a numbered Die and max out it's end value"),
+  ItemSelectionInitialSize(
+      15,
+      "Inital Size on Item selection",
+      "Create a Die and select anything and move slider all the way to the right"),
+  MenuDrawerMaxWidthFraction(75, "Menu Drawer Max Width Fraction", "Open the Burger Menu"),
+  ItemSelectionOneScreenGridMinWidth(
+      400, "One Screen Grid Min Width", location = "Create a Die and Edit faces"),
+  ItemSelctionDebounceTime(
+      1000,
+      "Debounce Time for Item Selection",
+      location = "Create a Die, select face and slide all the way to the right"),
+  SettingsHeader("Settings", "SettingsHeader", "the Title here"),
   IsDicesViewCompact(false, "Is Dice View Compact"),
   IsDicesGroupViewCompact(true, "Is Dice Groups View Compact"),
   HasOnboardingCompleted(false, "Has Onboarding Completed"),
