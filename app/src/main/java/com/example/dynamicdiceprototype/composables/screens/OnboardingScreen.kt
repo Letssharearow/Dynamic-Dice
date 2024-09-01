@@ -66,7 +66,7 @@ fun OnboardingScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier =
             Modifier.fillMaxSize()
-                .padding(4.dp)
+                .padding(8.dp)
                 .clip(RoundedCornerShape(36.dp))
                 .background(Color(0x85FFAF72))) {
           Text(text = textHeader[page], style = Typography.headlineMedium)
