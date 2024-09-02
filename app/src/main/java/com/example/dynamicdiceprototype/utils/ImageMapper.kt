@@ -43,13 +43,17 @@ class ImageMapper {
 
     @OptIn(ExperimentalEncodingApi::class)
     fun base64ToBitmap(base64String: String): ImageBitmap? {
+
+      if (base64String.isEmpty() || base64String == IMAGE_DTO_NUMBER_CONTENT_DESCRIPTION)
+          return null
+
       return try {
         val decodedBytes = Base64.decode(base64String)
         val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
         bitmap.asImageBitmap()
       } catch (e: Exception) {
         e.printStackTrace()
-        Log.e(LOG_TAG, e.message ?: "No message")
+        Log.e(LOG_TAG, e.message ?: "Could not convert base64 to bitmap")
         null
       }
     }
