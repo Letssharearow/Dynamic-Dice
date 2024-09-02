@@ -35,43 +35,40 @@ import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 import com.example.dynamicdiceprototype.ui.theme.Typography
 
+data class OnboardingPage(val header: String, val description: String, val image: Int)
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingScreen(modifier: Modifier = Modifier) {
 
-  val textHeader =
-      arrayOf(
-          "Welcome\nto Dynamic Dice",
-          "Customize",
-          "Create Die",
-          "Create Dice Groups",
-          "Configure",
-          "Roll",
-          "Manage",
-          "Begin",
-      )
-  val textDescription =
-      arrayOf(
-          "Discover the flexible dice game tool",
-          "Add images from your device for your dice\nTag images that you want to use together",
-          "Create a die with images or numbers\nSet values for each face of the die",
-          "Combine different dice to a group of dice",
-          "Configure dice with weights or colors",
-          "Roll and interact with the dice",
-          "Manage dice and dice groups",
-          "")
-  val images =
-      arrayOf(
-          R.drawable.applogo_toolbox,
-          R.drawable.onboarding_add_images,
-          R.drawable.onboarding_create_die,
-          R.drawable.onboarding_create_dice_group,
-          R.drawable.onboarding_add_weights_and_colors,
-          R.drawable.onboarding_roll_dice,
-          R.drawable.onboarding_manage_die,
-          R.drawable.onboarding_roll_dice_2,
-      )
-  val pagerState = rememberPagerState(pageCount = { textHeader.size })
+  val onboardingPages =
+      listOf(
+          OnboardingPage(
+              "Welcome\nto Dynamic Dice",
+              "Discover the flexible dice game tool",
+              R.drawable.applogo_toolbox),
+          OnboardingPage(
+              "Customize",
+              "Add images from your device for your dice\nTag images that you want to use together",
+              R.drawable.onboarding_add_images),
+          OnboardingPage(
+              "Create Die",
+              "Create a die with images or numbers\nSet values for each face of the die",
+              R.drawable.onboarding_create_die),
+          OnboardingPage(
+              "Create Dice Groups",
+              "Combine different dice to a group of dice",
+              R.drawable.onboarding_create_dice_group),
+          OnboardingPage(
+              "Configure",
+              "Configure dice with weights or colors",
+              R.drawable.onboarding_add_weights_and_colors),
+          OnboardingPage(
+              "Roll", "Roll and interact with the dice", R.drawable.onboarding_roll_dice),
+          OnboardingPage("Manage", "Manage dice and dice groups", R.drawable.onboarding_manage_die),
+          OnboardingPage("Begin", "", R.drawable.onboarding_roll_dice_2))
+
+  val pagerState = rememberPagerState(pageCount = { onboardingPages.size })
   HorizontalPager(state = pagerState) { page ->
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -82,7 +79,7 @@ fun OnboardingScreen(modifier: Modifier = Modifier) {
                 .clip(RoundedCornerShape(36.dp))
                 .background(Color(0x85FFAF72))) {
           Text(
-              text = textHeader[page],
+              text = onboardingPages[page].header,
               style = Typography.headlineMedium,
               textAlign = TextAlign.Center)
           Box(
@@ -90,19 +87,19 @@ fun OnboardingScreen(modifier: Modifier = Modifier) {
               contentAlignment = Alignment.Center) {
                 if (page == 0)
                     Image(
-                        painter = painterResource(id = images[page]),
-                        contentDescription = "Add images",
+                        painter = painterResource(id = onboardingPages[page].image),
+                        contentDescription = null,
                         modifier = Modifier.fillMaxWidth(0.75f).aspectRatio(1f),
                     )
                 else
                     Image(
-                        painter = painterResource(id = images[page]),
-                        contentDescription = "Add images",
+                        painter = painterResource(id = onboardingPages[page].image),
+                        contentDescription = null,
                         modifier = Modifier.fillMaxSize(0.75f),
                     )
               }
-          Text(text = textDescription[page], textAlign = TextAlign.Center)
-          if (pagerState.currentPage == textHeader.size - 1) {
+          Text(text = onboardingPages[page].description, textAlign = TextAlign.Center)
+          if (pagerState.currentPage == onboardingPages.size - 1) {
             Button(
                 onClick = {
                   PreferenceManager.saveData(PreferenceKey.HasOnboardingCompleted, true)

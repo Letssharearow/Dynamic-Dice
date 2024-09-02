@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.dynamicdiceprototype.DTO.ImageDTO
+import com.example.dynamicdiceprototype.data.DTO.ImageDTO
 
 @Composable
 fun ImagesActionsScreen(

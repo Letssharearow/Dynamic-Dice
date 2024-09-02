@@ -43,13 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.example.dynamicdiceprototype.DTO.ImageBitmapDTO
-import com.example.dynamicdiceprototype.DTO.ImageDTO
-import com.example.dynamicdiceprototype.composables.SingleLineTextInput
+import com.example.dynamicdiceprototype.composables.common.SingleLineTextInput
+import com.example.dynamicdiceprototype.data.DTO.ImageBitmapDTO
+import com.example.dynamicdiceprototype.data.DTO.ImageDTO
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Regular
 import compose.icons.fontawesomeicons.regular.Images
-import compose.icons.fontawesomeicons.regular.PlusSquare
 import java.io.InputStream
 
 @Composable

@@ -12,5 +12,6 @@ data class RollState(
     val unlockedDicesCount: Int,
     val rollId: Int = 0,
     val sum: Int = 0,
-    val diceStates: List<DiceState> = listOf()
-) {}
+    val diceStates: List<DiceState> = listOf(),
+    val isEmpty: Boolean = false,
+)

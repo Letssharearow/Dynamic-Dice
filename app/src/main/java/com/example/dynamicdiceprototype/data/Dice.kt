@@ -2,11 +2,11 @@ package com.example.dynamicdiceprototype.data
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.example.dynamicdiceprototype.DTO.DiceDTO
-import com.example.dynamicdiceprototype.DTO.FaceDTO
-import com.example.dynamicdiceprototype.DTO.ImageDTO
-import com.example.dynamicdiceprototype.DTO.toDice
-import com.example.dynamicdiceprototype.utils.imageDTO_number_contentDescription
+import com.example.dynamicdiceprototype.data.DTO.DiceDTO
+import com.example.dynamicdiceprototype.data.DTO.FaceDTO
+import com.example.dynamicdiceprototype.data.DTO.ImageDTO
+import com.example.dynamicdiceprototype.data.DTO.toDice
+import com.example.dynamicdiceprototype.utils.IMAGE_DTO_NUMBER_CONTENT_DESCRIPTION
 import com.example.dynamicdiceprototype.utils.randomItemByWeight
 import getWeightsInRange
 import java.util.UUID
@@ -85,7 +85,7 @@ data class Dice(
           name = "numbered",
           faces =
               (start..end).map {
-                Face(contentDescription = imageDTO_number_contentDescription, value = it)
+                Face(contentDescription = IMAGE_DTO_NUMBER_CONTENT_DESCRIPTION, value = it)
               })
     }
   }

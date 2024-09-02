@@ -1,7 +1,7 @@
 package com.example.dynamicdiceprototype.services.serializer
 
 import androidx.datastore.core.Serializer
-import com.example.dynamicdiceprototype.DTO.DiceDTO
+import com.example.dynamicdiceprototype.data.DTO.DiceDTO
 import java.io.InputStream
 import java.io.OutputStream
 import kotlinx.serialization.Serializable

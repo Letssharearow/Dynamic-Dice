@@ -13,40 +13,33 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.dynamicdiceprototype.DTO.ImageDTO
-import com.example.dynamicdiceprototype.Exceptions.DiceNotFoundException
-import com.example.dynamicdiceprototype.composables.LandingPage
-import com.example.dynamicdiceprototype.composables.createdice.SelectFacesScreen
-import com.example.dynamicdiceprototype.composables.createdice.diceGraph
-import com.example.dynamicdiceprototype.composables.screens.DiceGroupCreationScreen
-import com.example.dynamicdiceprototype.composables.screens.DiceGroupsScreen
 import com.example.dynamicdiceprototype.composables.screens.ImagesActionsScreen
 import com.example.dynamicdiceprototype.composables.screens.ProfileScreen
 import com.example.dynamicdiceprototype.composables.screens.SaveImageScreen
 import com.example.dynamicdiceprototype.composables.screens.SettingsScreen
-import com.example.dynamicdiceprototype.composables.screens.TestScreen
+import com.example.dynamicdiceprototype.composables.screens.dice.SelectFacesScreen
+import com.example.dynamicdiceprototype.composables.screens.dice.diceGraph
+import com.example.dynamicdiceprototype.composables.screens.dice_group.DiceGroupCreationScreen
+import com.example.dynamicdiceprototype.composables.screens.dice_group.DiceGroupsScreen
+import com.example.dynamicdiceprototype.composables.screens.roll.LandingPage
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
+import com.example.dynamicdiceprototype.data.DTO.ImageDTO
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.MenuItem
-import com.example.dynamicdiceprototype.services.DiceViewModel
+import com.example.dynamicdiceprototype.developer_area.TestScreen
+import com.example.dynamicdiceprototype.exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.services.DicesScreen
-import com.example.dynamicdiceprototype.services.FirebaseDataStore
-import com.example.dynamicdiceprototype.services.HeaderViewModel
 import com.example.dynamicdiceprototype.services.Screen
-import com.example.dynamicdiceprototype.services.TAG
-import com.example.dynamicdiceprototype.utils.temp_group_id
+import com.example.dynamicdiceprototype.services.view_model.DiceViewModel
+import com.example.dynamicdiceprototype.services.view_model.HeaderViewModel
+import com.example.dynamicdiceprototype.utils.ImageMapper
+import com.example.dynamicdiceprototype.utils.LOG_TAG
+import com.example.dynamicdiceprototype.utils.TEMP_GROUP_ID
 
 @Composable
 fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
   val headerViewModel: HeaderViewModel = viewModel<HeaderViewModel>()
   val context = LocalContext.current
-  if (viewModel.getErrorMessage() != null) {
-    Toast.makeText(
-            context,
-            "Error Loading ${viewModel.getErrorMessage()}, check internet connection and restart app",
-            Toast.LENGTH_LONG)
-        .show()
-  }
   if (viewModel.toastMessageText != null) {
     Toast.makeText(context, viewModel.toastMessageText, Toast.LENGTH_LONG).show()
   }
@@ -64,12 +57,12 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
       }
       val states by remember {
         derivedStateOf {
-          viewModel.diceGroups[temp_group_id]?.states?.map { imageKey ->
+          viewModel.diceGroups[TEMP_GROUP_ID]?.states?.map { imageKey ->
             val image = viewModel.imageMap[imageKey]
             image?.let {
               Face(
                   contentDescription = it.contentDescription,
-                  data = FirebaseDataStore.base64ToBitmap(it.base64String))
+                  data = ImageMapper.base64ToBitmap(it.base64String))
             } ?: Face(contentDescription = imageKey)
           } ?: listOf()
         }
@@ -77,7 +70,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
 
       LaunchedEffect(viewModel.dices, viewModel.diceGroups) {
         if (viewModel.currentDices.isEmpty()) {
-          viewModel.selectDiceGroup(temp_group_id)
+          viewModel.selectDiceGroup(TEMP_GROUP_ID)
         }
       }
       LandingPage(
@@ -148,7 +141,7 @@ fun NavGraph(navController: NavHostController, viewModel: DiceViewModel) {
               viewModel.selectDiceGroup(group)
               navController.navigate(Screen.MainScreen.route)
             } catch (e: NullPointerException) {
-              Log.e(TAG, "One die is probably not found in the global dice ${e.message}")
+              Log.e(LOG_TAG, "One die is probably not found in the global dice ${e.message}")
             }
           },
           menuActions =

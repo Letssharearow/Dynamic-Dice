@@ -1,16 +1,16 @@
 package com.example.dynamicdiceprototype.services
 
-private const val createDiceRoute = "dices"
+private const val CREATE_DICE_ROUTE = "dices"
 
 sealed class DicesScreen(val route: String) {
 
-  object Dices : DicesScreen(createDiceRoute)
+  object Dices : DicesScreen(CREATE_DICE_ROUTE)
 
-  object DicesList : DicesScreen("$createDiceRoute/templates")
+  object DicesList : DicesScreen("$CREATE_DICE_ROUTE/templates")
 
-  object SelectFaces : DicesScreen("$createDiceRoute/faces")
+  object SelectFaces : DicesScreen("$CREATE_DICE_ROUTE/faces")
 
-  object EditDice : DicesScreen("$createDiceRoute/templates/edit")
+  object EditDice : DicesScreen("$CREATE_DICE_ROUTE/templates/edit")
 }
 
 sealed class Screen(val route: String) {

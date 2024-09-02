@@ -15,24 +15,6 @@ import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.MenuItem
 
 @Composable
-fun AlertBox(
-    title: String = "Confirm Action",
-    text: String,
-    isOpen: Boolean,
-    onDismiss: () -> Unit,
-    conConfirm: () -> Unit
-) {
-  if (isOpen) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = { Text(text) },
-        confirmButton = { Button(onClick = conConfirm) { Text("Confirm") } },
-        dismissButton = { Button(onClick = onDismiss) { Text("Cancel") } })
-  }
-}
-
-@Composable
 fun <T> PopMenuWithAlert(
     actionItem: T,
     items: List<MenuItem<T>>,
