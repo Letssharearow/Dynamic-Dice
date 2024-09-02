@@ -255,7 +255,6 @@ fun ItemSelectionDialog(
 @Composable
 fun RollStateRow(rollState: RollState) {
   var expanded by remember { mutableStateOf(false) }
-  val isEmptyState = rollState.rollId != -1
 
   Card(
       modifier = Modifier.fillMaxWidth(),
@@ -266,7 +265,7 @@ fun RollStateRow(rollState: RollState) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()) {
-              if (isEmptyState) {
+              if (!rollState.isEmpty) {
                 Row(
                     modifier =
                         Modifier.padding(start = 8.dp)) { // Add horizontal padding for "Roll" text

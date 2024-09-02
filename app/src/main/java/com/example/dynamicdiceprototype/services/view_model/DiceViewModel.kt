@@ -20,7 +20,7 @@ import com.example.dynamicdiceprototype.data.DiceState
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.RollState
 import com.example.dynamicdiceprototype.data.toDiceDTO
-import com.example.dynamicdiceprototype.exceptions.PermittedActionException
+import com.example.dynamicdiceprototype.my_exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.services.serializer.DiceDTOMap
 import com.example.dynamicdiceprototype.services.serializer.ImageDTOMap
 import com.example.dynamicdiceprototype.utils.IMAGE_DTO_NUMBER_CONTENT_DESCRIPTION
@@ -192,15 +192,33 @@ class DiceViewModel(
     diceInEdit.faces =
         values.map { entry ->
           Face(
-              data = ImageMapper.base64ToBitmap(entry.key.base64String),
-              value = entry.value,
-              contentDescription =
-                  entry.key.contentDescription) // TODO mapper from Face -> ImageDTO and vice versa
+                  data = ImageMapper.base64ToBitmap(entry.key.base64String),
+                  value = entry.value,
+                  contentDescription = entry.key.contentDescription)
+              .also { face ->
+                if (diceInEdit.faces.isNotEmpty()) {
+                  face.weight =
+                      diceInEdit.faces
+                          .find {
+                            it.contentDescription ==
+                                entry.key.contentDescription &&
+                                (it.contentDescription != IMAGE_DTO_NUMBER_CONTENT_DESCRIPTION ||
+                                    it.value == entry.value)
+                            // it has to be the same Image
+                            // and if it's a number it has to be the same value
+                          }
+                          ?.weight ?: face.weight
+                }
+              } // TODO mapper from Face -> ImageDTO and vice versa
         }
   }
 
   fun setColor(color: Color) {
     diceInEdit.backgroundColor = color
+  }
+
+  fun saveWeights(faceMap: Map<Face, Int>) {
+    diceInEdit.faces = diceInEdit.faces.map { it.copy(weight = faceMap[it] ?: 1) }
   }
 
   private fun addDice(dice: Dice) {
@@ -216,7 +234,15 @@ class DiceViewModel(
   fun saveDieInEdit() {
     showRerollButton = false
     if (dieEditMode == DieEditMode.EDIT_DIE_ROLL) {
-      currentDices = currentDices.map { if (it.id == diceInEdit.id) diceInEdit else it }
+      currentDices =
+          currentDices.map {
+            if (it.id == diceInEdit.id)
+                it.copy(
+                    name = diceInEdit.name,
+                    faces = diceInEdit.faces,
+                    backgroundColor = diceInEdit.backgroundColor)
+            else it
+          }
       addDice(diceInEdit)
     } else {
       addDice(if (dieEditMode == DieEditMode.CREATE) diceInEdit.copy(id = "") else diceInEdit)

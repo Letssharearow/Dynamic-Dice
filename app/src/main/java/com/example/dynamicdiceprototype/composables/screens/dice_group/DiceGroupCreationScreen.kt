@@ -18,7 +18,7 @@ import com.example.dynamicdiceprototype.composables.common.SingleLineTextInput
 import com.example.dynamicdiceprototype.composables.screens.dice.DicePreview
 import com.example.dynamicdiceprototype.data.Dice
 import com.example.dynamicdiceprototype.data.DiceGroup
-import com.example.dynamicdiceprototype.exceptions.DiceNotFoundException
+import com.example.dynamicdiceprototype.my_exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.ui.theme.DynamicDicePrototypeTheme
 

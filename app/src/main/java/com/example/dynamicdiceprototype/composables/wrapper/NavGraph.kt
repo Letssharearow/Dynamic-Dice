@@ -27,7 +27,7 @@ import com.example.dynamicdiceprototype.data.DTO.ImageDTO
 import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.MenuItem
 import com.example.dynamicdiceprototype.developer_area.TestScreen
-import com.example.dynamicdiceprototype.exceptions.DiceNotFoundException
+import com.example.dynamicdiceprototype.my_exceptions.DiceNotFoundException
 import com.example.dynamicdiceprototype.services.DicesScreen
 import com.example.dynamicdiceprototype.services.Screen
 import com.example.dynamicdiceprototype.services.view_model.DiceViewModel

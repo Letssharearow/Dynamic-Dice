@@ -52,6 +52,7 @@ import compose.icons.fontawesomeicons.solid.DiceD6
 fun EditDiceScreen(
     dice: Dice,
     onSaveDice: (name: String, color: Color) -> Unit,
+    onSaveWeights: (faceMap: Map<Face, Int>) -> Unit,
     onRerollDice: () -> Unit,
     showRerollButton: Boolean = false,
     onEditFaces: (name: String, color: Color) -> Unit
@@ -103,7 +104,7 @@ fun EditDiceScreen(
         SelectItemsGrid<Face>(
             selectables = dice.faces,
             onSaveSelection = { faceMap ->
-              dice.faces.forEach { it.weight = faceMap[it] ?: 1 }
+              onSaveWeights(faceMap)
               showAddWeights = false
             },
             getId = { face -> face.contentDescription },
@@ -205,6 +206,7 @@ private fun Preview() {
                         Face(contentDescription = ""),
                         Face(contentDescription = ""))),
         onEditFaces = { a, b -> },
+        onSaveWeights = { a -> },
         onRerollDice = {},
         onSaveDice = { a, b -> })
   }

@@ -8,7 +8,7 @@ import androidx.navigation.navigation
 import com.example.dynamicdiceprototype.data.AlterBoxProperties
 import com.example.dynamicdiceprototype.data.DTO.ImageDTO
 import com.example.dynamicdiceprototype.data.MenuItem
-import com.example.dynamicdiceprototype.exceptions.PermittedActionException
+import com.example.dynamicdiceprototype.my_exceptions.PermittedActionException
 import com.example.dynamicdiceprototype.services.DicesScreen
 import com.example.dynamicdiceprototype.services.Screen
 import com.example.dynamicdiceprototype.services.view_model.DiceViewModel
@@ -120,6 +120,7 @@ fun NavGraphBuilder.diceGraph(
           },
           showRerollButton = diceViewModel.showRerollButton,
           onRerollDice = { diceViewModel.createRandomDice() },
+          onSaveWeights = { diceViewModel.saveWeights(it) },
           onSaveDice = { name, color ->
             diceViewModel.setDiceName(name)
             diceViewModel.setColor(color)
