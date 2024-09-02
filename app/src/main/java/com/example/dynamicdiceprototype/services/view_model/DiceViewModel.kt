@@ -21,11 +21,13 @@ import com.example.dynamicdiceprototype.data.Face
 import com.example.dynamicdiceprototype.data.RollState
 import com.example.dynamicdiceprototype.data.toDiceDTO
 import com.example.dynamicdiceprototype.my_exceptions.PermittedActionException
+import com.example.dynamicdiceprototype.services.PreferenceManager
 import com.example.dynamicdiceprototype.services.serializer.DiceDTOMap
 import com.example.dynamicdiceprototype.services.serializer.ImageDTOMap
 import com.example.dynamicdiceprototype.utils.IMAGE_DTO_NUMBER_CONTENT_DESCRIPTION
 import com.example.dynamicdiceprototype.utils.ImageMapper
 import com.example.dynamicdiceprototype.utils.LOG_TAG
+import com.example.dynamicdiceprototype.utils.MAX_HISTORY_SIZE
 import com.example.dynamicdiceprototype.utils.TEMP_GROUP_ID
 import com.example.dynamicdiceprototype.utils.getInitialDiceGroups
 import com.example.dynamicdiceprototype.utils.getInitialDices
@@ -489,6 +491,9 @@ class DiceViewModel(
                       locked = it.diceLockState == DiceLockState.LOCKED,
                       state = it.state?.contentDescription)
                 }))
+      if(history.size > MAX_HISTORY_SIZE) {
+          history.removeLast()
+      }
   }
 
   fun rollSingleDice(dice: Dice) {
